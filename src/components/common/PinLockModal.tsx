@@ -3,24 +3,34 @@ import { Lock, Unlock } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useToast } from '../../context/ToastContext';
 import { useTheme } from '../../context/ThemeContext';
+import { FieldError } from './FieldError';
 
 export const PinLockModal: React.FC = () => {
   const { isPinLocked, unlockWithPin, userProfile } = useApp();
   const { palette } = useTheme();
   const [pin, setPin] = useState('');
-  const [error, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const toast = useToast();
 
   if (!isPinLocked) return null;
 
   const handleUnlock = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!pin.trim()) {
+      setErrorMessage('Please enter your PIN');
+      return;
+    }
+    if (pin.length < 4) {
+      setErrorMessage('PIN must be at least 4 digits');
+      return;
+    }
+
     if (unlockWithPin(pin)) {
       toast.success('App unlocked successfully');
       setPin('');
-      setError(false);
+      setErrorMessage('');
     } else {
-      setError(true);
+      setErrorMessage('Incorrect PIN. Please try again.');
       toast.error('Incorrect PIN. Please try again.');
     }
   };
@@ -44,29 +54,30 @@ export const PinLockModal: React.FC = () => {
           Welcome back {userProfile?.name || 'JENISH'}, enter your security PIN to continue.
         </p>
 
-        <form onSubmit={handleUnlock} className="w-full space-y-4">
-          <input
-            type="password"
-            maxLength={6}
-            value={pin}
-            onChange={e => {
-              setPin(e.target.value);
-              setError(false);
-            }}
-            placeholder="Enter 4 or 6 digit PIN"
-            autoFocus
-            className={`w-full py-3 px-4 text-center tracking-[0.5em] text-2xl font-bold bg-gray-50 dark:bg-gray-900 border-2 rounded-2xl focus:outline-none transition-all ${
-              error
-                ? 'border-red-500 bg-red-50 dark:bg-red-950/30 text-red-900 dark:text-red-300'
-                : 'border-gray-200 dark:border-gray-700 focus:border-[var(--primary)] text-gray-900 dark:text-gray-100'
-            }`}
-          />
+        <form onSubmit={handleUnlock} noValidate className="w-full space-y-4">
+          <div>
+            <input
+              type="password"
+              maxLength={6}
+              value={pin}
+              onChange={e => {
+                setPin(e.target.value);
+                setErrorMessage('');
+              }}
+              placeholder="Enter 4 or 6 digit PIN"
+              autoFocus
+              className={`w-full py-3 px-4 text-center tracking-[0.5em] text-2xl font-bold bg-gray-50 dark:bg-gray-900 border-2 rounded-2xl focus:outline-none transition-all ${
+                errorMessage
+                  ? 'border-red-500 bg-red-50 dark:bg-red-950/30 text-red-900 dark:text-red-300'
+                  : 'border-gray-200 dark:border-gray-700 focus:border-[var(--primary)] text-gray-900 dark:text-gray-100'
+              }`}
+            />
+            <FieldError error={errorMessage} className="justify-center mt-2 text-xs" />
+          </div>
 
           <button
             type="submit"
-            disabled={!pin}
-            style={{ backgroundColor: palette.primary }}
-            className="w-full py-3.5 px-4 text-white font-bold rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-50 hover:opacity-90"
+            className="btn-glass-primary w-full py-3.5 px-4 font-bold rounded-2xl flex items-center justify-center gap-2"
           >
             <Unlock className="w-5 h-5" />
             <span>Unlock Application</span>

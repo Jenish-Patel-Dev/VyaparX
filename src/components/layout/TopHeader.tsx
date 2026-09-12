@@ -5,8 +5,6 @@ import {
   Calendar,
   Plus,
   ShieldCheck,
-  Sun,
-  Moon,
   Check,
   Globe,
   Download,
@@ -32,7 +30,7 @@ export const TopHeader: React.FC = () => {
     isSidebarCollapsed,
     toggleSidebar,
   } = useApp();
-  const { isDarkMode, toggleDarkMode, palette } = useTheme();
+  const { palette } = useTheme();
   const { language, setLanguage, languages, currentLanguageConfig, t } = useLanguage();
   const { isInstalled, promptInstall } = usePwa();
   const navigate = useNavigate();
@@ -78,13 +76,13 @@ export const TopHeader: React.FC = () => {
 
   return (
     <>
-      {/* Mobile Top Navigation Bar (iOS Frosted Glass) */}
-      <header className="flex md:hidden items-center justify-between px-3.5 py-2.5 bg-white/90 dark:bg-gray-900/90 border-b border-white/40 dark:border-white/10 shrink-0 relative z-40 transition-all shadow-glass dark:shadow-glass-dark">
+      {/* Mobile Top Navigation Bar (Light Frosted Liquid Glass) */}
+      <header className="flex md:hidden items-center justify-between px-3.5 py-2.5 bg-white/80 backdrop-blur-2xl border-b border-blue-200/80 shrink-0 relative z-40 transition-all shadow-[0_4px_20px_rgba(37,99,235,0.06),inset_0_1px_1.5px_rgba(255,255,255,0.98)]">
         <Link to="/home" className="flex items-center shrink-0 group py-0.5">
           <img
             src="/logo-name.png"
             alt="VyaparX - Business Made Simple"
-            className="h-8 sm:h-9 w-auto max-w-[145px] object-contain transition-transform active:scale-95 dark:drop-shadow-[0_1px_4px_rgba(255,255,255,0.35)]"
+            className="h-8 sm:h-9 w-auto max-w-[145px] object-contain transition-transform active:scale-95 drop-shadow-xs"
           />
         </Link>
 
@@ -96,17 +94,16 @@ export const TopHeader: React.FC = () => {
               onClick={() => {
                 setShowLangPicker(prev => !prev);
               }}
-              className="px-2 py-1 rounded-xl border border-white/60 dark:border-white/10 bg-white/60 dark:bg-gray-800/50 backdrop-blur-xl text-gray-700 dark:text-gray-200 text-xs font-extrabold flex items-center gap-1 shadow-2xs active:scale-95 cursor-pointer"
+              className="px-2.5 py-1 rounded-full border border-blue-200/90 bg-gradient-to-b from-white/95 to-blue-50/70 backdrop-blur-xl text-gray-800 text-xs font-bold flex items-center gap-1.5 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_2px_8px_rgba(37,99,235,0.08)] active:scale-95 cursor-pointer"
               title="Change Language"
             >
-              <Globe className="w-3.5 h-3.5" style={{ color: palette.primary }} />
+              <Globe className="w-3.5 h-3.5 text-blue-600" />
               <span>{currentLanguageConfig.shortLabel}</span>
             </button>
 
             {showLangPicker && (
               <div 
-                className="absolute right-0 mt-2 w-48 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md rounded-2xl shadow-glass-hover border border-white/60 dark:border-white/15 p-2 z-50 animate-in fade-in duration-150 space-y-1"
-                style={{ backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
+                className="absolute right-0 mt-2 w-48 bg-white/95 backdrop-blur-2xl rounded-2xl shadow-glass-hover border border-white/80 p-2 z-50 animate-in fade-in duration-150 space-y-1"
                 onMouseDown={e => e.stopPropagation()}
                 onTouchStart={e => e.stopPropagation()}
               >
@@ -125,8 +122,8 @@ export const TopHeader: React.FC = () => {
                       }}
                       className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
                         isSelected
-                          ? 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
-                          : 'hover:bg-gray-50 dark:hover:bg-gray-750 text-gray-700 dark:text-gray-300'
+                          ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                          : 'hover:bg-gray-50 text-gray-700'
                       }`}
                     >
                       <div className="flex flex-col text-left">
@@ -141,22 +138,11 @@ export const TopHeader: React.FC = () => {
             )}
           </div>
 
-          {/* Mobile Dark / Light Toggle */}
-          <button
-            type="button"
-            onClick={toggleDarkMode}
-            className="p-1.5 rounded-xl border border-white/60 dark:border-white/10 bg-white/60 dark:bg-gray-800/50 backdrop-blur-xl text-gray-700 dark:text-gray-200 shadow-2xs active:scale-95"
-            title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-            aria-label="Toggle dark mode"
-          >
-            {isDarkMode ? <Sun className="w-3.5 h-3.5 text-amber-400" /> : <Moon className="w-3.5 h-3.5 text-gray-600" />}
-          </button>
-
           {/* Mobile Download Web App Button */}
           <button
             type="button"
             onClick={promptInstall}
-            className="p-1.5 rounded-xl border border-blue-200/80 dark:border-blue-800/50 bg-blue-50/70 dark:bg-blue-950/30 backdrop-blur-xl text-blue-600 dark:text-blue-400 shadow-2xs flex items-center justify-center active:scale-95"
+            className="p-1.5 rounded-full border border-blue-200/80 bg-blue-50/80 backdrop-blur-xl text-blue-600 shadow-xs flex items-center justify-center active:scale-95"
             title={isInstalled ? t('nav.appInstalled', 'App Installed') : t('nav.downloadApp', 'Download App')}
             aria-label="Download App"
           >
@@ -165,14 +151,14 @@ export const TopHeader: React.FC = () => {
         </div>
       </header>
 
-      {/* Desktop Top Navigation Bar (iOS Frosted Glass) - Exact h-16 to match DesktopSidebar Brand Header */}
-      <header className="hidden md:flex items-center justify-between px-4 lg:px-6 h-16 bg-white/90 dark:bg-gray-900/90 border-b border-white/40 dark:border-white/10 shrink-0 relative z-40 transition-all shadow-glass dark:shadow-glass-dark gap-2 min-w-0">
+      {/* Desktop Top Navigation Bar (Light Frosted Liquid Glass) */}
+      <header className="hidden md:flex items-center justify-between px-4 lg:px-6 h-16 bg-white/80 backdrop-blur-2xl border-b border-blue-200/80 shrink-0 relative z-40 transition-all shadow-[0_4px_20px_rgba(37,99,235,0.06),inset_0_1px_1.5px_rgba(255,255,255,0.98)] gap-2 min-w-0">
         <div className="flex items-center gap-2 lg:gap-3 min-w-0">
           {/* Sidebar Toggle Button (Collapse / Expand Left Navigation) */}
           <button
             type="button"
             onClick={toggleSidebar}
-            className="p-2 rounded-xl border border-white/60 dark:border-white/10 bg-white/60 dark:bg-gray-800/50 backdrop-blur-xl text-gray-700 dark:text-gray-200 hover:bg-white/85 dark:hover:bg-gray-750 hover:text-blue-600 dark:hover:text-blue-400 transition-all shadow-2xs active:scale-95 shrink-0 flex items-center justify-center cursor-pointer"
+            className="p-2 rounded-2xl border border-blue-200/90 bg-gradient-to-b from-white/95 to-blue-50/70 backdrop-blur-xl text-gray-700 hover:bg-white hover:text-blue-600 transition-all shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_2px_8px_rgba(37,99,235,0.08)] active:scale-95 shrink-0 flex items-center justify-center cursor-pointer"
             title={isSidebarCollapsed ? t('nav.expandMenu', 'Expand Sidebar Menu') : t('nav.collapseMenu', 'Collapse Sidebar Menu')}
             aria-label="Toggle Sidebar Menu"
           >
@@ -183,7 +169,7 @@ export const TopHeader: React.FC = () => {
             )}
           </button>
 
-          {/* Custom Frosted Glass Company Switcher Dropdown */}
+          {/* Custom Liquid Glass Company Switcher Pill */}
           <div className="relative" ref={companyPickerRef}>
             <button
               type="button"
@@ -192,11 +178,11 @@ export const TopHeader: React.FC = () => {
                 setShowFyPicker(false);
                 setShowLangPicker(false);
               }}
-              className="flex items-center gap-1.5 lg:gap-2 bg-white/60 dark:bg-gray-800/50 backdrop-blur-xl border border-white/60 dark:border-white/10 rounded-2xl px-2.5 lg:px-3.5 py-1.5 hover:border-[var(--primary)] shadow-2xs transition-all min-w-0 cursor-pointer active:scale-98"
+              className="flex items-center gap-2 bg-gradient-to-b from-white/95 to-blue-50/70 hover:from-white hover:to-blue-50/90 backdrop-blur-xl border border-blue-200/90 rounded-full px-3.5 py-1.5 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_2px_8px_rgba(37,99,235,0.08)] transition-all min-w-0 cursor-pointer active:scale-98 text-gray-800"
               title={t('common.selectCompany', 'Select Company')}
             >
-              <Building2 className="w-4 h-4 shrink-0" style={{ color: palette.primary }} />
-              <span className="text-xs font-bold text-gray-800 dark:text-gray-100 max-w-[100px] lg:max-w-[160px] truncate">
+              <Building2 className="w-3.5 h-3.5 shrink-0 text-blue-600" />
+              <span className="text-xs font-bold text-gray-800 max-w-[120px] lg:max-w-[180px] truncate">
                 {currentCompany?.name || 'Select Company'}
               </span>
               <ChevronDown className={`w-3.5 h-3.5 text-gray-400 shrink-0 transition-transform duration-200 ${showCompanyPicker ? 'rotate-180' : ''}`} />
@@ -204,8 +190,7 @@ export const TopHeader: React.FC = () => {
 
             {showCompanyPicker && (
               <div 
-                className="absolute left-0 mt-3 w-64 bg-white/85 dark:bg-gray-900/85 backdrop-blur-md rounded-2xl p-2.5 z-50 animate-in fade-in duration-150 space-y-1 shadow-glass-hover border border-white/60 dark:border-white/15"
-                style={{ backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
+                className="absolute left-0 mt-3 w-64 bg-white/95 backdrop-blur-2xl rounded-2xl p-2.5 z-50 animate-in fade-in duration-150 space-y-1 shadow-glass-hover border border-white/80"
               >
                 <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-2.5 py-1 flex items-center justify-between">
                   <span>{t('common.selectCompany', 'Select Company')}</span>
@@ -224,15 +209,15 @@ export const TopHeader: React.FC = () => {
                         }}
                         className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-colors text-left ${
                           isSelected
-                            ? 'bg-white/90 dark:bg-gray-700/90 text-gray-900 dark:text-white shadow-xs'
-                            : 'hover:bg-white/50 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300'
+                            ? 'bg-blue-50 text-blue-700 border border-blue-200 shadow-xs'
+                            : 'hover:bg-gray-50 text-gray-700'
                         }`}
                       >
                         <div className="flex items-center gap-2 min-w-0 flex-1">
-                          <Building2 className="w-3.5 h-3.5 shrink-0" style={{ color: isSelected ? palette.primary : undefined }} />
+                          <Building2 className="w-3.5 h-3.5 shrink-0 text-blue-600" />
                           <span className="truncate">{comp.name}</span>
                           {comp.isDefault && (
-                            <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-amber-500/15 text-amber-600 dark:text-amber-400 shrink-0 font-extrabold">
+                            <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-700 shrink-0 font-extrabold border border-amber-200">
                               Default
                             </span>
                           )}
@@ -246,7 +231,7 @@ export const TopHeader: React.FC = () => {
             )}
           </div>
 
-          {/* Custom Frosted Glass Financial Year Switcher Dropdown */}
+          {/* Custom Liquid Glass Financial Year Switcher Pill */}
           <div className="relative" ref={fyPickerRef}>
             <button
               type="button"
@@ -255,11 +240,11 @@ export const TopHeader: React.FC = () => {
                 setShowCompanyPicker(false);
                 setShowLangPicker(false);
               }}
-              className="flex items-center gap-1.5 lg:gap-2 bg-white/60 dark:bg-gray-800/50 backdrop-blur-xl border border-white/60 dark:border-white/10 rounded-2xl px-2.5 lg:px-3.5 py-1.5 hover:border-[var(--primary)] shadow-2xs transition-all shrink-0 cursor-pointer active:scale-98"
+              className="flex items-center gap-2 bg-gradient-to-b from-white/95 to-blue-50/70 hover:from-white hover:to-blue-50/90 backdrop-blur-xl border border-blue-200/90 rounded-full px-3.5 py-1.5 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_2px_8px_rgba(37,99,235,0.08)] transition-all shrink-0 cursor-pointer active:scale-98 text-gray-800"
               title="Select Financial Year"
             >
-              <Calendar className="w-4 h-4 shrink-0" style={{ color: palette.primary }} />
-              <span className="text-xs font-bold text-gray-800 dark:text-gray-100">
+              <Calendar className="w-3.5 h-3.5 shrink-0 text-blue-600" />
+              <span className="text-xs font-bold text-gray-800">
                 {t('common.financialYear', 'FY')}: {currentFinancialYear}
               </span>
               <ChevronDown className={`w-3.5 h-3.5 text-gray-400 shrink-0 transition-transform duration-200 ${showFyPicker ? 'rotate-180' : ''}`} />
@@ -267,8 +252,7 @@ export const TopHeader: React.FC = () => {
 
             {showFyPicker && (
               <div 
-                className="absolute left-0 mt-3 w-52 bg-white/85 dark:bg-gray-900/85 backdrop-blur-md rounded-2xl p-2.5 z-50 animate-in fade-in duration-150 space-y-1 shadow-glass-hover border border-white/60 dark:border-white/15"
-                style={{ backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
+                className="absolute left-0 mt-3 w-52 bg-white/95 backdrop-blur-2xl rounded-2xl p-2.5 z-50 animate-in fade-in duration-150 space-y-1 shadow-glass-hover border border-white/80"
               >
                 <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-2.5 py-1">
                   {t('common.financialYear', 'Financial Year')}
@@ -286,15 +270,15 @@ export const TopHeader: React.FC = () => {
                         }}
                         className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-colors text-left ${
                           isSelected
-                            ? 'bg-white/90 dark:bg-gray-700/90 text-gray-900 dark:text-white shadow-xs'
-                            : 'hover:bg-white/50 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300'
+                            ? 'bg-blue-50 text-blue-700 border border-blue-200 shadow-xs'
+                            : 'hover:bg-gray-50 text-gray-700'
                         }`}
                       >
                         <div className="flex items-center gap-2">
-                          <Calendar className="w-3.5 h-3.5 shrink-0" style={{ color: isSelected ? palette.primary : undefined }} />
+                          <Calendar className="w-3.5 h-3.5 shrink-0 text-blue-600" />
                           <span>{fy.name}</span>
                           {fy.isCurrent && (
-                            <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-extrabold">
+                            <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 font-extrabold border border-emerald-200">
                               Current
                             </span>
                           )}
@@ -309,8 +293,8 @@ export const TopHeader: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5 lg:gap-2.5 shrink-0">
-          {/* Language Selector Dropdown */}
+        <div className="flex items-center gap-2 lg:gap-2.5 shrink-0">
+          {/* Language Selector Pill */}
           <div className="relative" ref={langPickerRef}>
             <button
               type="button"
@@ -319,20 +303,19 @@ export const TopHeader: React.FC = () => {
                 setShowCompanyPicker(false);
                 setShowFyPicker(false);
               }}
-              className="px-2.5 lg:px-3 py-1.5 rounded-2xl border border-white/60 dark:border-white/10 bg-white/60 dark:bg-gray-800/50 backdrop-blur-xl text-gray-700 dark:text-gray-200 hover:bg-white/80 dark:hover:bg-gray-750 transition-colors shadow-2xs flex items-center gap-1.5 text-xs font-bold active:scale-98"
+              className="px-3 py-1.5 rounded-full border border-blue-200/90 bg-gradient-to-b from-white/95 to-blue-50/70 backdrop-blur-xl text-gray-700 hover:text-gray-900 transition-colors shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_2px_8px_rgba(37,99,235,0.08)] flex items-center gap-1.5 text-xs font-bold active:scale-98 cursor-pointer"
               title="Change Language"
             >
-              <Globe className="w-3.5 h-3.5 lg:w-4 lg:h-4" style={{ color: palette.primary }} />
+              <Globe className="w-3.5 h-3.5 lg:w-4 lg:h-4 text-blue-600" />
               <span className="hidden lg:inline">{currentLanguageConfig.nativeLabel}</span>
-              <span className="text-[10px] uppercase px-1.5 py-0.5 rounded-lg bg-gray-200/70 dark:bg-gray-700/70 text-gray-600 dark:text-gray-300 font-extrabold">
+              <span className="text-[10px] uppercase px-1.5 py-0.5 rounded-md bg-gray-100 text-gray-600 font-extrabold">
                 {currentLanguageConfig.shortLabel}
               </span>
             </button>
 
             {showLangPicker && (
               <div 
-                className="absolute right-0 mt-3 w-52 bg-white/85 dark:bg-gray-900/85 backdrop-blur-md rounded-2xl p-2.5 z-50 animate-in fade-in duration-150 space-y-1 shadow-glass-hover border border-white/60 dark:border-white/15"
-                style={{ backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
+                className="absolute right-0 mt-3 w-52 bg-white/95 backdrop-blur-2xl rounded-2xl p-2.5 z-50 animate-in fade-in duration-150 space-y-1 shadow-glass-hover border border-white/80"
               >
                 <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-2.5 py-1">
                   {t('common.selectLanguage', 'Select Language')}
@@ -349,8 +332,8 @@ export const TopHeader: React.FC = () => {
                       }}
                       className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-colors ${
                         isSelected
-                          ? 'bg-white/90 dark:bg-gray-700/90 text-gray-900 dark:text-white shadow-xs'
-                          : 'hover:bg-white/50 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300'
+                          ? 'bg-blue-50 text-blue-700 border border-blue-200 shadow-xs'
+                          : 'hover:bg-gray-50 text-gray-700'
                       }`}
                     >
                       <div className="flex flex-col text-left">
@@ -365,25 +348,14 @@ export const TopHeader: React.FC = () => {
             )}
           </div>
 
-          {/* Dark / Light Mode Toggle Button */}
-          <button
-            type="button"
-            onClick={toggleDarkMode}
-            className="p-1.5 lg:p-2 rounded-2xl border border-white/60 dark:border-white/10 bg-white/60 dark:bg-gray-800/50 backdrop-blur-xl text-gray-700 dark:text-gray-200 hover:bg-white/80 dark:hover:bg-gray-750 transition-colors shadow-2xs active:scale-98"
-            title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-            aria-label="Toggle dark mode"
-          >
-            {isDarkMode ? <Sun className="w-3.5 h-3.5 lg:w-4 lg:h-4 text-amber-400" /> : <Moon className="w-3.5 h-3.5 lg:w-4 lg:h-4 text-gray-600" />}
-          </button>
-
-          {/* Download Web App Button */}
+          {/* Download Web App Pill */}
           <button
             type="button"
             onClick={promptInstall}
-            className="flex items-center gap-1.5 px-2.5 lg:px-3 py-1.5 rounded-2xl border border-blue-200/80 dark:border-blue-800/50 bg-blue-50/70 dark:bg-blue-950/30 backdrop-blur-xl text-blue-700 dark:text-blue-300 hover:bg-blue-100/80 dark:hover:bg-blue-900/40 transition-all shadow-2xs text-xs font-bold active:scale-98 cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-blue-200/80 bg-blue-50/80 backdrop-blur-xl text-blue-700 hover:bg-blue-100 transition-all shadow-xs text-xs font-bold active:scale-98 cursor-pointer"
             title={isInstalled ? t('nav.appInstalled', 'App Installed') : t('nav.downloadApp', 'Download App')}
           >
-            <Download className="w-3.5 h-3.5 stroke-[2.5] text-blue-600 dark:text-blue-400" />
+            <Download className="w-3.5 h-3.5 stroke-[2.5] text-blue-600" />
             <span className="hidden xl:inline">{isInstalled ? t('nav.appInstalled', 'App Installed') : t('nav.downloadApp', 'Download App')}</span>
           </button>
 
@@ -391,25 +363,23 @@ export const TopHeader: React.FC = () => {
           <button
             type="button"
             onClick={() => navigate('/vyapar/create')}
-            style={{ backgroundColor: palette.primary }}
-            className="flex items-center gap-1.5 px-3 lg:px-4 py-1.5 lg:py-2 text-white text-xs font-bold rounded-2xl shadow-md shadow-blue-500/25 transition-all hover:opacity-95 active:scale-98"
+            className="flex items-center gap-1.5 px-4 py-2 text-white text-xs font-extrabold rounded-full bg-gradient-to-r from-[#1E74BD] to-[#00ADEF] shadow-md shadow-blue-500/25 border border-white/40 transition-all hover:opacity-95 active:scale-98 cursor-pointer"
           >
-            <Plus className="w-3.5 h-3.5 lg:w-4 lg:h-4 stroke-[2.5]" />
+            <Plus className="w-4 h-4 stroke-[2.5]" />
             <span className="hidden sm:inline">{t('nav.newSauda', 'New Vyapar')}</span>
           </button>
 
           {/* Profile Pill */}
           <Link
             to="/profile"
-            className="flex items-center gap-1.5 lg:gap-2 pl-2 lg:pl-3 pr-2 lg:pr-3 py-1.5 bg-white/60 dark:bg-gray-800/50 backdrop-blur-xl hover:bg-white/80 dark:hover:bg-gray-750 rounded-2xl border border-white/60 dark:border-white/10 text-gray-700 dark:text-gray-200 text-xs font-bold transition-all shadow-2xs active:scale-98 min-w-0"
+            className="flex items-center gap-2 pl-2 pr-3 py-1.5 bg-white/70 backdrop-blur-xl hover:bg-white/95 rounded-full border border-white/80 text-gray-800 text-xs font-bold transition-all shadow-xs active:scale-98 min-w-0"
           >
             <div
-              className="w-5 h-5 lg:w-6 lg:h-6 rounded-full text-white flex items-center justify-center text-[10px] lg:text-xs font-black shadow-xs shrink-0"
-              style={{ backgroundColor: palette.primary }}
+              className="w-6 h-6 rounded-full text-white flex items-center justify-center text-[11px] font-black shadow-xs shrink-0 bg-gradient-to-br from-[#1E74BD] to-[#00ADEF]"
             >
               {userProfile?.name?.charAt(0) || 'J'}
             </div>
-            <span className="truncate max-w-[60px] lg:max-w-[100px]">{userProfile?.name || 'JENISH'}</span>
+            <span className="truncate max-w-[70px] lg:max-w-[110px]">{userProfile?.name || 'JENISH'}</span>
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0 hidden sm:inline" />
           </Link>
         </div>

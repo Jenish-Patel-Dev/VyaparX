@@ -5,6 +5,8 @@ import { dispatchService } from '../../services/dispatchService';
 import { useToast } from '../../context/ToastContext';
 import { useTheme } from '../../context/ThemeContext';
 import { formatISODate } from '../../utils/formatters';
+import { FieldError } from '../common/FieldError';
+import { validateRequired, validatePositiveNumber, validatePhone } from '../../utils/validators';
 
 interface DispatchModalProps {
   isOpen: boolean;
@@ -30,12 +32,24 @@ export const DispatchModal: React.FC<DispatchModalProps> = ({
   const [driverContact, setDriverContact] = useState('');
   const [remarks, setRemarks] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const clearError = (field: string) => {
+    if (errors[field]) {
+      setErrors(prev => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
+    }
+  };
 
   useEffect(() => {
     if (isOpen && order.id) {
       dispatchService.getBySaudaId(order.id).then(setHistory);
       const remaining = order.quantity - (order.dispatchedQuantity || 0);
       setQuantity(remaining > 0 ? String(remaining) : '');
+      setErrors({});
     }
   }, [isOpen, order]);
 
@@ -45,15 +59,32 @@ export const DispatchModal: React.FC<DispatchModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const newErrors: Record<string, string> = {};
+    const dateErr = validateRequired(dispatchDate, 'Dispatch Date');
+    if (dateErr) newErrors.dispatchDate = dateErr;
+
+    const qtyErr = validatePositiveNumber(quantity, 'Quantity', true);
+    if (qtyErr) {
+      newErrors.quantity = qtyErr;
+    } else if (remainingQty > 0 && Number(quantity) > remainingQty) {
+      newErrors.quantity = `Quantity cannot exceed remaining (${remainingQty} ${order.unit})`;
+    }
+
+    const vehErr = validateRequired(vehicleNumber, 'Vehicle Number');
+    if (vehErr) newErrors.vehicleNumber = vehErr;
+
+    if (driverContact.trim()) {
+      const contactErr = validatePhone(driverContact, 'Driver Contact', false);
+      if (contactErr) newErrors.driverContact = contactErr;
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
     const qtyNum = Number(quantity);
-    if (!qtyNum || qtyNum <= 0) {
-      toast.error('Please enter a valid dispatch quantity');
-      return;
-    }
-    if (!vehicleNumber.trim()) {
-      toast.error('Please enter vehicle number');
-      return;
-    }
 
     try {
       setIsSubmitting(true);
@@ -70,6 +101,7 @@ export const DispatchModal: React.FC<DispatchModalProps> = ({
       });
 
       toast.success('Dispatch entry recorded successfully');
+      setErrors({});
       onSuccess();
       onClose();
     } catch (err) {
@@ -128,7 +160,7 @@ export const DispatchModal: React.FC<DispatchModalProps> = ({
             </div>
           </div>
 
-          <form id="dispatch-form" onSubmit={handleSubmit} className="space-y-3">
+          <form id="dispatch-form" onSubmit={handleSubmit} noValidate className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-1.5">
@@ -136,11 +168,16 @@ export const DispatchModal: React.FC<DispatchModalProps> = ({
                 </label>
                 <input
                   type="date"
-                  required
                   value={dispatchDate}
-                  onChange={e => setDispatchDate(e.target.value)}
-                  className="input-sauda text-xs"
+                  onChange={e => {
+                    setDispatchDate(e.target.value);
+                    clearError('dispatchDate');
+                  }}
+                  className={`input-sauda text-xs ${
+                    errors.dispatchDate ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                  }`}
                 />
+                <FieldError error={errors.dispatchDate} />
               </div>
               <div>
                 <label className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-1.5">
@@ -149,12 +186,17 @@ export const DispatchModal: React.FC<DispatchModalProps> = ({
                 <input
                   type="number"
                   step="any"
-                  required
                   placeholder={`Max ${remainingQty}`}
                   value={quantity}
-                  onChange={e => setQuantity(e.target.value)}
-                  className="input-sauda text-xs font-bold"
+                  onChange={e => {
+                    setQuantity(e.target.value);
+                    clearError('quantity');
+                  }}
+                  className={`input-sauda text-xs font-bold ${
+                    errors.quantity ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                  }`}
                 />
+                <FieldError error={errors.quantity} />
               </div>
             </div>
 
@@ -164,12 +206,17 @@ export const DispatchModal: React.FC<DispatchModalProps> = ({
               </label>
               <input
                 type="text"
-                required
                 placeholder="Ex. GJ04 AB 1234"
                 value={vehicleNumber}
-                onChange={e => setVehicleNumber(e.target.value)}
-                className="input-sauda text-xs uppercase"
+                onChange={e => {
+                  setVehicleNumber(e.target.value);
+                  clearError('vehicleNumber');
+                }}
+                className={`input-sauda text-xs uppercase ${
+                  errors.vehicleNumber ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                }`}
               />
+              <FieldError error={errors.vehicleNumber} />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
@@ -193,9 +240,15 @@ export const DispatchModal: React.FC<DispatchModalProps> = ({
                   type="text"
                   placeholder="Phone number"
                   value={driverContact}
-                  onChange={e => setDriverContact(e.target.value)}
-                  className="input-sauda text-xs"
+                  onChange={e => {
+                    setDriverContact(e.target.value);
+                    clearError('driverContact');
+                  }}
+                  className={`input-sauda text-xs ${
+                    errors.driverContact ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                  }`}
                 />
+                <FieldError error={errors.driverContact} />
               </div>
             </div>
 
@@ -240,7 +293,7 @@ export const DispatchModal: React.FC<DispatchModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-2.5 px-4 border border-gray-200/80 dark:border-white/10 text-gray-700 dark:text-gray-300 font-semibold rounded-2xl hover:bg-white/60 dark:hover:bg-white/10 text-sm transition-colors flex items-center justify-center gap-1.5"
+            className="btn-glass-secondary flex-1 py-2.5 px-4 font-semibold rounded-2xl text-sm flex items-center justify-center gap-1.5"
           >
             <X className="w-4 h-4" />
             <span>Cancel</span>
@@ -249,8 +302,7 @@ export const DispatchModal: React.FC<DispatchModalProps> = ({
             type="submit"
             form="dispatch-form"
             disabled={isSubmitting}
-            style={{ backgroundColor: palette.primary }}
-            className="flex-1 py-2.5 px-4 text-white font-bold rounded-2xl text-sm shadow-glass-card hover:shadow-glass-hover transition-all disabled:opacity-50 hover:opacity-90 flex items-center justify-center gap-1.5"
+            className="btn-glass-primary flex-1 py-2.5 px-4 font-bold rounded-2xl text-sm flex items-center justify-center gap-1.5"
           >
             <Truck className="w-4 h-4" />
             <span>{isSubmitting ? 'Saving...' : 'Save Dispatch'}</span>

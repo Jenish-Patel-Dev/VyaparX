@@ -62,9 +62,7 @@ export const InstallAppModal: React.FC = () => {
           </button>
 
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-white/80 dark:bg-gray-800/80 p-1 flex items-center justify-center shadow-md shrink-0 border border-white/60 dark:border-white/10">
-              <img src="/logo.png" alt="VyaparX" className="w-full h-full object-contain drop-shadow-sm" />
-            </div>
+            <img src="/logo.png" alt="VyaparX" className="w-12 h-12 object-contain drop-shadow-md shrink-0" />
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="font-extrabold text-lg text-gray-900 dark:text-white">
@@ -109,8 +107,7 @@ export const InstallAppModal: React.FC = () => {
               <button
                 type="button"
                 onClick={promptInstall}
-                style={{ backgroundColor: palette.primary }}
-                className="w-full sm:w-auto px-4 py-2 text-white font-bold text-xs rounded-xl shadow-md flex items-center justify-center gap-2 hover:opacity-95 transition-all shrink-0 active:scale-95"
+                className="btn-glass-primary w-full sm:w-auto px-4 py-2 text-white font-bold text-xs rounded-xl shadow-glass flex items-center justify-center gap-2 transition-all shrink-0 active:scale-95 cursor-pointer"
               >
                 <Download className="w-4 h-4 stroke-[2.5]" />
                 <span>{t('pwa.installNow', 'Install Now')}</span>
@@ -311,7 +308,7 @@ export const InstallAppModal: React.FC = () => {
           <button
             type="button"
             onClick={() => setIsInstallModalOpen(false)}
-            className="px-4 py-2 text-xs font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-xl transition-colors"
+            className="btn-glass-secondary px-5 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer"
           >
             {t('common.cancel', 'Close')}
           </button>

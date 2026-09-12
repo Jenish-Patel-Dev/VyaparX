@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useEffect } from 'react';
 
 export type ThemeColor = 'orange' | 'green' | 'blue' | 'purple' | 'red';
 
@@ -17,12 +17,12 @@ export interface ThemeColorConfig {
 export const APP_THEME: ThemeColorConfig = {
   name: 'blue',
   label: 'Vyapar Blue',
-  primary: '#1E74BD',
-  hover: '#1662A0',
+  primary: '#0284C7',
+  hover: '#0369A1',
   light: '#EDF6FD',
-  text: '#165A94',
-  accent: 'from-[#272264] via-[#1E74BD] to-[#00ADEF]',
-  navy: '#272264',
+  text: '#0284C7',
+  accent: 'from-[#0284C7] via-[#38BDF8] to-[#00ADEF]',
+  navy: '#1E3A8A',
   cyan: '#00ADEF',
 };
 
@@ -46,24 +46,16 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [isDarkMode, setIsDarkModeState] = useState<boolean>(() => {
-    const saved = localStorage.getItem('vyaparx_dark_mode');
-    if (saved !== null) return saved === 'true';
-    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-  });
-
-  const [themeColor] = useState<ThemeColor>('blue');
-
-  // Apply dark mode class to html element
+  // Ensure dark mode class is completely removed and light mode is enforced
   useEffect(() => {
     const root = document.documentElement;
-    if (isDarkMode) {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
+    root.classList.remove('dark');
+    try {
+      localStorage.removeItem('vyaparx_dark_mode');
+    } catch {
+      // ignore
     }
-    localStorage.setItem('vyaparx_dark_mode', String(isDarkMode));
-  }, [isDarkMode]);
+  }, []);
 
   // Apply CSS color variables
   useEffect(() => {
@@ -77,17 +69,17 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     localStorage.setItem('vyaparx_theme_color', 'blue');
   }, []);
 
-  const toggleDarkMode = () => setIsDarkModeState(prev => !prev);
-  const setDarkMode = (val: boolean) => setIsDarkModeState(val);
+  const toggleDarkMode = () => { /* Light mode only */ };
+  const setDarkMode = () => { /* Light mode only */ };
   const setThemeColor = () => { /* Theme is locked to brand blue palette */ };
 
   return (
     <ThemeContext.Provider
       value={{
-        isDarkMode,
+        isDarkMode: false,
         toggleDarkMode,
         setDarkMode,
-        themeColor,
+        themeColor: 'blue',
         setThemeColor,
         palette: APP_THEME,
       }}

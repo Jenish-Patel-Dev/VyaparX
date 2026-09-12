@@ -14,6 +14,16 @@ import { SaudaNoteTemplate } from '../../components/pdf/SaudaNoteTemplate';
 import { useTheme } from '../../context/ThemeContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { GlassSelect } from '../../components/common/GlassSelect';
+import { FieldError } from '../../components/common/FieldError';
+import {
+  validateRequired,
+  validatePhone,
+  validateEmail,
+  validatePincode,
+  validatePan,
+  validateGst,
+  validateIfsc,
+} from '../../utils/validators';
 
 const INDIAN_STATES = [
   'GUJARAT',
@@ -74,6 +84,17 @@ export const AddEditCompanyPage: React.FC = () => {
   const [pdfTemplate, setPdfTemplate] = useState<Company['pdfTemplate']>(1);
   const [showSignature, setShowSignature] = useState(true);
   const [isDefault, setIsDefault] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const clearError = (field: string) => {
+    if (errors[field]) {
+      setErrors(prev => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
+    }
+  };
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -119,8 +140,10 @@ export const AddEditCompanyPage: React.FC = () => {
     const gst = gstInput.trim().toUpperCase();
     if (gst.length >= 10) {
       setGstNumber(gst);
+      clearError('gstNumber');
       if (gst.length >= 12) {
         setPanNumber(gst.substring(2, 12));
+        clearError('panNumber');
       }
       toast.success('GST & PAN extracted successfully');
       setShowGstModal(false);
@@ -132,29 +155,48 @@ export const AddEditCompanyPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) {
-      toast.error('Company Name is required');
-      return;
-    }
+    const newErrors: Record<string, string> = {};
+
+    const nameErr = validateRequired(name, 'Company Name');
+    if (nameErr) newErrors.name = nameErr;
+
     const trimmedUsername = username.trim();
     if (!trimmedUsername) {
-      toast.error('Username is required');
-      return;
+      newErrors.username = 'Username is required';
+    } else if (trimmedUsername.length < 2 || trimmedUsername.length > 30) {
+      newErrors.username = 'Username must be between 2 and 30 characters';
     }
-    if (trimmedUsername.length < 2 || trimmedUsername.length > 30) {
-      toast.error('Username must be between 2 and 30 characters');
-      return;
-    }
-    if (!contactNumber.trim()) {
-      toast.error('Contact Number is required');
-      return;
-    }
-    if (!address.trim()) {
-      toast.error('Address is required');
-      return;
-    }
-    if (!state.trim()) {
-      toast.error('State is required');
+
+    const contactErr = validatePhone(contactNumber, 'Contact Number', true);
+    if (contactErr) newErrors.contactNumber = contactErr;
+
+    const emailErr = validateEmail(email, false);
+    if (emailErr) newErrors.email = emailErr;
+
+    const addressErr = validateRequired(address, 'Address');
+    if (addressErr) newErrors.address = addressErr;
+
+    const stateErr = validateRequired(state, 'State');
+    if (stateErr) newErrors.state = stateErr;
+
+    const cityErr = validateRequired(city, 'City');
+    if (cityErr) newErrors.city = cityErr;
+
+    const pinErr = validatePincode(pinCode, true);
+    if (pinErr) newErrors.pinCode = pinErr;
+
+    const panErr = validatePan(panNumber, false);
+    if (panErr) newErrors.panNumber = panErr;
+
+    const gstErr = validateGst(gstNumber, false);
+    if (gstErr) newErrors.gstNumber = gstErr;
+
+    const ifscErr = validateIfsc(ifscCode, false);
+    if (ifscErr) newErrors.ifscCode = ifscErr;
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      toast.error('Please resolve the errors highlighted below');
       return;
     }
 
@@ -240,13 +282,12 @@ export const AddEditCompanyPage: React.FC = () => {
         title={isFirstCompany ? 'Create Your First Company' : (isEdit ? 'Edit Company' : 'Add Company')}
         subtitle={isFirstCompany ? 'Add company details to unlock VyaparX application' : undefined}
         showBack={!isFirstCompany}
-        onSearchByGst={() => setShowGstModal(true)}
         rightAction={
           isFirstCompany ? (
             <button
               type="button"
               onClick={() => setShowLogoutConfirm(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-gray-200 dark:border-gray-700 text-xs font-bold text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              className="btn-glass-secondary flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer"
               title="Sign out"
             >
               <LogOut className="w-3.5 h-3.5" />
@@ -287,7 +328,7 @@ export const AddEditCompanyPage: React.FC = () => {
           </span>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form noValidate onSubmit={handleSubmit} className="space-y-6">
           {/* Basic Information */}
           <div className="glass-card p-5 md:p-6 rounded-3xl space-y-4">
             <h2 className="text-lg font-black text-gray-900 dark:text-gray-100 tracking-tight flex items-center gap-2">
@@ -301,12 +342,15 @@ export const AddEditCompanyPage: React.FC = () => {
               </label>
               <input
                 type="text"
-                required
                 placeholder="COMPANY NAME"
                 value={name}
-                onChange={e => setName(e.target.value)}
-                className="input-sauda uppercase font-bold"
+                onChange={e => {
+                  setName(e.target.value);
+                  clearError('name');
+                }}
+                className={`input-sauda uppercase font-bold ${errors.name ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''}`}
               />
+              <FieldError error={errors.name} />
             </div>
 
             <div>
@@ -315,12 +359,15 @@ export const AddEditCompanyPage: React.FC = () => {
               </label>
               <input
                 type="text"
-                required
                 placeholder="USERNAME"
                 value={username}
-                onChange={e => setUsername(e.target.value)}
-                className="input-sauda uppercase font-bold"
+                onChange={e => {
+                  setUsername(e.target.value);
+                  clearError('username');
+                }}
+                className={`input-sauda uppercase font-bold ${errors.username ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''}`}
               />
+              <FieldError error={errors.username} />
               <p className="text-[11px] text-gray-500 mt-1 font-medium">
                 Your profile username for this company.
               </p>
@@ -331,13 +378,17 @@ export const AddEditCompanyPage: React.FC = () => {
                 CONTACT NUMBER <span className="text-red-500 font-bold">*</span>
               </label>
               <input
-                type="text"
-                required
-                placeholder="CONTACT NUMBER"
+                type="tel"
+                placeholder="10-DIGIT CONTACT NUMBER"
+                maxLength={10}
                 value={contactNumber}
-                onChange={e => setContactNumber(e.target.value)}
-                className="input-sauda font-semibold"
+                onChange={e => {
+                  setContactNumber(e.target.value);
+                  clearError('contactNumber');
+                }}
+                className={`input-sauda font-semibold ${errors.contactNumber ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''}`}
               />
+              <FieldError error={errors.contactNumber} />
             </div>
 
             <div>
@@ -348,9 +399,13 @@ export const AddEditCompanyPage: React.FC = () => {
                 type="email"
                 placeholder="EMAIL"
                 value={email}
-                onChange={e => setEmail(e.target.value)}
-                className="input-sauda font-medium lowercase"
+                onChange={e => {
+                  setEmail(e.target.value);
+                  clearError('email');
+                }}
+                className={`input-sauda font-medium lowercase ${errors.email ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''}`}
               />
+              <FieldError error={errors.email} />
             </div>
 
             <div>
@@ -359,12 +414,15 @@ export const AddEditCompanyPage: React.FC = () => {
               </label>
               <input
                 type="text"
-                required
                 placeholder="ADDRESS"
                 value={address}
-                onChange={e => setAddress(e.target.value)}
-                className="input-sauda font-medium uppercase"
+                onChange={e => {
+                  setAddress(e.target.value);
+                  clearError('address');
+                }}
+                className={`input-sauda font-medium uppercase ${errors.address ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''}`}
               />
+              <FieldError error={errors.address} />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -373,7 +431,11 @@ export const AddEditCompanyPage: React.FC = () => {
                   label="STATE"
                   required
                   value={state}
-                  onChange={setState}
+                  error={errors.state}
+                  onChange={v => {
+                    setState(v);
+                    clearError('state');
+                  }}
                   options={INDIAN_STATES.map(s => ({ value: s, label: s }))}
                 />
               </div>
@@ -384,12 +446,15 @@ export const AddEditCompanyPage: React.FC = () => {
                 </label>
                 <input
                   type="text"
-                  required
                   placeholder="CITY"
                   value={city}
-                  onChange={e => setCity(e.target.value)}
-                  className="input-sauda uppercase font-medium text-xs"
+                  onChange={e => {
+                    setCity(e.target.value);
+                    clearError('city');
+                  }}
+                  className={`input-sauda uppercase font-medium text-xs ${errors.city ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''}`}
                 />
+                <FieldError error={errors.city} />
               </div>
 
               <div>
@@ -398,12 +463,16 @@ export const AddEditCompanyPage: React.FC = () => {
                 </label>
                 <input
                   type="text"
-                  required
-                  placeholder="PIN CODE"
+                  maxLength={6}
+                  placeholder="6-DIGIT PIN CODE"
                   value={pinCode}
-                  onChange={e => setPinCode(e.target.value)}
-                  className="input-sauda uppercase font-medium text-xs"
+                  onChange={e => {
+                    setPinCode(e.target.value);
+                    clearError('pinCode');
+                  }}
+                  className={`input-sauda uppercase font-medium text-xs ${errors.pinCode ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''}`}
                 />
+                <FieldError error={errors.pinCode} />
               </div>
             </div>
           </div>
@@ -421,11 +490,16 @@ export const AddEditCompanyPage: React.FC = () => {
               </label>
               <input
                 type="text"
-                placeholder="GST NUMBER"
+                maxLength={15}
+                placeholder="15-CHARACTER GSTIN (OPTIONAL)"
                 value={gstNumber}
-                onChange={e => setGstNumber(e.target.value)}
-                className="input-sauda uppercase font-semibold"
+                onChange={e => {
+                  setGstNumber(e.target.value.toUpperCase());
+                  clearError('gstNumber');
+                }}
+                className={`input-sauda uppercase font-semibold ${errors.gstNumber ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''}`}
               />
+              <FieldError error={errors.gstNumber} />
             </div>
 
             <div>
@@ -434,11 +508,16 @@ export const AddEditCompanyPage: React.FC = () => {
               </label>
               <input
                 type="text"
-                placeholder="PAN NUMBER"
+                maxLength={10}
+                placeholder="10-CHARACTER PAN (OPTIONAL)"
                 value={panNumber}
-                onChange={e => setPanNumber(e.target.value)}
-                className="input-sauda uppercase font-semibold"
+                onChange={e => {
+                  setPanNumber(e.target.value.toUpperCase());
+                  clearError('panNumber');
+                }}
+                className={`input-sauda uppercase font-semibold ${errors.panNumber ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''}`}
               />
+              <FieldError error={errors.panNumber} />
             </div>
           </div>
 
@@ -494,11 +573,16 @@ export const AddEditCompanyPage: React.FC = () => {
               </label>
               <input
                 type="text"
-                placeholder="IFSC CODE"
+                maxLength={11}
+                placeholder="11-CHARACTER IFSC CODE"
                 value={ifscCode}
-                onChange={e => setIfscCode(e.target.value)}
-                className="input-sauda uppercase font-semibold"
+                onChange={e => {
+                  setIfscCode(e.target.value.toUpperCase());
+                  clearError('ifscCode');
+                }}
+                className={`input-sauda uppercase font-semibold ${errors.ifscCode ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''}`}
               />
+              <FieldError error={errors.ifscCode} />
             </div>
 
             <div>
@@ -598,12 +682,12 @@ export const AddEditCompanyPage: React.FC = () => {
               </label>
             </div>
 
-            {/* Live PDF Template Preview Container matching Screenshot 14 */}
+            {/* Live PDF Template Preview */}
             <div className="pt-2">
-              <div className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+              <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
                 Live PDF Template Preview:
               </div>
-              <div className="border border-white/60 dark:border-white/10 rounded-2xl p-4 bg-white/40 dark:bg-white/5 backdrop-blur-xs overflow-x-auto shadow-glass-card">
+              <div className="overflow-x-auto">
                 <SaudaNoteTemplate
                   order={{
                     id: 13,
@@ -643,18 +727,12 @@ export const AddEditCompanyPage: React.FC = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            style={{ backgroundColor: palette.primary }}
-            className="w-full py-4 px-4 text-white font-extrabold text-sm uppercase tracking-wider rounded-2xl shadow-glass-card hover:shadow-glass-hover transition-all duration-150 active:scale-[0.98] hover:opacity-90 disabled:opacity-50 mt-6 flex items-center justify-center gap-2"
+            className="btn-glass-primary w-full py-4 px-4 font-extrabold text-sm uppercase tracking-wider rounded-2xl mt-6 flex items-center justify-center gap-2"
           >
             {isSubmitting ? (
               <>
                 <Save className="w-4 h-4 animate-spin" />
                 <span>SAVING...</span>
-              </>
-            ) : isFirstCompany ? (
-              <>
-                <Plus className="w-4 h-4 stroke-[2.5]" />
-                <span>CREATE COMPANY & ENTER APPLICATION</span>
               </>
             ) : isEdit ? (
               <>
@@ -693,7 +771,7 @@ export const AddEditCompanyPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setShowGstModal(false)}
-                className="flex-1 py-2.5 px-3 border border-gray-200/80 dark:border-white/10 text-gray-600 dark:text-gray-300 text-xs font-bold rounded-2xl hover:bg-white/60 dark:hover:bg-white/10 flex items-center justify-center gap-1.5"
+                className="btn-glass-secondary flex-1 py-2.5 px-3 text-xs font-bold rounded-2xl flex items-center justify-center gap-1.5"
               >
                 <X className="w-4 h-4" />
                 <span>Cancel</span>
@@ -701,8 +779,7 @@ export const AddEditCompanyPage: React.FC = () => {
               <button
                 type="button"
                 onClick={handleApplyGst}
-                style={{ backgroundColor: palette.primary }}
-                className="flex-1 py-2.5 px-3 text-white text-xs font-bold rounded-2xl shadow-glass-card hover:shadow-glass-hover hover:opacity-90 transition-opacity flex items-center justify-center gap-1.5"
+                className="btn-glass-primary flex-1 py-2.5 px-3 text-xs font-bold rounded-2xl flex items-center justify-center gap-1.5"
               >
                 <Check className="w-4 h-4" />
                 <span>Apply</span>

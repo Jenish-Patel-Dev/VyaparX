@@ -4,6 +4,8 @@ import { useTheme } from '../../context/ThemeContext';
 import { useToast } from '../../context/ToastContext';
 import { partyService } from '../../services/partyService';
 import type { Party } from '../../types';
+import { FieldError } from './FieldError';
+import { validateRequired, validatePhone, validateGst } from '../../utils/validators';
 
 interface QuickAddPartyModalProps {
   isOpen: boolean;
@@ -22,6 +24,18 @@ export const QuickAddPartyModal: React.FC<QuickAddPartyModalProps> = ({
   const { palette } = useTheme();
   const toast = useToast();
 
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const clearError = (field: string) => {
+    if (errors[field]) {
+      setErrors(prev => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
+    }
+  };
+
   const [name, setName] = useState('');
   const [mobileNumber, setMobileNumber] = useState('');
   const [city, setCity] = useState('BOTAD');
@@ -34,12 +48,20 @@ export const QuickAddPartyModal: React.FC<QuickAddPartyModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) {
-      toast.error('Please enter Party Name');
-      return;
-    }
-    if (!mobileNumber.trim()) {
-      toast.error('Please enter Mobile Number');
+    const newErrors: Record<string, string> = {};
+
+    const nameErr = validateRequired(name, 'Party Name');
+    if (nameErr) newErrors.name = nameErr;
+
+    const phoneErr = validatePhone(mobileNumber, 'Mobile Number', true);
+    if (phoneErr) newErrors.mobileNumber = phoneErr;
+
+    const gstErr = validateGst(gstNumber, false);
+    if (gstErr) newErrors.gstNumber = gstErr;
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      toast.error('Please resolve the errors highlighted below');
       return;
     }
 
@@ -69,6 +91,7 @@ export const QuickAddPartyModal: React.FC<QuickAddPartyModalProps> = ({
       setMobileNumber('');
       setAddress('');
       setGstNumber('');
+      setErrors({});
     } catch (err) {
       console.error(err);
       toast.error('Failed to create party');
@@ -105,7 +128,7 @@ export const QuickAddPartyModal: React.FC<QuickAddPartyModalProps> = ({
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto">
+        <form noValidate onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto">
           {/* PARTY NAME */}
           <div>
             <label className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-1.5">
@@ -113,13 +136,18 @@ export const QuickAddPartyModal: React.FC<QuickAddPartyModalProps> = ({
             </label>
             <input
               type="text"
-              required
               autoFocus
               placeholder="e.g. SHREE RAM TRADERS, SKY GINNING"
               value={name}
-              onChange={e => setName(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-white/60 dark:bg-white/5 border border-white/80 dark:border-white/10 rounded-xl font-bold uppercase text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:bg-white dark:focus:bg-gray-900 focus:ring-2 focus:ring-[var(--primary)] transition-all shadow-2xs placeholder-gray-400"
+              onChange={e => {
+                setName(e.target.value);
+                clearError('name');
+              }}
+              className={`w-full px-3.5 py-2.5 bg-white/60 dark:bg-white/5 border rounded-xl font-bold uppercase text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:bg-white dark:focus:bg-gray-900 focus:ring-2 focus:ring-[var(--primary)] transition-all shadow-2xs placeholder-gray-400 ${
+                errors.name ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : 'border-white/80 dark:border-white/10'
+              }`}
             />
+            <FieldError error={errors.name} />
           </div>
 
           {/* MOBILE NUMBER */}
@@ -129,13 +157,18 @@ export const QuickAddPartyModal: React.FC<QuickAddPartyModalProps> = ({
             </label>
             <input
               type="tel"
-              required
               maxLength={10}
-              placeholder="e.g. 9876543210"
+              placeholder="e.g. 9876543210 (10 digits)"
               value={mobileNumber}
-              onChange={e => setMobileNumber(e.target.value.replace(/\D/g, ''))}
-              className="w-full px-3.5 py-2.5 bg-white/60 dark:bg-white/5 border border-white/80 dark:border-white/10 rounded-xl font-semibold text-xs text-gray-900 dark:text-gray-100 focus:outline-none focus:bg-white dark:focus:bg-gray-900 focus:ring-2 focus:ring-[var(--primary)] transition-all shadow-2xs placeholder-gray-400"
+              onChange={e => {
+                setMobileNumber(e.target.value.replace(/\D/g, ''));
+                clearError('mobileNumber');
+              }}
+              className={`w-full px-3.5 py-2.5 bg-white/60 dark:bg-white/5 border rounded-xl font-semibold text-xs text-gray-900 dark:text-gray-100 focus:outline-none focus:bg-white dark:focus:bg-gray-900 focus:ring-2 focus:ring-[var(--primary)] transition-all shadow-2xs placeholder-gray-400 ${
+                errors.mobileNumber ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : 'border-white/80 dark:border-white/10'
+              }`}
             />
+            <FieldError error={errors.mobileNumber} />
           </div>
 
           {/* CITY & STATE */}
@@ -198,16 +231,15 @@ export const QuickAddPartyModal: React.FC<QuickAddPartyModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-3 px-4 border border-white/60 dark:border-white/10 bg-white/50 dark:bg-white/5 hover:bg-white/80 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 font-bold rounded-2xl text-xs transition-all shadow-xs flex items-center justify-center gap-1.5"
+              className="btn-glass-secondary flex-1 py-3 px-4 text-xs font-bold rounded-2xl flex items-center justify-center gap-1.5"
             >
               <X className="w-4 h-4" />
               <span>Cancel</span>
             </button>
             <button
               type="submit"
-              disabled={!name.trim() || !mobileNumber.trim() || isSubmitting}
-              style={{ backgroundColor: palette.primary }}
-              className="flex-2 py-3 px-4 text-white font-bold rounded-2xl text-xs flex items-center justify-center gap-1.5 shadow-glass hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50"
+              disabled={isSubmitting}
+              className="btn-glass-primary flex-2 py-3 px-4 font-bold rounded-2xl text-xs flex items-center justify-center gap-1.5"
             >
               <Check className="w-4 h-4 stroke-[3]" />
               <span>{isSubmitting ? 'Saving...' : 'Save Party'}</span>

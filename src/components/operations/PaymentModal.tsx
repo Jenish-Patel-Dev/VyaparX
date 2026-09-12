@@ -5,6 +5,8 @@ import { paymentService } from '../../services/paymentService';
 import { useToast } from '../../context/ToastContext';
 import { formatCurrency, formatISODate } from '../../utils/formatters';
 import { GlassSelect } from '../common/GlassSelect';
+import { FieldError } from '../common/FieldError';
+import { validateRequired, validatePositiveNumber } from '../../utils/validators';
 
 interface PaymentModalProps {
   isOpen: boolean;
@@ -28,12 +30,24 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   const [referenceNumber, setReferenceNumber] = useState('');
   const [remarks, setRemarks] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const clearError = (field: string) => {
+    if (errors[field]) {
+      setErrors(prev => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
+    }
+  };
 
   useEffect(() => {
     if (isOpen && order.id) {
       paymentService.getBySaudaId(order.id).then(setHistory);
       const remaining = Math.max(0, order.totalBillAmount - (order.paidAmount || 0));
       setAmount(remaining > 0 ? String(remaining) : '');
+      setErrors({});
     }
   }, [isOpen, order]);
 
@@ -43,11 +57,20 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const amtNum = Number(amount);
-    if (!amtNum || amtNum <= 0) {
-      toast.error('Please enter a valid payment amount');
+
+    const newErrors: Record<string, string> = {};
+    const dateErr = validateRequired(paymentDate, 'Payment Date');
+    if (dateErr) newErrors.paymentDate = dateErr;
+
+    const amtErr = validatePositiveNumber(amount, 'Payment Amount', true);
+    if (amtErr) newErrors.amount = amtErr;
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
+
+    const amtNum = Number(amount);
 
     try {
       setIsSubmitting(true);
@@ -62,6 +85,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
       });
 
       toast.success('Payment recorded successfully');
+      setErrors({});
       onSuccess();
       onClose();
     } catch (err) {
@@ -117,7 +141,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
             </div>
           </div>
 
-          <form id="payment-form" onSubmit={handleSubmit} className="space-y-3">
+          <form id="payment-form" onSubmit={handleSubmit} noValidate className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-1.5">
@@ -125,11 +149,16 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                 </label>
                 <input
                   type="date"
-                  required
                   value={paymentDate}
-                  onChange={e => setPaymentDate(e.target.value)}
-                  className="input-sauda text-xs"
+                  onChange={e => {
+                    setPaymentDate(e.target.value);
+                    clearError('paymentDate');
+                  }}
+                  className={`input-sauda text-xs ${
+                    errors.paymentDate ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                  }`}
                 />
+                <FieldError error={errors.paymentDate} />
               </div>
               <div>
                 <label className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-1.5">
@@ -138,12 +167,17 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                 <input
                   type="number"
                   step="any"
-                  required
                   placeholder="Amount"
                   value={amount}
-                  onChange={e => setAmount(e.target.value)}
-                  className="input-sauda text-xs font-bold text-emerald-700 dark:text-emerald-400"
+                  onChange={e => {
+                    setAmount(e.target.value);
+                    clearError('amount');
+                  }}
+                  className={`input-sauda text-xs font-bold text-emerald-700 dark:text-emerald-400 ${
+                    errors.amount ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                  }`}
                 />
+                <FieldError error={errors.amount} />
               </div>
             </div>
 
@@ -229,7 +263,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-2.5 px-4 border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 font-semibold rounded-xl hover:bg-white dark:hover:bg-white/10 text-sm flex items-center justify-center gap-1.5"
+            className="btn-glass-secondary flex-1 py-2.5 px-4 font-semibold rounded-2xl text-sm flex items-center justify-center gap-1.5"
           >
             <X className="w-4 h-4" />
             <span>Cancel</span>
@@ -238,7 +272,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
             type="submit"
             form="payment-form"
             disabled={isSubmitting}
-            className="flex-1 py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm shadow-sm transition-all disabled:opacity-50 flex items-center justify-center gap-1.5"
+            className="btn-glass-primary flex-1 py-2.5 px-4 font-bold rounded-2xl text-sm flex items-center justify-center gap-1.5"
           >
             <Check className="w-4 h-4" />
             <span>{isSubmitting ? 'Saving...' : 'Save Payment'}</span>

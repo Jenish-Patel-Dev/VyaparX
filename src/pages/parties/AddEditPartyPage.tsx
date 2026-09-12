@@ -7,6 +7,15 @@ import { useToast } from '../../context/ToastContext';
 import { ConfirmDialog } from '../../components/common/ConfirmDialog';
 import { useTheme } from '../../context/ThemeContext';
 import { GlassSelect } from '../../components/common/GlassSelect';
+import { FieldError } from '../../components/common/FieldError';
+import {
+  validateRequired,
+  validatePhone,
+  validateEmail,
+  validatePan,
+  validateGst,
+  validateIfsc,
+} from '../../utils/validators';
 
 const INDIAN_STATES = [
   'GUJARAT',
@@ -30,6 +39,18 @@ export const AddEditPartyPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const isEdit = Boolean(id);
   const toast = useToast();
+
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const clearError = (field: string) => {
+    if (errors[field]) {
+      setErrors(prev => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
+    }
+  };
 
   const [name, setName] = useState('');
   const [mobileNumber, setMobileNumber] = useState('');
@@ -97,12 +118,35 @@ export const AddEditPartyPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) {
-      toast.error('Party Name is mandatory');
-      return;
-    }
-    if (!state.trim()) {
-      toast.error('State is mandatory');
+    const newErrors: Record<string, string> = {};
+
+    const nameErr = validateRequired(name, 'Party Name');
+    if (nameErr) newErrors.name = nameErr;
+
+    const phoneErr = validatePhone(mobileNumber, 'Mobile Number', false);
+    if (phoneErr) newErrors.mobileNumber = phoneErr;
+
+    const emailErr = validateEmail(email, false);
+    if (emailErr) newErrors.email = emailErr;
+
+    const stateErr = validateRequired(state, 'State');
+    if (stateErr) newErrors.state = stateErr;
+
+    const cityErr = validateRequired(city, 'City');
+    if (cityErr) newErrors.city = cityErr;
+
+    const gstErr = validateGst(gstNumber, false);
+    if (gstErr) newErrors.gstNumber = gstErr;
+
+    const panErr = validatePan(panNumber, false);
+    if (panErr) newErrors.panNumber = panErr;
+
+    const ifscErr = validateIfsc(ifscCode, false);
+    if (ifscErr) newErrors.ifscCode = ifscErr;
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      toast.error('Please resolve the errors highlighted below');
       return;
     }
 
@@ -180,7 +224,7 @@ export const AddEditPartyPage: React.FC = () => {
           </span>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form noValidate onSubmit={handleSubmit} className="space-y-6">
           {/* 1. Basic Information */}
           <div className="glass-card p-5 md:p-6 rounded-3xl space-y-4">
             <h2 className="text-lg font-black text-gray-900 dark:text-gray-100 tracking-tight flex items-center gap-2">
@@ -194,12 +238,15 @@ export const AddEditPartyPage: React.FC = () => {
               </label>
               <input
                 type="text"
-                required
                 placeholder="PARTY NAME"
                 value={name}
-                onChange={e => setName(e.target.value)}
-                className="input-sauda uppercase font-bold"
+                onChange={e => {
+                  setName(e.target.value);
+                  clearError('name');
+                }}
+                className={`input-sauda uppercase font-bold ${errors.name ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''}`}
               />
+              <FieldError error={errors.name} />
             </div>
 
             <div>
@@ -208,11 +255,15 @@ export const AddEditPartyPage: React.FC = () => {
               </label>
               <div className="relative">
                 <input
-                  type="text"
-                  placeholder="MOBILE NUMBER"
+                  type="tel"
+                  maxLength={10}
+                  placeholder="10-DIGIT MOBILE NUMBER"
                   value={mobileNumber}
-                  onChange={e => setMobileNumber(e.target.value)}
-                  className="input-sauda pr-12 font-medium"
+                  onChange={e => {
+                    setMobileNumber(e.target.value);
+                    clearError('mobileNumber');
+                  }}
+                  className={`input-sauda pr-12 font-medium ${errors.mobileNumber ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''}`}
                 />
                 <div 
                   className="w-8 h-8 rounded-lg flex items-center justify-center absolute right-2.5 top-1/2 -translate-y-1/2"
@@ -221,6 +272,7 @@ export const AddEditPartyPage: React.FC = () => {
                   <Contact className="w-5 h-5" />
                 </div>
               </div>
+              <FieldError error={errors.mobileNumber} />
             </div>
 
             <div>
@@ -231,9 +283,13 @@ export const AddEditPartyPage: React.FC = () => {
                 type="email"
                 placeholder="EMAIL"
                 value={email}
-                onChange={e => setEmail(e.target.value)}
-                className="input-sauda font-medium lowercase"
+                onChange={e => {
+                  setEmail(e.target.value);
+                  clearError('email');
+                }}
+                className={`input-sauda font-medium lowercase ${errors.email ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''}`}
               />
+              <FieldError error={errors.email} />
             </div>
 
             <div>
@@ -244,9 +300,13 @@ export const AddEditPartyPage: React.FC = () => {
                 type="text"
                 placeholder="ADDRESS"
                 value={address}
-                onChange={e => setAddress(e.target.value)}
-                className="input-sauda font-medium uppercase"
+                onChange={e => {
+                  setAddress(e.target.value);
+                  clearError('address');
+                }}
+                className={`input-sauda font-medium uppercase ${errors.address ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''}`}
               />
+              <FieldError error={errors.address} />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
@@ -254,7 +314,11 @@ export const AddEditPartyPage: React.FC = () => {
                 label="STATE"
                 required
                 value={state}
-                onChange={setState}
+                error={errors.state}
+                onChange={v => {
+                  setState(v);
+                  clearError('state');
+                }}
                 options={INDIAN_STATES.map(s => ({ value: s, label: s }))}
               />
 
@@ -266,9 +330,13 @@ export const AddEditPartyPage: React.FC = () => {
                   type="text"
                   placeholder="CITY"
                   value={city}
-                  onChange={e => setCity(e.target.value)}
-                  className="input-sauda uppercase font-medium"
+                  onChange={e => {
+                    setCity(e.target.value);
+                    clearError('city');
+                  }}
+                  className={`input-sauda uppercase font-medium ${errors.city ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''}`}
                 />
+                <FieldError error={errors.city} />
               </div>
             </div>
           </div>
@@ -299,11 +367,16 @@ export const AddEditPartyPage: React.FC = () => {
               </label>
               <input
                 type="text"
-                placeholder="GST NUMBER"
+                maxLength={15}
+                placeholder="15-CHARACTER GSTIN (OPTIONAL)"
                 value={gstNumber}
-                onChange={e => setGstNumber(e.target.value)}
-                className="input-sauda uppercase font-semibold"
+                onChange={e => {
+                  setGstNumber(e.target.value.toUpperCase());
+                  clearError('gstNumber');
+                }}
+                className={`input-sauda uppercase font-semibold ${errors.gstNumber ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''}`}
               />
+              <FieldError error={errors.gstNumber} />
             </div>
 
             <div>
@@ -312,11 +385,16 @@ export const AddEditPartyPage: React.FC = () => {
               </label>
               <input
                 type="text"
-                placeholder="PAN NUMBER"
+                maxLength={10}
+                placeholder="10-CHARACTER PAN (OPTIONAL)"
                 value={panNumber}
-                onChange={e => setPanNumber(e.target.value)}
-                className="input-sauda uppercase font-semibold"
+                onChange={e => {
+                  setPanNumber(e.target.value.toUpperCase());
+                  clearError('panNumber');
+                }}
+                className={`input-sauda uppercase font-semibold ${errors.panNumber ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''}`}
               />
+              <FieldError error={errors.panNumber} />
             </div>
           </div>
 
@@ -359,11 +437,16 @@ export const AddEditPartyPage: React.FC = () => {
               </label>
               <input
                 type="text"
-                placeholder="IFSC CODE"
+                maxLength={11}
+                placeholder="11-CHARACTER IFSC CODE"
                 value={ifscCode}
-                onChange={e => setIfscCode(e.target.value)}
-                className="input-sauda uppercase font-semibold"
+                onChange={e => {
+                  setIfscCode(e.target.value.toUpperCase());
+                  clearError('ifscCode');
+                }}
+                className={`input-sauda uppercase font-semibold ${errors.ifscCode ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''}`}
               />
+              <FieldError error={errors.ifscCode} />
             </div>
 
             <div>
@@ -384,8 +467,7 @@ export const AddEditPartyPage: React.FC = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            style={{ backgroundColor: palette.primary }}
-            className="w-full py-4 px-4 text-white font-extrabold text-sm uppercase tracking-wider rounded-2xl shadow-glass-card hover:shadow-glass-hover transition-all duration-150 active:scale-[0.98] hover:opacity-90 disabled:opacity-50 mt-6 flex items-center justify-center gap-2"
+            className="btn-glass-primary w-full py-4 px-4 font-extrabold text-sm uppercase tracking-wider rounded-2xl mt-6 flex items-center justify-center gap-2"
           >
             {isSubmitting ? (
               <>
@@ -429,7 +511,7 @@ export const AddEditPartyPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setShowGstModal(false)}
-                className="flex-1 py-2.5 px-3 border border-gray-200/80 dark:border-white/10 text-gray-600 dark:text-gray-300 text-xs font-bold rounded-2xl hover:bg-white/60 dark:hover:bg-white/10 flex items-center justify-center gap-1.5"
+                className="btn-glass-secondary flex-1 py-2.5 px-3 text-xs font-bold rounded-2xl flex items-center justify-center gap-1.5"
               >
                 <X className="w-4 h-4" />
                 <span>Cancel</span>
@@ -437,8 +519,7 @@ export const AddEditPartyPage: React.FC = () => {
               <button
                 type="button"
                 onClick={handleApplyGst}
-                style={{ backgroundColor: palette.primary }}
-                className="flex-1 py-2.5 px-3 text-white text-xs font-bold rounded-2xl shadow-glass-card hover:shadow-glass-hover hover:opacity-90 transition-opacity flex items-center justify-center gap-1.5"
+                className="btn-glass-primary flex-1 py-2.5 px-3 text-xs font-bold rounded-2xl flex items-center justify-center gap-1.5"
               >
                 <Check className="w-4 h-4" />
                 <span>Apply</span>

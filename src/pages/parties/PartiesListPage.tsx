@@ -47,7 +47,7 @@ export const PartiesListPage: React.FC = () => {
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             placeholder="Search parties..."
-            className="w-full pl-12 pr-4 py-3.5 bg-white/65 dark:bg-gray-800/50 backdrop-blur-xl border border-white/60 dark:border-white/10 rounded-2xl text-sm font-medium text-gray-900 dark:text-gray-100 focus:outline-none focus:bg-white/90 dark:focus:bg-gray-800/80 focus:border-[var(--primary)] transition-all placeholder-gray-400 dark:placeholder-gray-500 shadow-2xs"
+            className="w-full pl-12 pr-4 py-3.5 bg-white/80 backdrop-blur-xl border border-blue-200/90 rounded-2xl text-sm font-medium text-gray-900 focus:outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-300/50 transition-all placeholder-gray-400 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_2px_8px_rgba(37,99,235,0.06)]"
           />
         </div>
 
@@ -61,7 +61,7 @@ export const PartiesListPage: React.FC = () => {
             >
               {/* Building Icon in Soft Circle */}
               <div 
-                className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 mt-0.5 border border-white/60 dark:border-white/10 shadow-2xs"
+                className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 mt-0.5 border border-blue-200/80 shadow-xs"
                 style={{ backgroundColor: palette.light, color: palette.primary }}
               >
                 <Building className="w-6 h-6 stroke-[2.2]" />
@@ -116,8 +116,7 @@ export const PartiesListPage: React.FC = () => {
       <button
         type="button"
         onClick={() => navigate('/parties/new')}
-        style={{ backgroundColor: palette.primary }}
-        className="fixed bottom-20 md:bottom-8 right-6 z-40 w-14 h-14 text-white rounded-2xl shadow-xl shadow-blue-500/30 flex items-center justify-center transition-all active:scale-90 hover:opacity-95"
+        className="btn-glass-primary fixed bottom-20 md:bottom-8 right-6 z-40 w-14 h-14 rounded-2xl flex items-center justify-center transition-all active:scale-90"
         aria-label="Add Party"
       >
         <Plus className="w-7 h-7 stroke-[2.5]" />
