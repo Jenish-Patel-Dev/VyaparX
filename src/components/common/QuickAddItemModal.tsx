@@ -4,6 +4,8 @@ import { useTheme } from '../../context/ThemeContext';
 import { useToast } from '../../context/ToastContext';
 import { itemService } from '../../services/itemService';
 import type { Item } from '../../types';
+import { FieldError } from './FieldError';
+import { validateRequired, validatePositiveNumber } from '../../utils/validators';
 
 interface QuickAddItemModalProps {
   isOpen: boolean;
@@ -26,13 +28,38 @@ export const QuickAddItemModal: React.FC<QuickAddItemModalProps> = ({
   const [sellerRate, setSellerRate] = useState('2.8');
   const [buyerRate, setBuyerRate] = useState('2.6');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const clearError = (field: string) => {
+    if (errors[field]) {
+      setErrors(prev => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
+    }
+  };
 
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) {
-      toast.error('Please enter Item Name');
+
+    const newErrors: Record<string, string> = {};
+    const nameErr = validateRequired(name, 'Item Name');
+    if (nameErr) newErrors.name = nameErr;
+
+    const unitErr = validateRequired(unit, 'Unit');
+    if (unitErr) newErrors.unit = unitErr;
+
+    const sellerRateErr = validatePositiveNumber(sellerRate, 'Seller Comm. Rate', false);
+    if (sellerRateErr) newErrors.sellerRate = sellerRateErr;
+
+    const buyerRateErr = validatePositiveNumber(buyerRate, 'Buyer Comm. Rate', false);
+    if (buyerRateErr) newErrors.buyerRate = buyerRateErr;
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
 
@@ -52,6 +79,7 @@ export const QuickAddItemModal: React.FC<QuickAddItemModalProps> = ({
         toast.success(`Item "${createdItem.name}" added successfully`);
         onItemCreated(createdItem);
       }
+      setErrors({});
       onClose();
 
       // Reset form
@@ -95,7 +123,7 @@ export const QuickAddItemModal: React.FC<QuickAddItemModalProps> = ({
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto">
+        <form onSubmit={handleSubmit} noValidate className="p-6 space-y-4 overflow-y-auto">
           {/* ITEM NAME */}
           <div>
             <label className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-1.5">
@@ -103,33 +131,47 @@ export const QuickAddItemModal: React.FC<QuickAddItemModalProps> = ({
             </label>
             <input
               type="text"
-              required
               autoFocus
               placeholder="e.g. KAPAS, COTTON, KHOL"
               value={name}
-              onChange={e => setName(e.target.value)}
-              className="input-vyapar uppercase font-bold text-sm"
+              onChange={e => {
+                setName(e.target.value);
+                clearError('name');
+              }}
+              className={`input-vyapar uppercase font-bold text-sm ${
+                errors.name ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+              }`}
             />
+            <FieldError error={errors.name} />
           </div>
 
           {/* UNIT */}
           <div>
             <label className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-1.5">
-              UNIT
+              UNIT <span className="text-red-500 font-bold">*</span>
             </label>
             <input
               type="text"
               placeholder="100"
               value={unit}
-              onChange={e => setUnit(e.target.value)}
-              className="input-vyapar font-semibold text-xs"
+              onChange={e => {
+                setUnit(e.target.value);
+                clearError('unit');
+              }}
+              className={`input-vyapar font-semibold text-xs ${
+                errors.unit ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+              }`}
             />
+            <FieldError error={errors.unit} />
             <div className="flex flex-wrap gap-1.5 mt-2">
               {COMMON_UNITS.map(u => (
                 <button
                   key={u}
                   type="button"
-                  onClick={() => setUnit(u)}
+                  onClick={() => {
+                    setUnit(u);
+                    clearError('unit');
+                  }}
                   style={unit === u ? { backgroundColor: `${palette.primary}20`, borderColor: palette.primary, color: palette.primary } : {}}
                   className={`text-[10px] font-bold px-2.5 py-1 rounded-xl transition-all border ${
                     unit === u
@@ -154,9 +196,15 @@ export const QuickAddItemModal: React.FC<QuickAddItemModalProps> = ({
                 step="any"
                 placeholder="2.8"
                 value={sellerRate}
-                onChange={e => setSellerRate(e.target.value)}
-                className="input-vyapar font-semibold text-xs"
+                onChange={e => {
+                  setSellerRate(e.target.value);
+                  clearError('sellerRate');
+                }}
+                className={`input-vyapar font-semibold text-xs ${
+                  errors.sellerRate ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                }`}
               />
+              <FieldError error={errors.sellerRate} />
             </div>
             <div className="min-w-0">
               <label className="block text-[11px] sm:text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-1.5 truncate" title="BUYER COMM. RATE">
@@ -167,9 +215,15 @@ export const QuickAddItemModal: React.FC<QuickAddItemModalProps> = ({
                 step="any"
                 placeholder="2.6"
                 value={buyerRate}
-                onChange={e => setBuyerRate(e.target.value)}
-                className="input-vyapar font-semibold text-xs"
+                onChange={e => {
+                  setBuyerRate(e.target.value);
+                  clearError('buyerRate');
+                }}
+                className={`input-vyapar font-semibold text-xs ${
+                  errors.buyerRate ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                }`}
               />
+              <FieldError error={errors.buyerRate} />
             </div>
           </div>
 
@@ -178,16 +232,15 @@ export const QuickAddItemModal: React.FC<QuickAddItemModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-3 px-4 border border-gray-200/80 dark:border-white/10 text-gray-700 dark:text-gray-300 font-bold rounded-2xl text-xs hover:bg-white/60 dark:hover:bg-white/10 transition-colors flex items-center justify-center gap-1.5"
+              className="btn-glass-secondary flex-1 py-3 px-4 text-xs font-bold rounded-2xl flex items-center justify-center gap-1.5"
             >
               <X className="w-4 h-4" />
               <span>Cancel</span>
             </button>
             <button
               type="submit"
-              disabled={!name.trim() || isSubmitting}
-              style={{ backgroundColor: palette.primary }}
-              className="flex-2 py-3 px-4 text-white font-bold rounded-2xl text-xs flex items-center justify-center gap-1.5 shadow-glass-card hover:shadow-glass-hover active:scale-[0.98] transition-all disabled:opacity-50"
+              disabled={isSubmitting}
+              className="btn-glass-primary flex-2 py-3 px-4 font-bold rounded-2xl text-xs flex items-center justify-center gap-1.5"
             >
               <Check className="w-4 h-4 stroke-[3]" />
               <span>{isSubmitting ? 'Saving...' : 'Save Item'}</span>

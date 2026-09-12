@@ -58,14 +58,14 @@ export const DesktopSidebar: React.FC = () => {
     <aside
       className={`hidden md:flex flex-col ${
         isSidebarCollapsed ? 'w-[72px]' : 'w-64'
-      } bg-white/75 dark:bg-gray-900/70 backdrop-blur-2xl border-r border-white/50 dark:border-white/15 h-screen shrink-0 z-30 shadow-glass dark:shadow-glass-dark select-none transition-[width] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] overflow-hidden will-change-[width]`}
+      } bg-white/80 backdrop-blur-2xl border-r border-blue-200/80 h-screen shrink-0 z-30 shadow-[4px_0_24px_rgba(37,99,235,0.06),inset_0_1px_1.5px_0_rgba(255,255,255,0.98)] select-none transition-[width] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] overflow-hidden will-change-[width]`}
     >
       {/* Brand Header - Exactly h-16 to perfectly align horizontally with TopHeader */}
       <NavLink
         to="/home"
-        className="h-16 border-b border-white/40 dark:border-white/10 flex items-center shrink-0 px-2.5 bg-gradient-to-r from-blue-50/50 dark:from-white/5 to-transparent overflow-hidden group cursor-pointer relative"
+        className="h-16 border-b border-white/70 flex items-center shrink-0 px-2.5 bg-gradient-to-r from-white/40 to-transparent overflow-hidden group cursor-pointer relative"
       >
-        {/* 1. Collapsed Emblem Logo (Image 2) - Centered when collapsed */}
+        {/* 1. Collapsed Emblem Logo - Centered when collapsed */}
         <div
           className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 transition-all duration-300 ease-out mx-auto ${
             isSidebarCollapsed
@@ -77,11 +77,11 @@ export const DesktopSidebar: React.FC = () => {
           <img
             src="/logo.png"
             alt="VyaparX Logo"
-            className="w-11 h-11 object-contain drop-shadow-md transition-transform active:scale-95 group-hover:scale-105"
+            className="w-11 h-11 object-contain drop-shadow-sm transition-transform active:scale-95 group-hover:scale-105"
           />
         </div>
 
-        {/* 2. Expanded Name Logo - Smoothly slides in from left to right */}
+        {/* 2. Expanded Name Logo */}
         <div
           className={`flex items-center w-full h-full py-1.5 pl-1 transition-all duration-300 ease-out overflow-hidden whitespace-nowrap ${
             isSidebarCollapsed
@@ -92,7 +92,7 @@ export const DesktopSidebar: React.FC = () => {
           <img
             src="/logo-name.png"
             alt="VyaparX - Business Made Simple"
-            className="h-11 sm:h-12 w-auto max-w-[215px] object-contain dark:drop-shadow-[0_1px_4px_rgba(255,255,255,0.35)] transition-all"
+            className="h-11 sm:h-12 w-auto max-w-[215px] object-contain drop-shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-all"
           />
         </div>
       </NavLink>
@@ -101,7 +101,7 @@ export const DesktopSidebar: React.FC = () => {
       <div className="flex-1 overflow-y-auto space-y-1 scrollbar-thin pt-3.5 px-2.5 pb-2">
         {/* Main Menu Label */}
         <div
-          className={`text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-3 transition-all duration-300 ease-out overflow-hidden whitespace-nowrap ${
+          className={`text-[10px] font-bold text-gray-500 uppercase tracking-wider px-3 transition-all duration-300 ease-out overflow-hidden whitespace-nowrap ${
             isSidebarCollapsed ? 'opacity-0 max-h-0 -translate-x-3 mb-0' : 'opacity-100 max-h-6 translate-x-0 mb-1.5'
           }`}
         >
@@ -116,16 +116,15 @@ export const DesktopSidebar: React.FC = () => {
               key={item.to}
               to={item.to}
               title={isSidebarCollapsed ? item.label : undefined}
-              style={active ? { backgroundColor: palette.primary } : undefined}
-              className={`w-full h-11 flex items-center px-1.5 rounded-2xl transition-colors duration-200 active:scale-95 overflow-hidden whitespace-nowrap group ${
+              className={`w-full h-11 flex items-center px-2 rounded-2xl transition-all duration-200 active:scale-95 overflow-hidden whitespace-nowrap group ${
                 active
-                  ? 'text-white shadow-md shadow-blue-500/20 font-bold'
+                  ? 'bg-gradient-to-b from-blue-50/95 to-blue-100/75 text-blue-900 border border-blue-200/90 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_4px_12px_-2px_rgba(37,99,235,0.15)] font-bold'
                   : item.isHighlight
-                  ? 'bg-blue-50/70 dark:bg-blue-950/30 text-blue-800 dark:text-blue-300 hover:bg-blue-100/70 dark:hover:bg-blue-900/40 border border-blue-200/50 dark:border-blue-800/30 font-bold'
-                  : 'text-gray-600 dark:text-gray-300 hover:bg-white/60 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white font-semibold'
+                  ? 'bg-blue-500/10 text-blue-700 hover:bg-blue-500/15 border border-blue-200/80 font-bold'
+                  : 'text-gray-600 hover:bg-white/80 hover:text-gray-900 border border-transparent font-medium'
               }`}
             >
-              <div className="w-9 h-9 shrink-0 flex items-center justify-center rounded-xl transition-transform group-hover:scale-105">
+              <div className={`w-8 h-8 shrink-0 flex items-center justify-center rounded-xl transition-transform group-hover:scale-105 ${active ? 'text-blue-700' : 'text-gray-500 group-hover:text-gray-700'}`}>
                 <Icon className="w-5 h-5 stroke-[2.2]" />
               </div>
               <span
@@ -142,11 +141,11 @@ export const DesktopSidebar: React.FC = () => {
         })}
 
         {/* Section Divider */}
-        <div className="my-2 border-t border-white/40 dark:border-white/10 mx-1 transition-all duration-300" />
+        <div className="my-2 border-t border-slate-200/70 mx-1 transition-all duration-300" />
 
         {/* Operations & Reports Label */}
         <div
-          className={`text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-3 transition-all duration-300 ease-out overflow-hidden whitespace-nowrap ${
+          className={`text-[10px] font-bold text-gray-500 uppercase tracking-wider px-3 transition-all duration-300 ease-out overflow-hidden whitespace-nowrap ${
             isSidebarCollapsed ? 'opacity-0 max-h-0 -translate-x-3 mb-0' : 'opacity-100 max-h-6 translate-x-0 mb-1.5'
           }`}
         >
@@ -161,14 +160,13 @@ export const DesktopSidebar: React.FC = () => {
               key={item.to}
               to={item.to}
               title={isSidebarCollapsed ? item.label : undefined}
-              style={active ? { backgroundColor: palette.primary } : undefined}
-              className={`w-full h-11 flex items-center px-1.5 rounded-2xl transition-colors duration-200 active:scale-95 overflow-hidden whitespace-nowrap group ${
+              className={`w-full h-11 flex items-center px-2 rounded-2xl transition-all duration-200 active:scale-95 overflow-hidden whitespace-nowrap group ${
                 active
-                  ? 'text-white shadow-md shadow-blue-500/20 font-bold'
-                  : 'text-gray-600 dark:text-gray-300 hover:bg-white/60 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white font-semibold'
+                  ? 'bg-gradient-to-b from-blue-50/95 to-blue-100/75 text-blue-900 border border-blue-200/90 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_4px_12px_-2px_rgba(37,99,235,0.15)] font-bold'
+                  : 'text-gray-600 hover:bg-white/80 hover:text-gray-900 border border-transparent font-medium'
               }`}
             >
-              <div className="w-9 h-9 shrink-0 flex items-center justify-center rounded-xl transition-transform group-hover:scale-105">
+              <div className={`w-8 h-8 shrink-0 flex items-center justify-center rounded-xl transition-transform group-hover:scale-105 ${active ? 'text-blue-700' : 'text-gray-500 group-hover:text-gray-700'}`}>
                 <Icon className="w-5 h-5 stroke-[2.2]" />
               </div>
               <span
@@ -191,9 +189,9 @@ export const DesktopSidebar: React.FC = () => {
           type="button"
           onClick={promptInstall}
           title={isSidebarCollapsed ? (isInstalled ? t('nav.appInstalled', 'App Installed') : t('nav.downloadApp', 'Download App')) : undefined}
-          className="w-full h-11 flex items-center px-1.5 rounded-2xl bg-blue-50/70 hover:bg-blue-100/70 dark:bg-blue-950/30 dark:hover:bg-blue-900/40 backdrop-blur-xl border border-blue-200/80 dark:border-blue-800/50 text-blue-700 dark:text-blue-300 font-bold transition-all duration-200 shadow-2xs active:scale-95 cursor-pointer overflow-hidden whitespace-nowrap group"
+          className="w-full h-11 flex items-center px-2 rounded-2xl bg-blue-50/80 hover:bg-blue-100/80 backdrop-blur-xl border border-blue-200 text-blue-700 font-bold transition-all duration-200 shadow-xs active:scale-95 cursor-pointer overflow-hidden whitespace-nowrap group"
         >
-          <div className="w-9 h-9 shrink-0 flex items-center justify-center rounded-xl transition-transform group-hover:scale-105">
+          <div className="w-8 h-8 shrink-0 flex items-center justify-center rounded-xl transition-transform group-hover:scale-105 text-blue-600">
             <Download className="w-4 h-4 stroke-[2.5]" />
           </div>
           <span
@@ -208,17 +206,17 @@ export const DesktopSidebar: React.FC = () => {
         </button>
       </div>
 
-      {/* Footer Info (Plain text Security info & v1.0) */}
-      <div className="h-12 border-t border-white/40 dark:border-white/10 flex items-center px-3 justify-between text-xs text-gray-400 dark:text-gray-500 bg-white/20 dark:bg-gray-900/20 shrink-0 overflow-hidden whitespace-nowrap select-none">
+      {/* Footer Info */}
+      <div className="h-12 border-t border-white/70 flex items-center px-3 justify-between text-xs text-gray-500 bg-white/40 shrink-0 overflow-hidden whitespace-nowrap select-none">
         <div
           title={isSidebarCollapsed ? 'Security • v1.0' : undefined}
-          className="flex items-center font-medium text-gray-500 dark:text-gray-400 overflow-hidden"
+          className="flex items-center font-medium text-gray-500 overflow-hidden"
         >
-          <div className="w-8 h-8 shrink-0 flex items-center justify-center">
-            <ShieldCheck className="w-4 h-4 text-emerald-500" />
+          <div className="w-7 h-7 shrink-0 flex items-center justify-center">
+            <ShieldCheck className="w-4 h-4 text-emerald-600" />
           </div>
           <span
-            className={`text-xs font-semibold tracking-wide transition-all duration-300 ease-out overflow-hidden whitespace-nowrap truncate ml-1 ${
+            className={`text-xs font-semibold tracking-wide transition-all duration-300 ease-out overflow-hidden whitespace-nowrap truncate ml-1 text-gray-600 ${
               isSidebarCollapsed
                 ? 'opacity-0 -translate-x-4 max-w-0 pointer-events-none'
                 : 'opacity-100 translate-x-0 max-w-[120px]'
@@ -228,7 +226,7 @@ export const DesktopSidebar: React.FC = () => {
           </span>
         </div>
         <span
-          className={`font-mono text-[10px] px-1.5 py-0.5 rounded-md bg-white/50 dark:bg-gray-800/50 border border-white/40 dark:border-white/10 text-gray-400 dark:text-gray-500 font-bold shrink-0 transition-all duration-300 ease-out ${
+          className={`font-mono text-[10px] px-1.5 py-0.5 rounded-md bg-white/80 border border-white/90 text-gray-600 font-bold shrink-0 transition-all duration-300 ease-out shadow-xs ${
             isSidebarCollapsed ? 'opacity-0 scale-50 pointer-events-none' : 'opacity-100 scale-100'
           }`}
         >

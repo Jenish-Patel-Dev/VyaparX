@@ -27,46 +27,43 @@ export const AppShell: React.FC = () => {
   // Standalone Company Setup Screen for New Users (No sidebar, top header, or bottom nav)
   if (location.pathname === '/create-first-company') {
     return (
-      <main className="min-h-screen bg-[#F5F7FA] dark:bg-[#0B1120] text-gray-900 dark:text-gray-100">
+      <main className="min-h-screen bg-[#F4F8FC] text-gray-900">
         <Outlet />
       </main>
     );
   }
 
   return (
-    <div className="relative flex h-screen max-h-screen overflow-hidden bg-[#F8FAFC] dark:bg-[#0C1222] text-gray-900 dark:text-gray-100 transition-colors duration-200">
-      {/* Dynamic Animated Main App Background (Crisp HD & User-Requested Light Black Layer) */}
+    <div className="relative flex h-screen max-h-screen overflow-hidden bg-[#F4F8FC] text-gray-900 transition-colors duration-200">
+      {/* Dynamic Animated Main App Background (Light Frosted Ambient Depth) */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0 select-none" aria-hidden="true">
-        {/* Base HD Wallpaper Layer - Razor Sharp 2560x1338 (No CSS scaling transforms, 100% crisp) */}
+        {/* Base Wallpaper Layer */}
         <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-700 dark:opacity-90 opacity-25"
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-700 opacity-35"
           style={{
             backgroundImage: "url('/main-bg.png')",
           }}
         />
 
-        {/* Light Black Layer (User Requested: Softens & tones down background while keeping graphics crisp in HD) */}
-        <div className="absolute inset-0 bg-black/30 dark:bg-black/40 pointer-events-none" />
+        {/* Soft Sky & Ice Ambient Depth Veil */}
+        <div className="absolute inset-0 bg-gradient-to-b from-sky-50/70 via-white/50 to-blue-50/60 pointer-events-none" />
 
-        {/* Dynamic Subtle Theme Tint Wash (Soft hue adaptation, zero blur) */}
+        {/* Dynamic Subtle Theme Tint Wash */}
         <div
-          className="absolute inset-0 transition-colors duration-700 pointer-events-none mix-blend-color opacity-10 dark:opacity-15"
+          className="absolute inset-0 transition-colors duration-700 pointer-events-none mix-blend-color opacity-10"
           style={{ backgroundColor: palette.primary }}
         />
 
-        {/* Smooth Ambient Light Pulse (Pure opacity breathing without blurring wallpaper) */}
+        {/* Luminous Ambient Sky Refraction Spheres */}
         <div
-          className="absolute inset-0 pointer-events-none mix-blend-screen animate-ambient-pulse"
-          style={{
-            background: `radial-gradient(circle at 12% 22%, ${palette.primary} 0%, transparent 45%), radial-gradient(circle at 88% 88%, ${palette.primary} 0%, transparent 45%)`,
-          }}
+          className="absolute -top-32 -left-32 w-[32rem] h-[32rem] rounded-full bg-sky-200/50 blur-3xl pointer-events-none animate-pulse"
         />
-
-        {/* Light Mode Soft Frosted Veil (Maintains pristine contrast and text readability in light mode) */}
-        <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-white/60 to-white/85 dark:opacity-0 transition-opacity duration-500 pointer-events-none" />
-
-        {/* Ultra-soft Radial Vignette */}
-        <div className="absolute inset-0 bg-radial from-transparent via-transparent to-black/10 dark:to-black/20 pointer-events-none" />
+        <div
+          className="absolute top-1/2 -right-32 w-[28rem] h-[28rem] rounded-full bg-blue-200/40 blur-3xl pointer-events-none"
+        />
+        <div
+          className="absolute -bottom-32 left-1/3 w-[30rem] h-[30rem] rounded-full bg-cyan-200/40 blur-3xl pointer-events-none"
+        />
       </div>
 
       <PinLockModal />

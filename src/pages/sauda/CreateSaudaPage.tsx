@@ -16,6 +16,8 @@ import { quickValueService } from '../../services/quickValueService';
 import type { Item, Party } from '../../types';
 import { calculateBillAmount, calculateCommission } from '../../utils/calculations';
 import { formatCurrency, formatISODate } from '../../utils/formatters';
+import { FieldError } from '../../components/common/FieldError';
+import { validatePositiveNumber } from '../../utils/validators';
 
 export const CreateSaudaPage: React.FC = () => {
   const navigate = useNavigate();
@@ -24,6 +26,17 @@ export const CreateSaudaPage: React.FC = () => {
   const { palette } = useTheme();
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const clearError = (field: string) => {
+    if (errors[field]) {
+      setErrors(prev => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
+    }
+  };
 
   // Entities
   const [items, setItems] = useState<Item[]>([]);
@@ -157,16 +170,17 @@ export const CreateSaudaPage: React.FC = () => {
 
   // Step 1 Validation & Next
   const handleNextFromItem = () => {
-    if (!itemName) {
-      toast.error('Please select an Item Name');
-      return;
-    }
-    if (!quantity || Number(quantity) <= 0) {
-      toast.error('Please enter a valid Quantity');
-      return;
-    }
-    if (!billRate || Number(billRate) <= 0) {
-      toast.error('Please enter Bill Rate');
+    const newErrors: Record<string, string> = {};
+    if (!itemName.trim()) newErrors.itemName = 'Please select an Item Name';
+    const qtyErr = validatePositiveNumber(quantity, 'Quantity');
+    if (qtyErr) newErrors.quantity = qtyErr;
+    const rateErr = validatePositiveNumber(billRate, 'Bill Rate');
+    if (rateErr) newErrors.billRate = rateErr;
+    if (!unit.trim()) newErrors.unit = 'Unit is required';
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      toast.error('Please resolve the errors highlighted below');
       return;
     }
     setStep(2);
@@ -174,8 +188,16 @@ export const CreateSaudaPage: React.FC = () => {
 
   // Step 2 Validation & Next
   const handleNextFromSeller = () => {
-    if (!sellerName) {
-      toast.error('Please select a Seller');
+    const newErrors: Record<string, string> = {};
+    if (!sellerName.trim()) newErrors.sellerName = 'Please select a Seller';
+    if (sellerCommRate !== '') {
+      const commErr = validatePositiveNumber(sellerCommRate, 'Seller commission rate', true);
+      if (commErr) newErrors.sellerCommRate = commErr;
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      toast.error('Please resolve the errors highlighted below');
       return;
     }
     setStep(3);
@@ -183,12 +205,19 @@ export const CreateSaudaPage: React.FC = () => {
 
   // Step 3 Save Order to IndexedDB
   const handleSaveOrder = async () => {
-    if (!buyerName) {
-      toast.error('Please select a Buyer');
-      return;
+    const newErrors: Record<string, string> = {};
+    if (!buyerName.trim()) newErrors.buyerName = 'Please select a Buyer';
+    if (selectedSellerId && selectedBuyerId && selectedSellerId === selectedBuyerId) {
+      newErrors.buyerName = 'Seller and Buyer cannot be the same party';
     }
-    if (selectedSellerId === selectedBuyerId) {
-      toast.error('Seller and Buyer cannot be the same party');
+    if (buyerCommRate !== '') {
+      const commErr = validatePositiveNumber(buyerCommRate, 'Buyer commission rate', true);
+      if (commErr) newErrors.buyerCommRate = commErr;
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      toast.error('Please resolve the errors highlighted below');
       return;
     }
 
@@ -253,10 +282,9 @@ export const CreateSaudaPage: React.FC = () => {
               className="relative z-10 flex flex-col items-center group focus:outline-none transition-transform active:scale-95"
             >
               <div
-                style={step >= 1 ? { backgroundColor: palette.primary } : {}}
-                className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm transition-all duration-300 shadow-md ${
+                className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm transition-all duration-300 ${
                   step >= 1
-                    ? 'text-white shadow-glass'
+                    ? 'btn-glass-primary text-white shadow-glass'
                     : 'bg-white/60 dark:bg-card-dark text-gray-400 border-2 border-gray-300 dark:border-gray-600'
                 }`}
               >
@@ -301,10 +329,9 @@ export const CreateSaudaPage: React.FC = () => {
               className="relative z-10 flex flex-col items-center group focus:outline-none transition-transform active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <div
-                style={step >= 2 ? { backgroundColor: palette.primary } : {}}
-                className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm transition-all duration-300 shadow-md ${
+                className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm transition-all duration-300 ${
                   step >= 2
-                    ? 'text-white shadow-glass'
+                    ? 'btn-glass-primary text-white shadow-glass'
                     : 'bg-white/60 dark:bg-card-dark text-gray-400 border-2 border-gray-300 dark:border-gray-600'
                 }`}
               >
@@ -349,10 +376,9 @@ export const CreateSaudaPage: React.FC = () => {
               className="relative z-10 flex flex-col items-center group focus:outline-none transition-transform active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <div
-                style={step === 3 ? { backgroundColor: palette.primary } : {}}
-                className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm transition-all duration-300 shadow-md ${
+                className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm transition-all duration-300 ${
                   step === 3
-                    ? 'text-white shadow-glass'
+                    ? 'btn-glass-primary text-white shadow-glass'
                     : 'bg-white/60 dark:bg-card-dark text-gray-400 border-2 border-gray-300 dark:border-gray-600'
                 }`}
               >
@@ -394,12 +420,18 @@ export const CreateSaudaPage: React.FC = () => {
                 ITEM NAME <span className="text-red-500 font-bold">*</span>
               </label>
               <div
-                onClick={() => setIsItemModalOpen(true)}
-                className="input-sauda flex items-center justify-between cursor-pointer font-bold uppercase text-gray-900 dark:text-gray-100"
+                onClick={() => {
+                  setIsItemModalOpen(true);
+                  clearError('itemName');
+                }}
+                className={`input-sauda flex items-center justify-between cursor-pointer font-bold uppercase text-gray-900 dark:text-gray-100 ${
+                  errors.itemName ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                }`}
               >
                 <span>{itemName || 'SELECT ITEM NAME'}</span>
                 <ChevronDown className="w-4 h-4 text-gray-400" />
               </div>
+              <FieldError error={errors.itemName} />
             </div>
 
             {/* ITEM QUALITY / VARIETY */}
@@ -440,25 +472,36 @@ export const CreateSaudaPage: React.FC = () => {
                 <input
                   type="number"
                   step="any"
-                  required
                   placeholder="EX. 200"
                   value={quantity}
-                  onChange={e => setQuantity(e.target.value)}
-                  className="input-sauda font-extrabold text-gray-900 dark:text-gray-100"
+                  onChange={e => {
+                    setQuantity(e.target.value);
+                    clearError('quantity');
+                  }}
+                  className={`input-sauda font-extrabold text-gray-900 dark:text-gray-100 ${
+                    errors.quantity ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                  }`}
                 />
+                <FieldError error={errors.quantity} />
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-1.5">
-                  UNIT
+                  UNIT <span className="text-red-500 font-bold">*</span>
                 </label>
                 <input
                   type="text"
                   placeholder="EX. KG"
                   value={unit}
-                  onChange={e => setUnit(e.target.value)}
-                  className="input-sauda font-bold text-gray-900 dark:text-gray-100"
+                  onChange={e => {
+                    setUnit(e.target.value);
+                    clearError('unit');
+                  }}
+                  className={`input-sauda font-bold text-gray-900 dark:text-gray-100 ${
+                    errors.unit ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                  }`}
                 />
+                <FieldError error={errors.unit} />
               </div>
             </div>
 
@@ -470,12 +513,19 @@ export const CreateSaudaPage: React.FC = () => {
               <input
                 type="number"
                 step="any"
-                required
                 placeholder="EX. 10,000"
                 value={billRate}
-                onChange={e => setBillRate(e.target.value)}
-                className="input-sauda font-extrabold text-gray-900 dark:text-gray-100 border-2 border-[var(--primary)]"
+                onChange={e => {
+                  setBillRate(e.target.value);
+                  clearError('billRate');
+                }}
+                className={`input-sauda font-extrabold text-gray-900 dark:text-gray-100 border-2 ${
+                  errors.billRate
+                    ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20'
+                    : 'border-[var(--primary)]'
+                }`}
               />
+              <FieldError error={errors.billRate} />
             </div>
 
             {/* Total Bill Amount Calculated Box (Matching Screenshot 20: ₹18,62,496.00) */}
@@ -608,8 +658,7 @@ export const CreateSaudaPage: React.FC = () => {
                 type="button"
                 onClick={handleNextFromItem}
                 disabled={!quantity || !billRate}
-                style={{ backgroundColor: palette.primary }}
-                className="px-7 py-2.5 rounded-xl text-white font-bold text-sm shadow-glass-card hover:shadow-glass-hover hover:opacity-95 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
+                className="btn-glass-primary px-7 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2"
               >
                 <span>Next</span>
                 <ArrowRight className="w-4 h-4" />
@@ -624,35 +673,48 @@ export const CreateSaudaPage: React.FC = () => {
             {/* SELLER NAME * */}
             <div>
               <label className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-1.5">
-                NAME <span className="text-red-500 font-bold">*</span>
+                SELLER NAME <span className="text-red-500 font-bold">*</span>
               </label>
               <div
-                onClick={() => setIsSellerModalOpen(true)}
-                className="input-sauda flex items-center justify-between cursor-pointer font-bold uppercase text-gray-900 dark:text-gray-100"
+                onClick={() => {
+                  setIsSellerModalOpen(true);
+                  clearError('sellerName');
+                }}
+                className={`input-sauda flex items-center justify-between cursor-pointer font-bold uppercase text-gray-900 dark:text-gray-100 ${
+                  errors.sellerName ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                }`}
               >
-                <span>{sellerName || 'SELECT SELLER'}</span>
+                <span>{sellerName || 'SELECT SELLER PARTY'}</span>
                 <ChevronDown className="w-4 h-4 text-gray-400" />
               </div>
+              <FieldError error={errors.sellerName} />
             </div>
 
             {/* COMM. RATE */}
             <div>
               <label className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-1.5">
-                COMM. RATE
+                COMM. RATE (₹ per {unit || '100'})
               </label>
               <input
                 type="number"
                 step="any"
+                placeholder="2.8"
                 value={sellerCommRate}
-                onChange={e => setSellerCommRate(e.target.value)}
-                className="input-sauda font-extrabold text-gray-900 dark:text-gray-100"
+                onChange={e => {
+                  setSellerCommRate(e.target.value);
+                  clearError('sellerCommRate');
+                }}
+                className={`input-sauda font-bold ${
+                  errors.sellerCommRate ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                }`}
               />
+              <FieldError error={errors.sellerCommRate} />
             </div>
 
-            {/* Commission Amount Banner (Matching Screenshot 18: ₹806.40) */}
-            <div className="p-3.5 sm:p-4 bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/30 rounded-2xl flex flex-wrap items-center justify-between gap-2 text-sm font-bold text-emerald-800 dark:text-emerald-300 shadow-glass-card backdrop-blur-md">
-              <span className="text-[11px] sm:text-xs uppercase tracking-wider font-extrabold text-emerald-700 dark:text-emerald-300">Commission Amount:</span>
-              <span className="text-base sm:text-xl font-black text-emerald-600 dark:text-emerald-400 break-all">{formatCurrency(sellerCommissionAmount)}</span>
+            {/* Commission Amount Banner */}
+            <div className="p-3.5 sm:p-4 bg-sky-500/10 dark:bg-sky-500/15 border border-sky-500/30 rounded-2xl flex flex-wrap items-center justify-between gap-2 text-sm font-bold text-sky-800 dark:text-sky-300 shadow-glass-card backdrop-blur-md">
+              <span className="text-[11px] sm:text-xs uppercase tracking-wider font-extrabold text-sky-700 dark:text-sky-300">Commission Amount:</span>
+              <span className="text-base sm:text-xl font-black text-sky-600 dark:text-sky-400 break-all">{formatCurrency(sellerCommissionAmount)}</span>
             </div>
 
             {/* SELLER CONTACT PERSON */}
@@ -669,7 +731,7 @@ export const CreateSaudaPage: React.FC = () => {
               />
             </div>
 
-            {/* Step 2 Footer matching Image 4 */}
+            {/* Step 2 Footer */}
             <div className="flex items-center justify-between pt-4 mt-6 border-t border-gray-200/50 dark:border-white/10">
               <span className="text-sm font-semibold text-gray-500 dark:text-gray-400">
                 Step 2 of 3
@@ -678,7 +740,7 @@ export const CreateSaudaPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="px-5 py-2.5 rounded-xl border border-gray-300 dark:border-white/15 bg-white/60 dark:bg-white/10 hover:bg-white/90 dark:hover:bg-white/20 text-gray-700 dark:text-gray-200 font-bold text-sm shadow-sm active:scale-95 transition-all flex items-center gap-1.5"
+                  className="btn-glass-secondary px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-1.5"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   <span>Previous</span>
@@ -686,9 +748,7 @@ export const CreateSaudaPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleNextFromSeller}
-                  disabled={!sellerName}
-                  style={{ backgroundColor: palette.primary }}
-                  className="px-7 py-2.5 rounded-xl text-white font-bold text-sm shadow-glass-card hover:shadow-glass-hover hover:opacity-95 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
+                  className="btn-glass-primary px-7 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2"
                 >
                   <span>Next</span>
                   <ArrowRight className="w-4 h-4" />
@@ -704,29 +764,42 @@ export const CreateSaudaPage: React.FC = () => {
             {/* BUYER NAME * */}
             <div>
               <label className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-1.5">
-                NAME <span className="text-red-500 font-bold">*</span>
+                BUYER NAME <span className="text-red-500 font-bold">*</span>
               </label>
               <div
-                onClick={() => setIsBuyerModalOpen(true)}
-                className="input-sauda flex items-center justify-between cursor-pointer font-bold uppercase text-gray-900 dark:text-gray-100"
+                onClick={() => {
+                  setIsBuyerModalOpen(true);
+                  clearError('buyerName');
+                }}
+                className={`input-sauda flex items-center justify-between cursor-pointer font-bold uppercase text-gray-900 dark:text-gray-100 ${
+                  errors.buyerName ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                }`}
               >
-                <span>{buyerName || 'SELECT BUYER'}</span>
+                <span>{buyerName || 'SELECT BUYER PARTY'}</span>
                 <ChevronDown className="w-4 h-4 text-gray-400" />
               </div>
+              <FieldError error={errors.buyerName} />
             </div>
 
             {/* COMM. RATE */}
             <div>
               <label className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-1.5">
-                COMM. RATE
+                COMM. RATE (₹ per {unit || '100'})
               </label>
               <input
                 type="number"
                 step="any"
+                placeholder="2.6"
                 value={buyerCommRate}
-                onChange={e => setBuyerCommRate(e.target.value)}
-                className="input-sauda font-extrabold text-gray-900 dark:text-gray-100"
+                onChange={e => {
+                  setBuyerCommRate(e.target.value);
+                  clearError('buyerCommRate');
+                }}
+                className={`input-sauda font-bold ${
+                  errors.buyerCommRate ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                }`}
               />
+              <FieldError error={errors.buyerCommRate} />
             </div>
 
             {/* Commission Amount Banner */}
@@ -749,7 +822,7 @@ export const CreateSaudaPage: React.FC = () => {
               />
             </div>
 
-            {/* Step 3 Footer matching Image 4 */}
+            {/* Step 3 Footer */}
             <div className="flex items-center justify-between pt-4 mt-6 border-t border-gray-200/50 dark:border-white/10">
               <span className="text-sm font-semibold text-gray-500 dark:text-gray-400">
                 Step 3 of 3
@@ -758,7 +831,7 @@ export const CreateSaudaPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setStep(2)}
-                  className="px-5 py-2.5 rounded-xl border border-gray-300 dark:border-white/15 bg-white/60 dark:bg-white/10 hover:bg-white/90 dark:hover:bg-white/20 text-gray-700 dark:text-gray-200 font-bold text-sm shadow-sm active:scale-95 transition-all flex items-center gap-1.5"
+                  className="btn-glass-secondary px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-1.5"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   <span>Previous</span>
@@ -767,8 +840,7 @@ export const CreateSaudaPage: React.FC = () => {
                   type="button"
                   onClick={handleSaveOrder}
                   disabled={!buyerName || isSubmitting}
-                  style={{ backgroundColor: palette.primary }}
-                  className="px-7 py-2.5 rounded-xl text-white font-bold text-sm shadow-glass-card hover:shadow-glass-hover hover:opacity-95 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
+                  className="btn-glass-primary px-7 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2"
                 >
                   {isSubmitting ? (
                     <>

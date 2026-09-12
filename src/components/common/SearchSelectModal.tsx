@@ -133,8 +133,7 @@ export const SearchSelectModal: React.FC<SearchSelectModalProps> = ({
             <button
               type="button"
               onClick={onAddNew}
-              style={{ backgroundColor: palette.primary }}
-              className="w-full py-3.5 px-4 text-white font-bold rounded-2xl flex items-center justify-center gap-2 shadow-glass-card hover:shadow-glass-hover active:scale-[0.98] transition-all text-sm tracking-wider uppercase"
+              className="btn-glass-primary w-full py-3.5 px-4 font-bold rounded-2xl flex items-center justify-center gap-2 text-sm tracking-wider uppercase"
             >
               <Plus className="w-5 h-5 stroke-[2.5]" />
               <span>{cleanButtonText}</span>

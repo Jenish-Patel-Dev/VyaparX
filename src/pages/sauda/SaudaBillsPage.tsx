@@ -78,10 +78,9 @@ export const SaudaBillsPage: React.FC = () => {
                   key={num}
                   type="button"
                   onClick={() => setActiveTemplate(num as 1 | 2 | 3 | 4)}
-                  style={activeTemplate === num ? { backgroundColor: palette.primary, color: '#fff' } : undefined}
-                  className={`w-8 h-8 rounded-xl font-bold text-xs transition-all ${
+                  className={`w-8 h-8 rounded-xl font-bold text-xs transition-all cursor-pointer ${
                     activeTemplate === num
-                      ? 'shadow-glass backdrop-blur-md'
+                      ? 'btn-glass-primary text-white shadow-glass'
                       : 'bg-white/50 dark:bg-white/10 text-gray-700 dark:text-gray-300 hover:bg-white/80 dark:hover:bg-white/20'
                   }`}
                 >
@@ -134,8 +133,7 @@ export const SaudaBillsPage: React.FC = () => {
             <button
               type="button"
               onClick={handlePrint}
-              style={{ backgroundColor: palette.primary }}
-              className="flex items-center gap-1.5 px-4 py-2 text-white text-xs font-bold rounded-xl shadow-glass-card hover:shadow-glass-hover transition-all"
+              className="btn-glass-primary flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl"
             >
               <Printer className="w-4 h-4" />
               <span>Print / Save PDF</span>

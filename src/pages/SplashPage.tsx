@@ -159,16 +159,11 @@ export const SplashPage: React.FC = () => {
 
       {/* Main Card with Glassmorphic LOVs */}
       <div className="w-full max-w-sm flex flex-col items-center text-center p-5 sm:p-6 rounded-3xl bg-white/10 backdrop-blur-2xl border border-white/30 shadow-glass-hover space-y-3.5 sm:space-y-4 relative z-20 my-auto shrink-0">
-        {/* 3D App Logo Emblem */}
-        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shadow-glass p-2 shrink-0">
-          <img src="/logo.png" alt="VyaparX Logo" className="w-full h-full object-contain drop-shadow-md" />
-        </div>
-
-        {/* Brand Banner */}
+        {/* App Logo Emblem */}
         <img
-          src="/logo-name.png"
-          alt="VyaparX - Business Made Simple"
-          className="h-8 sm:h-9 w-auto max-w-[200px] object-contain drop-shadow-md"
+          src="/logo.png"
+          alt="VyaparX Logo"
+          className="w-16 h-16 sm:w-20 sm:h-20 object-contain drop-shadow-lg shrink-0"
         />
 
         {/* Subtitle */}
@@ -321,7 +316,7 @@ export const SplashPage: React.FC = () => {
             type="button"
             disabled={!selectedCompanyId || isSubmitting}
             onClick={handleContinue}
-            className="w-full py-3 px-6 bg-slate-950/90 hover:bg-black text-white font-bold text-xs sm:text-sm rounded-xl sm:rounded-2xl shadow-glass transition-all flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed border border-white/10 cursor-pointer"
+            className="btn-glass-primary w-full py-3.5 px-6 font-bold text-xs sm:text-sm rounded-xl sm:rounded-2xl transition-all flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             {isSubmitting ? (
               <div className="flex items-center gap-2">

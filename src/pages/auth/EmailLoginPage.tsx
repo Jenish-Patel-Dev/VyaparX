@@ -6,6 +6,8 @@ import { useToast } from '../../context/ToastContext';
 import { useTheme } from '../../context/ThemeContext';
 import { usePwa } from '../../context/PwaContext';
 import { useLanguage } from '../../context/LanguageContext';
+import { validateEmail } from '../../utils/validators';
+import { FieldError } from '../../components/common/FieldError';
 
 export const EmailLoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -17,15 +19,13 @@ export const EmailLoginPage: React.FC = () => {
 
   const [email, setEmail] = useState<string>(pendingEmail || '');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [touched, setTouched] = useState<boolean>(false);
-
-  const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  const isValidEmail = EMAIL_REGEX.test(email.trim());
+  const [error, setError] = useState<string>('');
 
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isValidEmail) {
-      toast.error('Please enter a valid email address.');
+    const emailErr = validateEmail(email, true);
+    if (emailErr) {
+      setError(emailErr);
       return;
     }
 
@@ -66,16 +66,11 @@ export const EmailLoginPage: React.FC = () => {
 
       {/* Main Login Card */}
       <div className="w-full max-w-sm flex flex-col items-center text-center p-5 sm:p-6 rounded-3xl bg-white/10 backdrop-blur-2xl border border-white/30 shadow-glass-hover space-y-3.5 sm:space-y-4 relative z-10 my-auto shrink-0">
-        {/* 3D App Logo Emblem */}
-        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shadow-glass p-2 shrink-0">
-          <img src="/logo.png" alt="VyaparX Logo" className="w-full h-full object-contain drop-shadow-md" />
-        </div>
-
-        {/* Brand Banner */}
+        {/* App Logo Emblem */}
         <img
-          src="/logo-name.png"
-          alt="VyaparX - Business Made Simple"
-          className="h-8 sm:h-9 w-auto max-w-[200px] object-contain drop-shadow-md"
+          src="/logo.png"
+          alt="VyaparX Logo"
+          className="w-16 h-16 sm:w-20 sm:h-20 object-contain drop-shadow-lg shrink-0"
         />
 
         {/* Title & Subtitle */}
@@ -88,7 +83,7 @@ export const EmailLoginPage: React.FC = () => {
           </p>
         </div>
 
-        <form onSubmit={handleSendOtp} className="w-full space-y-3 pt-0.5">
+        <form onSubmit={handleSendOtp} noValidate className="w-full space-y-3 pt-0.5">
           {/* Email Input */}
           <div className="space-y-1 text-left">
             <div className="relative">
@@ -100,26 +95,25 @@ export const EmailLoginPage: React.FC = () => {
                 inputMode="email"
                 autoComplete="email"
                 autoFocus
-                required
                 placeholder="Email Address"
                 value={email}
-                onChange={e => setEmail(e.target.value)}
-                onBlur={() => setTouched(true)}
-                className="w-full py-2.5 sm:py-3 pl-10 pr-3 bg-white/10 backdrop-blur-md border border-white/30 rounded-xl sm:rounded-2xl text-white placeholder-white/70 font-semibold text-xs sm:text-sm focus:outline-none focus:border-white focus:bg-white/20 transition-all tracking-wide shadow-inner"
+                onChange={e => {
+                  setEmail(e.target.value);
+                  if (error) setError('');
+                }}
+                className={`w-full py-2.5 sm:py-3 pl-10 pr-3 bg-white/10 backdrop-blur-md border rounded-xl sm:rounded-2xl text-white placeholder-white/70 font-semibold text-xs sm:text-sm focus:outline-none focus:border-white focus:bg-white/20 transition-all tracking-wide shadow-inner ${
+                  error ? 'border-red-400 ring-2 ring-red-400/50 bg-red-500/20' : 'border-white/30'
+                }`}
               />
             </div>
-            {touched && email.trim() && !isValidEmail && (
-              <p className="text-[11px] text-rose-200 font-medium pl-2 pt-0.5">
-                Please enter a valid email address (e.g. name@example.com)
-              </p>
-            )}
+            <FieldError error={error} className="text-red-100 bg-red-900/60 px-2.5 py-1 rounded-xl border border-red-400/40" />
           </div>
 
           {/* Send OTP Button */}
           <button
             type="submit"
-            disabled={!isValidEmail || isSubmitting}
-            className="w-full py-2.5 sm:py-3 px-5 bg-slate-950/90 hover:bg-black text-white font-bold text-xs sm:text-sm rounded-xl sm:rounded-2xl shadow-glass transition-all flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed border border-white/10"
+            disabled={isSubmitting}
+            className="btn-glass-primary w-full py-2.5 sm:py-3 px-5 font-bold text-xs sm:text-sm rounded-xl sm:rounded-2xl flex items-center justify-center gap-2"
           >
             {isSubmitting ? (
               <div className="flex items-center gap-2">
@@ -143,7 +137,7 @@ export const EmailLoginPage: React.FC = () => {
           <button
             type="button"
             onClick={promptInstall}
-            className="w-full py-2.5 px-4 bg-white/15 hover:bg-white/25 active:scale-[0.98] text-white font-bold text-xs sm:text-sm rounded-xl sm:rounded-2xl border border-white/30 shadow-glass backdrop-blur-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+            className="btn-glass-secondary w-full py-2.5 px-4 font-bold text-xs sm:text-sm rounded-xl sm:rounded-2xl flex items-center justify-center gap-2 cursor-pointer"
           >
             <Download className="w-4 h-4 stroke-[2.5]" />
             <span>{isInstalled ? t('nav.appInstalled', 'App Installed') : t('nav.downloadApp', 'Download App')}</span>

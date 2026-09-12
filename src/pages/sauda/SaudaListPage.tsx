@@ -96,22 +96,22 @@ export const SaudaListPage: React.FC = () => {
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Search by #ID"
-              className="w-full pl-12 pr-4 py-3.5 bg-white/65 dark:bg-gray-800/50 backdrop-blur-xl border border-white/60 dark:border-white/10 rounded-2xl text-sm font-medium focus:outline-none focus:bg-white/90 dark:focus:bg-gray-800/80 focus:border-[var(--primary)] text-gray-900 dark:text-gray-100 transition-all placeholder-gray-400 shadow-2xs"
+              className="w-full pl-12 pr-4 py-3.5 bg-white/80 backdrop-blur-xl border border-blue-200/90 rounded-2xl text-sm font-medium focus:outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-300/50 text-gray-900 transition-all placeholder-gray-400 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_2px_8px_rgba(37,99,235,0.06)]"
             />
           </div>
 
           <button
             type="button"
             onClick={() => setShowFilterDrawer(true)}
-            style={selectedItemId !== null ? { backgroundColor: palette.primary, borderColor: palette.primary } : {}}
-            className={`w-12 h-12 rounded-2xl border flex items-center justify-center transition-all shrink-0 shadow-2xs backdrop-blur-xl active:scale-95 ${
+            className={`w-12 h-12 rounded-2xl border flex items-center justify-center transition-all shrink-0 active:scale-95 cursor-pointer ${
               selectedItemId !== null
-                ? 'text-white'
-                : 'bg-white/65 dark:bg-gray-800/50 border-white/60 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:bg-white/90 dark:hover:bg-gray-800/80'
+                ? 'btn-glass-primary text-white shadow-glass'
+                : 'bg-gradient-to-b from-white/95 to-blue-50/70 border-blue-200/90 text-blue-700 hover:from-white hover:to-blue-100 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_2px_8px_rgba(37,99,235,0.08)] backdrop-blur-xl'
             }`}
             title="Filter by Commodity Item"
             aria-label="Filter items"
-          >  <SlidersHorizontal className="w-5 h-5" />
+          >
+            <SlidersHorizontal className="w-5 h-5" />
           </button>
         </div>
 
@@ -153,8 +153,7 @@ export const SaudaListPage: React.FC = () => {
       <button
         type="button"
         onClick={() => navigate('/vyapar/create')}
-        style={{ backgroundColor: palette.primary }}
-        className="hidden md:flex fixed bottom-8 right-6 z-40 w-14 h-14 hover:opacity-90 text-white rounded-2xl shadow-xl items-center justify-center transition-all active:scale-95"
+        className="btn-glass-primary hidden md:flex fixed bottom-8 right-6 z-40 w-14 h-14 rounded-2xl items-center justify-center"
         aria-label="Create Vyapar"
       >
         <Plus className="w-7 h-7 stroke-[2.5]" />
@@ -184,8 +183,7 @@ export const SaudaListPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={handlePrintPdf}
-                  style={{ backgroundColor: palette.primary }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 hover:opacity-90 text-white text-xs font-bold rounded-xl shadow-xs"
+                  className="btn-glass-primary flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-xl"
                 >
                   <Printer className="w-4 h-4" />
                   <span>Print Note</span>

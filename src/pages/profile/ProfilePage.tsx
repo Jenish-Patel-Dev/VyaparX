@@ -21,9 +21,6 @@ import {
   Smartphone,
   ChevronRight,
   Check,
-  Sun,
-  Moon,
-  Palette,
   Globe,
   X,
   Mail,
@@ -43,7 +40,7 @@ export const ProfilePage: React.FC = () => {
   const toast = useToast();
   const { userProfile, lockApp, currentCompany } = useApp();
   const { currentUser, logout } = useAuth();
-  const { isDarkMode, setDarkMode, palette } = useTheme();
+  const { palette } = useTheme();
   const { language, setLanguage, languages, t } = useLanguage();
 
   const [showSwitchModal, setShowSwitchModal] = useState(false);
@@ -89,8 +86,7 @@ export const ProfilePage: React.FC = () => {
           {/* Avatar with Edit Icon linking to Company Edit */}
           <div className="relative mb-3">
             <div
-              className="w-20 h-20 rounded-full text-white flex items-center justify-center text-3xl font-black shadow-glass uppercase backdrop-blur-sm"
-              style={{ backgroundColor: palette.primary }}
+              className="w-20 h-20 rounded-full text-white flex items-center justify-center text-3xl font-black btn-glass-primary shadow-glass uppercase"
             >
               {currentCompany?.name?.charAt(0) || userProfile?.name?.charAt(0) || 'C'}
             </div>
@@ -200,47 +196,6 @@ export const ProfilePage: React.FC = () => {
                 </button>
               );
             })}
-          </div>
-        </div>
-
-        {/* App Theme & Appearance Card */}
-        <div className="glass-card rounded-3xl p-5 space-y-4 transition-all shadow-glass-card">
-          <div className="flex items-center gap-2 font-bold text-sm" style={{ color: palette.primary }}>
-            <Palette className="w-4 h-4" />
-            <span>{t('profile.themeAppearance', 'App Theme & Appearance')}</span>
-          </div>
-
-          {/* Dark / Light Mode Selector */}
-          <div>
-            <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
-              {t('common.appearance', 'Appearance Mode')}
-            </label>
-            <div className="grid grid-cols-2 gap-2.5">
-              <button
-                type="button"
-                onClick={() => setDarkMode(false)}
-                className={`py-3 px-4 rounded-2xl border flex items-center justify-center gap-2.5 text-xs font-bold transition-all ${
-                  !isDarkMode
-                    ? 'border-gray-900 dark:border-white bg-blue-500/15 dark:bg-white/10 text-gray-900 dark:text-white shadow-glass backdrop-blur-md'
-                    : 'border-white/40 dark:border-white/10 bg-white/40 dark:bg-white/5 text-gray-600 dark:text-gray-400 hover:bg-white/60 dark:hover:bg-white/10'
-                }`}
-              >
-                <Sun className="w-4 h-4 text-amber-500" />
-                <span>{t('common.lightMode', 'Light Mode')}</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setDarkMode(true)}
-                className={`py-3 px-4 rounded-2xl border flex items-center justify-center gap-2.5 text-xs font-bold transition-all ${
-                  isDarkMode
-                    ? 'border-gray-900 dark:border-white bg-white/15 text-white shadow-glass backdrop-blur-md'
-                    : 'border-white/40 dark:border-white/10 bg-white/40 dark:bg-white/5 text-gray-600 dark:text-gray-400 hover:bg-white/60 dark:hover:bg-white/10'
-                }`}
-              >
-                <Moon className="w-4 h-4 text-indigo-400" />
-                <span>{t('common.darkMode', 'Dark Mode')}</span>
-              </button>
-            </div>
           </div>
         </div>
 
@@ -465,8 +420,7 @@ export const ProfilePage: React.FC = () => {
                 {(currentCompany?.contactNumber || userProfile?.phone) && (
                   <a
                     href={`tel:${currentCompany?.contactNumber || userProfile?.phone}`}
-                    style={{ backgroundColor: palette.primary }}
-                    className="px-3.5 py-1.5 text-white text-xs font-bold rounded-xl shadow-glass transition-opacity hover:opacity-90 flex items-center gap-1.5"
+                    className="btn-glass-primary px-3.5 py-1.5 text-white text-xs font-bold rounded-xl shadow-glass transition-all flex items-center gap-1.5"
                   >
                     <Phone className="w-3.5 h-3.5" />
                     <span>Call</span>
@@ -490,7 +444,7 @@ export const ProfilePage: React.FC = () => {
                 {(currentCompany?.email || currentCompany?.userEmail || currentUser?.email) && (
                   <a
                     href={`mailto:${currentCompany?.email || currentCompany?.userEmail || currentUser?.email}`}
-                    className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-glass transition-colors shrink-0 flex items-center gap-1.5"
+                    className="btn-glass-primary px-3.5 py-1.5 text-white text-xs font-bold rounded-xl shadow-glass transition-all shrink-0 flex items-center gap-1.5"
                   >
                     <Mail className="w-3.5 h-3.5" />
                     <span>Email</span>
@@ -513,7 +467,7 @@ export const ProfilePage: React.FC = () => {
             <button
               type="button"
               onClick={() => setShowContactModal(false)}
-              className="w-full py-3 bg-white/60 dark:bg-white/10 text-gray-700 dark:text-gray-200 font-bold text-xs rounded-2xl hover:bg-white/80 dark:hover:bg-white/20 transition-colors flex items-center justify-center gap-1.5"
+              className="btn-glass-secondary w-full py-2.5 font-bold text-xs rounded-2xl transition-all flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <X className="w-4 h-4" />
               <span>Close</span>

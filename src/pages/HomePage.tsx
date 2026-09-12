@@ -55,14 +55,14 @@ export const HomePage: React.FC = () => {
 
   return (
     <div className="p-4 md:p-6 pb-24 md:pb-8 space-y-3.5 sm:space-y-4 max-w-4xl mx-auto">
-      {/* 1. Top Active Company & FY Glass Card (iOS 18 Liquid Glass - Visible Above All Cards) */}
+      {/* 1. Top Active Company & FY Glass Card (Liquid Glass) */}
       <div
         onClick={() => setShowSwitchModal(true)}
-        className="group relative overflow-hidden rounded-3xl p-3.5 sm:p-4 bg-white/75 dark:bg-gray-900/70 backdrop-blur-2xl border border-white/60 dark:border-white/12 shadow-glass hover:shadow-glass-hover active:scale-[0.99] transition-all duration-300 cursor-pointer flex items-center justify-between gap-3 min-w-0"
+        className="group relative overflow-hidden rounded-3xl p-3.5 sm:p-4 liquid-glass-interactive flex items-center justify-between gap-3 min-w-0"
         title="Tap to switch Company or Financial Year"
       >
         {/* Specular top highlight */}
-        <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/80 dark:via-white/20 to-transparent" />
+        <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/90 to-transparent" />
 
         {/* Left: Company Icon + Details */}
         <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -77,11 +77,11 @@ export const HomePage: React.FC = () => {
             <Building2 className="w-5 h-5 stroke-[2.2]" />
           </div>
           <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-400">
+            <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-gray-500">
               <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: palette.primary }} />
               <span>{t('home.activeCompany', 'Active Company')}</span>
             </div>
-            <div className="text-sm sm:text-base font-black text-gray-900 dark:text-white truncate tracking-tight">
+            <div className="text-sm sm:text-base font-black text-gray-900 truncate tracking-tight">
               {currentCompany?.name || 'VyaparX'}
             </div>
           </div>
@@ -89,12 +89,12 @@ export const HomePage: React.FC = () => {
 
         {/* Right: Financial Year Capsule + Switch Chevron */}
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-          <div className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-2xl bg-white/70 dark:bg-gray-800/70 backdrop-blur-md border border-white/60 dark:border-white/12 shadow-2xs text-[11px] sm:text-xs font-bold text-gray-700 dark:text-gray-200">
-            <Calendar className="w-3.5 h-3.5 opacity-75" style={{ color: palette.primary }} />
-            <span className="text-gray-500 dark:text-gray-400 hidden xs:inline">{t('common.financialYear', 'FY')}:</span>
-            <strong className="text-gray-900 dark:text-white font-black">{currentFinancialYear}</strong>
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-b from-white/95 to-blue-50/75 backdrop-blur-md border border-blue-200/90 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_2px_6px_rgba(37,99,235,0.08)] text-[11px] sm:text-xs font-bold text-gray-700">
+            <Calendar className="w-3.5 h-3.5 text-blue-600" />
+            <span className="text-gray-500 hidden xs:inline">{t('common.financialYear', 'FY')}:</span>
+            <strong className="text-gray-900 font-black">{currentFinancialYear}</strong>
           </div>
-          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl sm:rounded-2xl bg-white/60 dark:bg-gray-800/60 border border-white/50 dark:border-white/10 flex items-center justify-center text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-200 group-hover:translate-x-0.5 transition-all shadow-2xs">
+          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-b from-white/95 to-blue-50/75 border border-blue-200/90 flex items-center justify-center text-gray-600 group-hover:text-blue-700 group-hover:translate-x-0.5 transition-all shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_2px_6px_rgba(37,99,235,0.08)]">
             <ChevronRight className="w-4 h-4 stroke-[2.5]" />
           </div>
         </div>
@@ -145,10 +145,10 @@ export const HomePage: React.FC = () => {
           onClick={() => navigate('/parties')}
           className="relative group overflow-hidden rounded-3xl p-3.5 sm:p-5 glass-card-interactive flex flex-col items-center justify-center text-center gap-2 sm:gap-3 min-h-[115px] sm:min-h-[135px]"
         >
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-emerald-500/15 dark:bg-emerald-500/25 border border-emerald-500/30 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-2xs shrink-0">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-2xs shrink-0">
             <Users className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
           </div>
-          <span className="font-black text-[11px] sm:text-xs md:text-sm uppercase tracking-wide text-gray-800 dark:text-gray-100 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors line-clamp-2 leading-snug">
+          <span className="font-black text-[11px] sm:text-xs md:text-sm uppercase tracking-wide text-gray-800 group-hover:text-emerald-600 transition-colors line-clamp-2 leading-snug">
             {t('home.partyList', 'PARTY LIST')}
           </span>
         </button>
@@ -159,10 +159,10 @@ export const HomePage: React.FC = () => {
           onClick={() => navigate('/vyapar')}
           className="relative group overflow-hidden rounded-3xl p-3.5 sm:p-5 glass-card-interactive flex flex-col items-center justify-center text-center gap-2 sm:gap-3 min-h-[115px] sm:min-h-[135px]"
         >
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-blue-500/15 dark:bg-blue-500/25 border border-blue-500/30 dark:border-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-2xs shrink-0">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-blue-500/15 border border-blue-500/30 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-2xs shrink-0">
             <ClipboardList className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
           </div>
-          <span className="font-black text-[11px] sm:text-xs md:text-sm uppercase tracking-wide text-gray-800 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2 leading-snug">
+          <span className="font-black text-[11px] sm:text-xs md:text-sm uppercase tracking-wide text-gray-800 group-hover:text-blue-600 transition-colors line-clamp-2 leading-snug">
             {t('home.saudaList', 'VYAPAR ORDER LIST')}
           </span>
         </button>
@@ -171,11 +171,10 @@ export const HomePage: React.FC = () => {
         <button
           type="button"
           onClick={() => navigate('/vyapar/create')}
-          className="relative group overflow-hidden rounded-3xl p-3.5 sm:p-5 glass-card-interactive flex flex-col items-center justify-center text-center gap-2 sm:gap-3 min-h-[115px] sm:min-h-[135px] border-blue-300/60 dark:border-blue-500/30"
+          className="relative group overflow-hidden rounded-3xl p-3.5 sm:p-5 glass-card-interactive flex flex-col items-center justify-center text-center gap-2 sm:gap-3 min-h-[115px] sm:min-h-[135px] border-blue-300/70"
         >
           <div
-            className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl text-white flex items-center justify-center shadow-md shadow-blue-500/25 group-hover:scale-110 transition-transform duration-300 shrink-0"
-            style={{ backgroundColor: palette.primary }}
+            className="btn-glass-primary w-10 h-10 sm:w-12 sm:h-12 rounded-2xl text-white flex items-center justify-center shadow-glass group-hover:scale-110 transition-transform duration-300 shrink-0"
           >
             <PlusCircle className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.3]" />
           </div>
@@ -193,10 +192,10 @@ export const HomePage: React.FC = () => {
           onClick={() => navigate('/items')}
           className="relative group overflow-hidden rounded-3xl p-3.5 sm:p-5 glass-card-interactive flex flex-col items-center justify-center text-center gap-2 sm:gap-3 min-h-[115px] sm:min-h-[135px]"
         >
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-purple-500/15 dark:bg-purple-500/25 border border-purple-500/30 dark:border-purple-500/20 text-purple-600 dark:text-purple-400 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-2xs shrink-0">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-purple-500/15 border border-purple-500/30 text-purple-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-2xs shrink-0">
             <Package className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
           </div>
-          <span className="font-black text-[11px] sm:text-xs md:text-sm uppercase tracking-wide text-gray-800 dark:text-gray-100 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors line-clamp-2 leading-snug">
+          <span className="font-black text-[11px] sm:text-xs md:text-sm uppercase tracking-wide text-gray-800 group-hover:text-purple-600 transition-colors line-clamp-2 leading-snug">
             {t('home.itemList', 'ITEM LIST')}
           </span>
         </button>
@@ -207,10 +206,10 @@ export const HomePage: React.FC = () => {
           onClick={() => navigate('/companies')}
           className="relative group overflow-hidden rounded-3xl p-3.5 sm:p-5 glass-card-interactive flex flex-col items-center justify-center text-center gap-2 sm:gap-3 min-h-[115px] sm:min-h-[135px]"
         >
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-teal-500/15 dark:bg-teal-500/25 border border-teal-500/30 dark:border-teal-500/20 text-teal-600 dark:text-teal-400 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-2xs shrink-0">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-teal-500/15 border border-teal-500/30 text-teal-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-2xs shrink-0">
             <Building2 className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
           </div>
-          <span className="font-black text-[11px] sm:text-xs md:text-sm uppercase tracking-wide text-gray-800 dark:text-gray-100 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors line-clamp-2 leading-snug">
+          <span className="font-black text-[11px] sm:text-xs md:text-sm uppercase tracking-wide text-gray-800 group-hover:text-teal-600 transition-colors line-clamp-2 leading-snug">
             {t('home.companies', 'COMPANIES')}
           </span>
         </button>
@@ -221,10 +220,10 @@ export const HomePage: React.FC = () => {
           onClick={() => navigate('/vyapar/bills')}
           className="relative group overflow-hidden rounded-3xl p-3.5 sm:p-5 glass-card-interactive flex flex-col items-center justify-center text-center gap-2 sm:gap-3 min-h-[115px] sm:min-h-[135px]"
         >
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-amber-500/15 dark:bg-amber-500/25 border border-amber-500/30 dark:border-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-2xs shrink-0">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-2xs shrink-0">
             <Receipt className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
           </div>
-          <span className="font-black text-[11px] sm:text-xs md:text-sm uppercase tracking-wide text-gray-800 dark:text-gray-100 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors line-clamp-2 leading-snug">
+          <span className="font-black text-[11px] sm:text-xs md:text-sm uppercase tracking-wide text-gray-800 group-hover:text-amber-600 transition-colors line-clamp-2 leading-snug">
             {t('home.saudaBill', 'VYAPAR BILL')}
           </span>
         </button>

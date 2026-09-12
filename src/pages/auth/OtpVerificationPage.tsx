@@ -114,7 +114,11 @@ export const OtpVerificationPage: React.FC = () => {
 
   const handleVerify = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!isComplete || isVerifying) return;
+    if (isVerifying) return;
+    if (!isComplete) {
+      setErrorMessage('Please enter the complete 4-digit OTP');
+      return;
+    }
 
     try {
       setIsVerifying(true);
@@ -188,20 +192,15 @@ export const OtpVerificationPage: React.FC = () => {
       <div className="w-full max-w-sm flex flex-col items-center text-center p-5 sm:p-6 rounded-3xl bg-white/10 backdrop-blur-2xl border border-white/30 shadow-glass-hover space-y-3.5 sm:space-y-4 relative z-10 my-auto shrink-0">
         {/* App Logo Emblem with Shield badge */}
         <div className="relative shrink-0">
-          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shadow-glass p-2">
-            <img src="/logo.png" alt="VyaparX Logo" className="w-full h-full object-contain drop-shadow-md" />
-          </div>
+          <img
+            src="/logo.png"
+            alt="VyaparX Logo"
+            className="w-16 h-16 sm:w-20 sm:h-20 object-contain drop-shadow-lg"
+          />
           <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center border-2 border-white shadow-md">
             <ShieldCheck className="w-4 h-4 stroke-[2.5]" />
           </div>
         </div>
-
-        {/* Brand Banner */}
-        <img
-          src="/logo-name.png"
-          alt="VyaparX - Business Made Simple"
-          className="h-8 sm:h-9 w-auto max-w-[200px] object-contain drop-shadow-md"
-        />
 
         {/* Title & Masked Email */}
         <div className="space-y-1 w-full">
@@ -227,7 +226,7 @@ export const OtpVerificationPage: React.FC = () => {
           </div>
         </div>
 
-        <form onSubmit={handleVerify} className="w-full space-y-3.5 pt-0.5">
+        <form onSubmit={handleVerify} noValidate className="w-full space-y-3.5 pt-0.5">
           {/* 4 OTP Input Boxes */}
           <div className="flex items-center justify-center gap-2.5 sm:gap-3 w-full">
             {digits.map((digit, index) => (
@@ -244,7 +243,11 @@ export const OtpVerificationPage: React.FC = () => {
                 onKeyDown={e => handleKeyDown(index, e)}
                 onPaste={handlePaste}
                 onFocus={e => e.target.select()}
-                className="w-11 h-12 sm:w-12 sm:h-14 text-center text-xl sm:text-2xl font-black bg-white/15 border-2 border-white/40 rounded-xl sm:rounded-2xl text-white focus:bg-white focus:text-[#111827] focus:border-white focus:outline-none shadow-glass transition-all shrink-0 select-all"
+                className={`w-11 h-12 sm:w-12 sm:h-14 text-center text-xl sm:text-2xl font-black rounded-xl sm:rounded-2xl text-white focus:bg-white focus:text-[#111827] focus:border-white focus:outline-none shadow-glass transition-all shrink-0 select-all ${
+                  errorMessage
+                    ? 'border-2 border-rose-400 bg-rose-500/20 ring-2 ring-rose-400/40'
+                    : 'border-2 border-white/40 bg-white/15'
+                }`}
               />
             ))}
           </div>
@@ -259,8 +262,8 @@ export const OtpVerificationPage: React.FC = () => {
           {/* Verify OTP Button */}
           <button
             type="submit"
-            disabled={!isComplete || isVerifying}
-            className="w-full py-2.5 sm:py-3 px-5 bg-slate-950/90 hover:bg-black text-white font-bold text-xs sm:text-sm rounded-xl sm:rounded-2xl shadow-glass transition-all flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed border border-white/10"
+            disabled={isVerifying}
+            className="btn-glass-primary w-full py-2.5 sm:py-3 px-5 font-bold text-xs sm:text-sm rounded-xl sm:rounded-2xl flex items-center justify-center gap-2"
           >
             {isVerifying ? (
               <div className="flex items-center gap-2">

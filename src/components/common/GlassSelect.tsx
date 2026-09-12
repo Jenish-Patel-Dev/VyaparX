@@ -1,5 +1,5 @@
-﻿import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Check, Search } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { ChevronDown, Check, Search, AlertCircle } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 
 export interface GlassSelectOption {
@@ -17,6 +17,7 @@ interface GlassSelectProps {
   placeholder?: string;
   label?: string;
   required?: boolean;
+  error?: string;
   icon?: React.ReactNode;
   className?: string;
   triggerClassName?: string;
@@ -31,6 +32,7 @@ export const GlassSelect: React.FC<GlassSelectProps> = ({
   placeholder = 'Select an option',
   label,
   required = false,
+  error,
   icon,
   className = '',
   triggerClassName = '',
@@ -94,10 +96,12 @@ export const GlassSelect: React.FC<GlassSelectProps> = ({
         type="button"
         disabled={disabled}
         onClick={() => !disabled && setIsOpen(prev => !prev)}
-        className={`w-full flex items-center justify-between gap-2 px-4 py-3 bg-white/60 dark:bg-gray-800/50 backdrop-blur-xl border border-white/60 dark:border-white/10 rounded-xl text-sm font-semibold transition-all shadow-2xs text-left cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
-          isOpen
-            ? 'border-[var(--primary)] ring-2 ring-blue-200/50 dark:ring-blue-900/40 bg-white/95 dark:bg-gray-800/90'
-            : 'hover:bg-white/80 dark:hover:bg-gray-800/70 hover:border-[var(--primary)]'
+        className={`w-full flex items-center justify-between gap-2 px-4 py-3 bg-white/60 dark:bg-gray-800/50 backdrop-blur-xl border rounded-xl text-sm font-semibold transition-all shadow-2xs text-left cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
+          error
+            ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20'
+            : isOpen
+              ? 'border-[var(--primary)] ring-2 ring-blue-200/50 dark:ring-blue-900/40 bg-white/95 dark:bg-gray-800/90'
+              : 'border-white/60 dark:border-white/10 hover:bg-white/80 dark:hover:bg-gray-800/70 hover:border-[var(--primary)]'
         } ${triggerClassName}`}
       >
         <div className="flex items-center gap-2.5 min-w-0 flex-1 pr-1">
@@ -195,6 +199,13 @@ export const GlassSelect: React.FC<GlassSelectProps> = ({
             )}
           </div>
         </div>
+      )}
+
+      {error && (
+        <p className="text-xs font-semibold text-red-500 mt-1 flex items-center gap-1.5 animate-in fade-in slide-in-from-top-0.5">
+          <AlertCircle className="w-3.5 h-3.5 shrink-0 stroke-[2.5]" />
+          <span>{error}</span>
+        </p>
       )}
     </div>
   );

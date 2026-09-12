@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Zap } from 'lucide-react';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { quickValueService } from '../../services/quickValueService';
+import type { QuickValue } from '../../types';
 import { useToast } from '../../context/ToastContext';
 import { useTheme } from '../../context/ThemeContext';
-import type { QuickValue } from '../../types';
+import { FieldError } from '../../components/common/FieldError';
 
 export const QuickValuesPage: React.FC = () => {
   const toast = useToast();
@@ -12,6 +13,7 @@ export const QuickValuesPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<QuickValue['category']>('paymentTerms');
   const [items, setItems] = useState<QuickValue[]>([]);
   const [newValue, setNewValue] = useState('');
+  const [error, setError] = useState('');
 
   const loadValues = async () => {
     const all = await quickValueService.getAll();
@@ -24,12 +26,16 @@ export const QuickValuesPage: React.FC = () => {
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newValue.trim()) return;
+    if (!newValue.trim()) {
+      setError(`Please enter a ${activeTab} value`);
+      return;
+    }
 
     try {
       await quickValueService.add(activeTab, newValue.trim().toUpperCase());
       toast.success('Quick value added');
       setNewValue('');
+      setError('');
       loadValues();
     } catch (err) {
       toast.error('Failed to add quick value');
@@ -64,11 +70,13 @@ export const QuickValuesPage: React.FC = () => {
             <button
               key={tab.key}
               type="button"
-              onClick={() => setActiveTab(tab.key)}
-              style={activeTab === tab.key ? { backgroundColor: palette.primary, color: '#fff' } : undefined}
-              className={`py-2 px-3.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+              onClick={() => {
+                setActiveTab(tab.key);
+                setError('');
+              }}
+              className={`py-2 px-3.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                 activeTab === tab.key
-                  ? 'shadow-glass backdrop-blur-md'
+                  ? 'btn-glass-primary text-white shadow-glass'
                   : 'bg-white/40 dark:bg-white/5 border border-white/40 dark:border-white/10 text-gray-700 dark:text-gray-300 hover:bg-white/60 dark:hover:bg-white/10'
               }`}
             >
@@ -78,24 +86,30 @@ export const QuickValuesPage: React.FC = () => {
         </div>
 
         {/* Add Input */}
-        <form onSubmit={handleAdd} className="flex gap-2">
-          <input
-            type="text"
-            required
-            placeholder={`Add new ${activeTab}...`}
-            value={newValue}
-            onChange={e => setNewValue(e.target.value)}
-            className="input-vyapar uppercase text-xs flex-1"
-          />
-          <button
-            type="submit"
-            style={{ backgroundColor: palette.primary }}
-            className="px-5 py-3 text-white font-bold rounded-2xl text-xs flex items-center gap-1 shrink-0 hover:opacity-90 transition-opacity shadow-glass-card hover:shadow-glass-hover"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Add</span>
-          </button>
-        </form>
+        <div>
+          <form onSubmit={handleAdd} noValidate className="flex gap-2">
+            <input
+              type="text"
+              placeholder={`Add new ${activeTab}...`}
+              value={newValue}
+              onChange={e => {
+                setNewValue(e.target.value);
+                if (error) setError('');
+              }}
+              className={`input-vyapar uppercase text-xs flex-1 ${
+                error ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+              }`}
+            />
+            <button
+              type="submit"
+              className="btn-glass-primary px-5 py-3 font-bold rounded-2xl text-xs flex items-center gap-1 shrink-0"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add</span>
+            </button>
+          </form>
+          <FieldError error={error} className="mt-1.5" />
+        </div>
 
         {/* List of shortcuts */}
         <div className="glass-card rounded-3xl divide-y divide-gray-200/50 dark:divide-white/10 overflow-hidden shadow-glass-card">

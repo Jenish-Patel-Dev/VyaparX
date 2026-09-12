@@ -126,8 +126,7 @@ export const CompaniesListPage: React.FC = () => {
       <button
         type="button"
         onClick={() => navigate('/companies/new')}
-        style={{ backgroundColor: palette.primary }}
-        className="fixed bottom-20 md:bottom-8 right-6 z-40 w-14 h-14 text-white rounded-2xl shadow-xl shadow-blue-500/30 flex items-center justify-center transition-all active:scale-90 hover:opacity-95"
+        className="btn-glass-primary fixed bottom-20 md:bottom-8 right-6 z-40 w-14 h-14 rounded-2xl flex items-center justify-center transition-all active:scale-90"
         aria-label="Add Company"
       >
         <Plus className="w-7 h-7 stroke-[2.5]" />

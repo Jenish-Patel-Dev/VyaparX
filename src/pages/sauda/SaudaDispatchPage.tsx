@@ -105,8 +105,7 @@ export const SaudaDispatchPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setSelectedOrder(order)}
-                    style={{ backgroundColor: palette.primary }}
-                    className="py-2 sm:py-2.5 px-3.5 sm:px-4 text-white font-bold text-xs rounded-2xl shadow-glass-card hover:shadow-glass-hover flex items-center gap-1.5 transition-all hover:opacity-90 active:scale-95"
+                    className="btn-glass-primary py-2 sm:py-2.5 px-3.5 sm:px-4 font-bold text-xs rounded-2xl flex items-center gap-1.5"
                   >
                     <Truck className="w-4 h-4 shrink-0" />
                     <span>Dispatch</span>
