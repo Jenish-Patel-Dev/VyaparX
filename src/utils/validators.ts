@@ -113,3 +113,40 @@ export const validatePin = (newPin: string, confirmPin?: string): string => {
   }
   return '';
 };
+
+/**
+ * Prevents non-numeric keystrokes on numeric inputs.
+ * Allows digits, Backspace, Tab, Enter, Delete, Arrow keys, Ctrl/Cmd shortcuts, and optionally single decimal dot.
+ */
+export const preventNonNumericInput = (
+  e: React.KeyboardEvent<HTMLInputElement>,
+  allowDecimal = true
+): void => {
+  if (['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) {
+    return;
+  }
+  if ((e.ctrlKey || e.metaKey) && ['a', 'c', 'v', 'x'].includes(e.key.toLowerCase())) {
+    return;
+  }
+  if (allowDecimal && e.key === '.' && !e.currentTarget.value.includes('.')) {
+    return;
+  }
+  if (!/^[0-9]$/.test(e.key)) {
+    e.preventDefault();
+  }
+};
+
+/**
+ * Sanitizes input string to contain only digits and optional decimal point.
+ */
+export const sanitizeNumeric = (value: string, allowDecimal = true): string => {
+  if (!allowDecimal) {
+    return value.replace(/\D/g, '');
+  }
+  const cleaned = value.replace(/[^0-9.]/g, '');
+  const parts = cleaned.split('.');
+  if (parts.length > 2) {
+    return `${parts[0]}.${parts.slice(1).join('')}`;
+  }
+  return cleaned;
+};

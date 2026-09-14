@@ -46,12 +46,12 @@ export const InstallAppModal: React.FC = () => {
       style={{ backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
     >
       <div
-        className="glass-card border border-white/70 dark:border-white/15 rounded-3xl max-w-lg w-full overflow-hidden shadow-glass-hover animate-in zoom-in-95 duration-200"
+        className="glass-card border border-[#DCE6F2] dark:border-white/15 rounded-3xl max-w-lg w-full overflow-hidden shadow-glass-hover animate-in zoom-in-95 duration-200"
         role="dialog"
         aria-modal="true"
       >
         {/* Header */}
-        <div className="relative p-5 border-b border-white/30 dark:border-white/10 bg-gradient-to-r from-blue-50/50 dark:from-white/5 to-transparent">
+        <div className="relative p-5 border-b border-[#DCE6F2] dark:border-white/10 bg-gradient-to-r from-blue-50/50 dark:from-white/5 to-transparent">
           <button
             type="button"
             onClick={() => setIsInstallModalOpen(false)}
@@ -304,7 +304,7 @@ export const InstallAppModal: React.FC = () => {
         </div>
 
         {/* Footer */}
-        <div className="p-4 bg-gray-50 dark:bg-gray-850 border-t border-gray-100 dark:border-gray-800 flex items-center justify-end">
+        <div className="p-4 bg-gray-50/60 dark:bg-gray-850 border-t border-[#DCE6F2] dark:border-gray-800 flex items-center justify-end">
           <button
             type="button"
             onClick={() => setIsInstallModalOpen(false)}

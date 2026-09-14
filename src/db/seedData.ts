@@ -140,32 +140,25 @@ export async function seedInitialData(): Promise<void> {
     buyerCommissionRate: 2.6,
     buyerCommissionAmount: 520,
     buyerContactPerson: 'Mahesh',
-    dispatchStatus: 'Pending',
-    paymentStatus: 'Pending',
-    dispatchedQuantity: 0,
-    paidAmount: 0,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   });
 
   // 6. Seed Quick Values
   await db.quickValues.bulkAdd([
-    { category: 'paymentTerms', value: 'VAR TO VAR' },
+    { category: 'paymentTerms', value: '15' },
+    { category: 'paymentTerms', value: '7' },
+    { category: 'paymentTerms', value: '30' },
     { category: 'paymentTerms', value: 'NEXT DAY' },
     { category: 'paymentTerms', value: 'ADVANCE' },
-    { category: 'paymentTerms', value: '7 DAYS' },
-    { category: 'paymentTerms', value: '15 DAYS' },
-    { category: 'deliveryTerms', value: 'NEXT DAY' },
-    { category: 'deliveryTerms', value: 'EX FACTORY' },
-    { category: 'deliveryTerms', value: 'READY' },
-    { category: 'remark', value: '10% moisture' },
-    { category: 'remark', value: 'STANDARD PACKING' },
+    { category: 'quality', value: 'A-1' },
     { category: 'quality', value: '1 GADI' },
     { category: 'quality', value: '50 BORI 40 Kg' },
     { category: 'quality', value: '30-40 M.TON' },
-    { category: 'unit', value: '100' },
-    { category: 'unit', value: 'KG' },
-    { category: 'unit', value: 'M.TON' },
+    { category: 'rdValue', value: 'A-1' },
+    { category: 'rdValue', value: '75' },
+    { category: 'rdValue', value: '76' },
+    { category: 'rdValue', value: '78' },
   ]);
 
   // 7. Seed User Profile

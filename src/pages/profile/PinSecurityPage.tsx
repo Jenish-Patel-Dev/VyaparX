@@ -73,7 +73,7 @@ export const PinSecurityPage: React.FC = () => {
       <div className="p-4 md:p-6 max-w-md mx-auto space-y-5">
         <div className="glass-card rounded-3xl p-6 space-y-5 shadow-glass-card">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-purple-500/15 text-purple-600 dark:text-purple-400 flex items-center justify-center shadow-glass backdrop-blur-xs">
+            <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-200/50 dark:border-blue-700/50 flex items-center justify-center shadow-glass backdrop-blur-xs">
               <Lock className="w-6 h-6" />
             </div>
             <div>
@@ -92,7 +92,7 @@ export const PinSecurityPage: React.FC = () => {
                   setPinEnabled(e.target.checked);
                   setErrors({});
                 }}
-                className="w-5 h-5 text-purple-600 rounded focus:ring-purple-500 cursor-pointer"
+                className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"
               />
             </div>
 

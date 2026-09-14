@@ -50,6 +50,7 @@ export const saudaService = {
       const q = filters.query.toLowerCase().trim().replace('#', '');
       orders = orders.filter(o =>
         String(o.id).includes(q) ||
+        (o.doNo && o.doNo.toLowerCase().includes(q)) ||
         o.itemName.toLowerCase().includes(q) ||
         o.sellerName.toLowerCase().includes(q) ||
         o.buyerName.toLowerCase().includes(q) ||
@@ -62,21 +63,29 @@ export const saudaService = {
   },
 
   async getById(id: number): Promise<SaudaOrder | undefined> {
-    return await db.saudaOrders.get(id);
+    const order = await db.saudaOrders.get(id);
+    if (order && !order.doNo) {
+      const dateClean = (order.date || '').replace(/-/g, '');
+      order.doNo = `${dateClean}${String(order.id).padStart(3, '0')}`;
+    }
+    return order;
   },
 
   async create(order: Omit<SaudaOrder, 'id' | 'createdAt' | 'updatedAt'>): Promise<number> {
     const now = new Date().toISOString();
     const id = await db.saudaOrders.add({
       ...order,
-      dispatchStatus: 'Pending',
-      paymentStatus: 'Pending',
-      dispatchedQuantity: 0,
-      paidAmount: 0,
       createdAt: now,
       updatedAt: now,
     });
-    return Number(id);
+
+    const numId = Number(id);
+    const dateClean = (order.date || now.split('T')[0]).replace(/-/g, '');
+    const seqStr = String(numId).padStart(3, '0');
+    const autoDoNo = order.doNo || `${dateClean}${seqStr}`;
+
+    await db.saudaOrders.update(numId, { doNo: autoDoNo });
+    return numId;
   },
 
   async update(id: number, updates: Partial<SaudaOrder>): Promise<void> {
@@ -88,9 +97,6 @@ export const saudaService = {
   },
 
   async delete(id: number): Promise<void> {
-    // Delete related dispatches and payments
-    await db.dispatches.where('saudaId').equals(id).delete();
-    await db.payments.where('saudaId').equals(id).delete();
     await db.saudaOrders.delete(id);
   },
 

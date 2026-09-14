@@ -53,22 +53,21 @@ export const SearchSelectModal: React.FC<SearchSelectModalProps> = ({
       style={{ backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
     >
       <div 
-        className="w-full max-w-md bg-white/95 dark:bg-gray-900/95 backdrop-blur-3xl rounded-3xl shadow-glass-hover overflow-hidden flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-150 border border-white/70 dark:border-white/15"
+        className="w-full max-w-md bg-white/95 dark:bg-[#111827]/95 backdrop-blur-3xl rounded-3xl shadow-glass-hover overflow-hidden flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-150 border border-[#DCE6F2] dark:border-white/15"
         onClick={e => e.stopPropagation()}
       >
         {/* Search Input Box */}
-        <div className="p-4 border-b border-gray-200/50 dark:border-white/10 flex items-center gap-2 bg-white/40 dark:bg-white/5 backdrop-blur-xs">
-          <div className="relative flex-1 flex items-center">
-            <Search className="w-5 h-5 text-gray-400 absolute left-3.5" />
+        <div className="p-4 border-b border-[#DCE6F2] dark:border-white/10 flex items-center gap-2 bg-white/60 dark:bg-white/5 backdrop-blur-xs">
+          <div className="relative flex-1 flex items-center group">
             <input
               type="text"
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
               placeholder={placeholder}
               autoFocus
-              style={{ borderColor: palette.primary }}
-              className="w-full pl-11 pr-10 py-3 input-vyapar text-base"
+              className="w-full !pl-11 !pr-10 py-3 bg-white/90 dark:bg-[#111827]/90 backdrop-blur-xl border border-[#DCE6F2] dark:border-slate-700/60 rounded-2xl text-[#0F172A] dark:text-[#F8FAFC] placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:bg-white dark:focus:bg-[#111827] focus:border-[#2563EB] dark:focus:border-[#3B82F6] focus:ring-2 focus:ring-blue-500/15 transition-all text-sm sm:text-base font-medium shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.9),0_1px_3px_rgba(37,99,235,0.04)] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]"
             />
+            <Search className="w-5 h-5 text-slate-400 dark:text-slate-400 group-focus-within:text-blue-600 dark:group-focus-within:text-blue-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none stroke-[2.2] transition-colors" />
             {searchTerm && (
               <button
                 type="button"
@@ -83,14 +82,14 @@ export const SearchSelectModal: React.FC<SearchSelectModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-2 shrink-0 rounded-xl hover:bg-white/60 dark:hover:bg-white/10 transition-colors"
+            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-2 shrink-0 rounded-xl hover:bg-blue-50 dark:hover:bg-white/10 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Options List */}
-        <div className="flex-1 overflow-y-auto divide-y divide-gray-200/50 dark:divide-white/10">
+        <div className="flex-1 overflow-y-auto divide-y divide-[#DCE6F2]/70 dark:divide-white/10">
           {filteredOptions.length > 0 ? (
             filteredOptions.map(option => (
               <button
@@ -100,7 +99,7 @@ export const SearchSelectModal: React.FC<SearchSelectModalProps> = ({
                   onSelect(option);
                   onClose();
                 }}
-                className="w-full text-left px-5 py-4 hover:bg-white/50 dark:hover:bg-white/5 active:bg-white/70 dark:active:bg-white/10 transition-colors flex flex-col gap-1"
+                className="w-full text-left px-5 py-4 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 active:bg-blue-100/50 dark:active:bg-blue-900/20 transition-colors flex flex-col gap-1"
               >
                 <span className="font-bold text-gray-900 dark:text-gray-100 text-sm sm:text-base uppercase tracking-wide break-words">
                   {option.title}
@@ -129,7 +128,7 @@ export const SearchSelectModal: React.FC<SearchSelectModalProps> = ({
 
         {/* Bottom Bar "+ Add" Button with single big plus icon */}
         {onAddNew && (
-          <div className="p-3.5 border-t border-gray-200/50 dark:border-white/10 bg-white/40 dark:bg-white/5 backdrop-blur-xs">
+          <div className="p-3.5 border-t border-[#DCE6F2] dark:border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur-xs">
             <button
               type="button"
               onClick={onAddNew}

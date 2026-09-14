@@ -1,11 +1,17 @@
 import React, { useState } from 'react';
 import { X, Users, Check } from 'lucide-react';
-import { useTheme } from '../../context/ThemeContext';
 import { useToast } from '../../context/ToastContext';
 import { partyService } from '../../services/partyService';
 import type { Party } from '../../types';
 import { FieldError } from './FieldError';
-import { validateRequired, validatePhone, validateGst } from '../../utils/validators';
+import { GlassSelect } from './GlassSelect';
+import {
+  validateRequired,
+  validatePhone,
+  validateGst,
+  preventNonNumericInput,
+  sanitizeNumeric,
+} from '../../utils/validators';
 
 interface QuickAddPartyModalProps {
   isOpen: boolean;
@@ -14,14 +20,41 @@ interface QuickAddPartyModalProps {
   defaultPartyType?: 'seller' | 'buyer' | 'both';
 }
 
-const COMMON_STATES = ['GUJARAT', 'MAHARASHTRA', 'RAJASTHAN', 'MADHYA PRADESH', 'PUNJAB', 'HARYANA'];
+const INDIAN_STATES = [
+  'GUJARAT',
+  'MAHARASHTRA',
+  'RAJASTHAN',
+  'MADHYA PRADESH',
+  'PUNJAB',
+  'HARYANA',
+  'ANDHRA PRADESH',
+  'ARUNACHAL PRADESH',
+  'ASSAM',
+  'BIHAR',
+  'CHHATTISGARH',
+  'DELHI',
+  'GOA',
+  'HIMACHAL PRADESH',
+  'JHARKHAND',
+  'KARNATAKA',
+  'KERALA',
+  'ODISHA',
+  'TAMIL NADU',
+  'TELANGANA',
+  'UTTAR PRADESH',
+  'UTTARAKHAND',
+  'WEST BENGAL',
+  'CHANDIGARH',
+  'JAMMU & KASHMIR',
+  'LADAKH',
+];
 
 export const QuickAddPartyModal: React.FC<QuickAddPartyModalProps> = ({
   isOpen,
   onClose,
   onPartyCreated,
+  defaultPartyType = 'both',
 }) => {
-  const { palette } = useTheme();
   const toast = useToast();
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -56,6 +89,9 @@ export const QuickAddPartyModal: React.FC<QuickAddPartyModalProps> = ({
     const phoneErr = validatePhone(mobileNumber, 'Mobile Number', true);
     if (phoneErr) newErrors.mobileNumber = phoneErr;
 
+    const cityErr = validateRequired(city, 'City');
+    if (cityErr) newErrors.city = cityErr;
+
     const gstErr = validateGst(gstNumber, false);
     if (gstErr) newErrors.gstNumber = gstErr;
 
@@ -72,7 +108,7 @@ export const QuickAddPartyModal: React.FC<QuickAddPartyModalProps> = ({
         mobileNumber: mobileNumber.trim(),
         city: city.trim().toUpperCase() || 'BOTAD',
         state: state.trim().toUpperCase() || 'GUJARAT',
-        partyType: 'both',
+        partyType: defaultPartyType || 'both',
         address: address.trim(),
         gstNumber: gstNumber.trim().toUpperCase(),
       };
@@ -89,6 +125,8 @@ export const QuickAddPartyModal: React.FC<QuickAddPartyModalProps> = ({
       // Reset form
       setName('');
       setMobileNumber('');
+      setCity('BOTAD');
+      setState('GUJARAT');
       setAddress('');
       setGstNumber('');
       setErrors({});
@@ -106,13 +144,12 @@ export const QuickAddPartyModal: React.FC<QuickAddPartyModalProps> = ({
       style={{ backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
     >
       <div 
-        className="w-full max-w-md bg-white/95 dark:bg-gray-900/95 backdrop-blur-3xl rounded-3xl shadow-glass-hover overflow-hidden flex flex-col max-h-[90vh] border border-white/70 dark:border-white/15 animate-in zoom-in-95 duration-150"
+        className="w-full max-w-md bg-white/95 dark:bg-[#111827]/95 backdrop-blur-3xl rounded-3xl shadow-glass-hover overflow-hidden flex flex-col max-h-[90vh] border border-[#DCE6F2] dark:border-white/15 animate-in zoom-in-95 duration-150"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
         <div 
-          className="px-6 py-4 text-white flex items-center justify-between shadow-glass"
-          style={{ backgroundColor: palette.primary }}
+          className="px-6 py-4 text-white flex items-center justify-between shadow-glass bg-gradient-to-r from-blue-700 via-blue-600 to-sky-600"
         >
           <div className="flex items-center gap-2.5">
             <Users className="w-5 h-5 stroke-[2.5]" />
@@ -128,7 +165,7 @@ export const QuickAddPartyModal: React.FC<QuickAddPartyModalProps> = ({
         </div>
 
         {/* Form */}
-        <form noValidate onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto">
+        <form noValidate onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto pb-10">
           {/* PARTY NAME */}
           <div>
             <label className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-1.5">
@@ -143,8 +180,8 @@ export const QuickAddPartyModal: React.FC<QuickAddPartyModalProps> = ({
                 setName(e.target.value);
                 clearError('name');
               }}
-              className={`w-full px-3.5 py-2.5 bg-white/60 dark:bg-white/5 border rounded-xl font-bold uppercase text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:bg-white dark:focus:bg-gray-900 focus:ring-2 focus:ring-[var(--primary)] transition-all shadow-2xs placeholder-gray-400 ${
-                errors.name ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : 'border-white/80 dark:border-white/10'
+              className={`w-full px-3.5 py-2.5 bg-white/60 dark:bg-white/5 border rounded-xl font-bold uppercase text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:bg-white dark:focus:bg-gray-900 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-600 transition-all shadow-2xs placeholder-gray-400 ${
+                errors.name ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : 'border-[#DCE6F2] dark:border-white/10'
               }`}
             />
             <FieldError error={errors.name} />
@@ -160,55 +197,65 @@ export const QuickAddPartyModal: React.FC<QuickAddPartyModalProps> = ({
               maxLength={10}
               placeholder="e.g. 9876543210 (10 digits)"
               value={mobileNumber}
+              onKeyDown={e => preventNonNumericInput(e, false)}
               onChange={e => {
-                setMobileNumber(e.target.value.replace(/\D/g, ''));
+                setMobileNumber(sanitizeNumeric(e.target.value, false).slice(0, 10));
                 clearError('mobileNumber');
               }}
-              className={`w-full px-3.5 py-2.5 bg-white/60 dark:bg-white/5 border rounded-xl font-semibold text-xs text-gray-900 dark:text-gray-100 focus:outline-none focus:bg-white dark:focus:bg-gray-900 focus:ring-2 focus:ring-[var(--primary)] transition-all shadow-2xs placeholder-gray-400 ${
-                errors.mobileNumber ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : 'border-white/80 dark:border-white/10'
+              className={`w-full px-3.5 py-2.5 bg-white/60 dark:bg-white/5 border rounded-xl font-semibold text-xs text-gray-900 dark:text-gray-100 focus:outline-none focus:bg-white dark:focus:bg-gray-900 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-600 transition-all shadow-2xs placeholder-gray-400 ${
+                errors.mobileNumber ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : 'border-[#DCE6F2] dark:border-white/10'
               }`}
             />
             <FieldError error={errors.mobileNumber} />
           </div>
 
-          {/* CITY & STATE */}
-          <div className="grid grid-cols-2 gap-3 min-w-0">
+          {/* CITY & STATE (LOV) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 min-w-0">
+            {/* CITY * */}
             <div className="min-w-0">
               <label className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-1.5">
-                CITY
+                CITY <span className="text-red-500 font-bold">*</span>
               </label>
               <input
                 type="text"
                 placeholder="BOTAD"
                 value={city}
-                onChange={e => setCity(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-white/60 dark:bg-white/5 border border-white/80 dark:border-white/10 rounded-xl font-semibold uppercase text-xs text-gray-900 dark:text-gray-100 focus:outline-none focus:bg-white dark:focus:bg-gray-900 focus:ring-2 focus:ring-[var(--primary)] transition-all shadow-2xs placeholder-gray-400"
+                onChange={e => {
+                  setCity(e.target.value);
+                  clearError('city');
+                }}
+                className={`w-full px-3.5 py-2.5 bg-white/60 dark:bg-white/5 border rounded-xl font-semibold uppercase text-xs text-gray-900 dark:text-gray-100 focus:outline-none focus:bg-white dark:focus:bg-gray-900 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-600 transition-all shadow-2xs placeholder-gray-400 ${
+                  errors.city ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : 'border-[#DCE6F2] dark:border-white/10'
+                }`}
               />
+              <FieldError error={errors.city} />
             </div>
+
+            {/* STATE (LOV Dropdown) */}
             <div className="min-w-0">
-              <label className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-1.5">
-                STATE
-              </label>
-              <input
-                type="text"
-                placeholder="GUJARAT"
+              <GlassSelect
+                label="STATE"
                 value={state}
-                onChange={e => setState(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-white/60 dark:bg-white/5 border border-white/80 dark:border-white/10 rounded-xl font-semibold uppercase text-xs text-gray-900 dark:text-gray-100 focus:outline-none focus:bg-white dark:focus:bg-gray-900 focus:ring-2 focus:ring-[var(--primary)] transition-all shadow-2xs placeholder-gray-400"
+                onChange={v => setState(v)}
+                options={INDIAN_STATES.map(s => ({ value: s, label: s }))}
+                searchable
+                placeholder="Select State"
               />
-              <div className="flex flex-wrap gap-1 mt-1.5">
-                {COMMON_STATES.slice(0, 3).map(s => (
-                  <button
-                    key={s}
-                    type="button"
-                    onClick={() => setState(s)}
-                    className="text-[9px] font-bold px-2 py-0.5 rounded-lg bg-white/60 dark:bg-white/10 border border-white/80 dark:border-white/10 text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800 transition-all shadow-2xs"
-                  >
-                    {s}
-                  </button>
-                ))}
-              </div>
             </div>
+          </div>
+
+          {/* ADDRESS (OPTIONAL) */}
+          <div>
+            <label className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-1.5">
+              ADDRESS (OPTIONAL)
+            </label>
+            <input
+              type="text"
+              placeholder="e.g. Station Road, Near APMC Market"
+              value={address}
+              onChange={e => setAddress(e.target.value)}
+              className="w-full px-3.5 py-2.5 bg-white/60 dark:bg-white/5 border border-[#DCE6F2] dark:border-white/10 rounded-xl font-semibold text-xs text-gray-900 dark:text-gray-100 focus:outline-none focus:bg-white dark:focus:bg-gray-900 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-600 transition-all shadow-2xs placeholder-gray-400"
+            />
           </div>
 
           {/* GST NUMBER (OPTIONAL) */}
@@ -221,9 +268,15 @@ export const QuickAddPartyModal: React.FC<QuickAddPartyModalProps> = ({
               maxLength={15}
               placeholder="e.g. 24AAAAA0000A1Z5"
               value={gstNumber}
-              onChange={e => setGstNumber(e.target.value.toUpperCase())}
-              className="w-full px-3.5 py-2.5 bg-white/60 dark:bg-white/5 border border-white/80 dark:border-white/10 rounded-xl font-mono uppercase text-xs text-gray-900 dark:text-gray-100 focus:outline-none focus:bg-white dark:focus:bg-gray-900 focus:ring-2 focus:ring-[var(--primary)] transition-all shadow-2xs placeholder-gray-400"
+              onChange={e => {
+                setGstNumber(e.target.value.toUpperCase());
+                clearError('gstNumber');
+              }}
+              className={`w-full px-3.5 py-2.5 bg-white/60 dark:bg-white/5 border rounded-xl font-mono uppercase text-xs text-gray-900 dark:text-gray-100 focus:outline-none focus:bg-white dark:focus:bg-gray-900 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-600 transition-all shadow-2xs placeholder-gray-400 ${
+                errors.gstNumber ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : 'border-[#DCE6F2] dark:border-white/10'
+              }`}
             />
+            <FieldError error={errors.gstNumber} />
           </div>
 
           {/* Action Buttons */}
@@ -238,8 +291,8 @@ export const QuickAddPartyModal: React.FC<QuickAddPartyModalProps> = ({
             </button>
             <button
               type="submit"
-              disabled={isSubmitting}
-              className="btn-glass-primary flex-2 py-3 px-4 font-bold rounded-2xl text-xs flex items-center justify-center gap-1.5"
+              disabled={!name.trim() || mobileNumber.trim().length !== 10 || !city.trim() || isSubmitting}
+              className="btn-glass-primary flex-2 py-3 px-4 font-bold rounded-2xl text-xs flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none hover:disabled:shadow-none transition-all"
             >
               <Check className="w-4 h-4 stroke-[3]" />
               <span>{isSubmitting ? 'Saving...' : 'Save Party'}</span>

@@ -89,15 +89,25 @@ export const SaudaListPage: React.FC = () => {
       <div className="p-4 md:p-6 space-y-4 max-w-3xl mx-auto">
         {/* Search Bar & Filter Button (Screenshot 23) */}
         <div className="flex items-center gap-2.5">
-          <div className="relative flex-1">
-            <Search className="w-5 h-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" />
+          <div className="relative flex-1 group">
             <input
               type="text"
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              placeholder="Search by #ID"
-              className="w-full pl-12 pr-4 py-3.5 bg-white/80 backdrop-blur-xl border border-blue-200/90 rounded-2xl text-sm font-medium focus:outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-300/50 text-gray-900 transition-all placeholder-gray-400 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_2px_8px_rgba(37,99,235,0.06)]"
+              placeholder="Search by #DO or Party Name"
+              className="w-full !pl-11 !pr-10 py-3.5 bg-white/80 dark:bg-[#111827]/80 backdrop-blur-xl border border-[#DCE6F2] dark:border-slate-800 rounded-2xl text-sm font-medium focus:outline-none focus:bg-white dark:focus:bg-[#172033] focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-300/30 text-slate-900 dark:text-slate-100 transition-all placeholder-slate-400 dark:placeholder-slate-500 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_2px_8px_rgba(37,99,235,0.06)] dark:shadow-none"
             />
+            <Search className="w-5 h-5 text-slate-400 dark:text-slate-400 group-focus-within:text-blue-600 dark:group-focus-within:text-blue-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none stroke-[2.2] transition-colors" />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer"
+                title="Clear Search"
+              >
+                <X className="w-4 h-4 stroke-[2.2]" />
+              </button>
+            )}
           </div>
 
           <button
@@ -106,7 +116,7 @@ export const SaudaListPage: React.FC = () => {
             className={`w-12 h-12 rounded-2xl border flex items-center justify-center transition-all shrink-0 active:scale-95 cursor-pointer ${
               selectedItemId !== null
                 ? 'btn-glass-primary text-white shadow-glass'
-                : 'bg-gradient-to-b from-white/95 to-blue-50/70 border-blue-200/90 text-blue-700 hover:from-white hover:to-blue-100 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_2px_8px_rgba(37,99,235,0.08)] backdrop-blur-xl'
+                : 'bg-white/90 dark:bg-slate-800/90 border-[#DCE6F2] dark:border-slate-700/80 text-blue-600 dark:text-blue-400 hover:bg-white dark:hover:bg-slate-800 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_2px_8px_rgba(37,99,235,0.06)] dark:shadow-none backdrop-blur-xl'
             }`}
             title="Filter by Commodity Item"
             aria-label="Filter items"
@@ -127,19 +137,19 @@ export const SaudaListPage: React.FC = () => {
           ))}
 
           {!isLoading && orders.length > 0 && (
-            <div className="text-center py-6 text-gray-400 dark:text-gray-500 text-xs font-medium flex items-center justify-center gap-1.5">
-              <Info className="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" />
+            <div className="text-center py-6 text-slate-400 dark:text-slate-500 text-xs font-medium flex items-center justify-center gap-1.5">
+              <Info className="w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0" />
               <span>No more orders</span>
             </div>
           )}
 
           {!isLoading && orders.length === 0 && (
-            <div className="text-center py-12 px-4 rounded-3xl bg-white/40 dark:bg-gray-850/40 backdrop-blur-xl border border-white/50 dark:border-white/10 shadow-glass">
+            <div className="text-center py-12 px-4 rounded-3xl bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/50 dark:border-slate-800/60 shadow-glass">
               <div className="w-12 h-12 rounded-2xl bg-blue-500/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 mx-auto flex items-center justify-center mb-3">
                 <ReceiptText className="w-6 h-6 stroke-[2]" />
               </div>
-              <h3 className="text-sm font-bold text-gray-800 dark:text-gray-200">No orders found</h3>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">No orders found</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                 {searchQuery || selectedItemId !== null
                   ? 'No orders match your search or filter criteria'
                   : 'Click the + button below to create your first Vyapar order.'}
@@ -149,12 +159,13 @@ export const SaudaListPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Floating Action Button (+) for Desktop (Mobile uses the center glass dock FAB) */}
+      {/* Floating Action Button (+) */}
       <button
         type="button"
         onClick={() => navigate('/vyapar/create')}
-        className="btn-glass-primary hidden md:flex fixed bottom-8 right-6 z-40 w-14 h-14 rounded-2xl items-center justify-center"
+        className="btn-glass-primary fixed bottom-20 md:bottom-8 right-6 z-40 w-14 h-14 rounded-2xl flex items-center justify-center transition-all active:scale-90"
         aria-label="Create Vyapar"
+        title="Create Vyapar"
       >
         <Plus className="w-7 h-7 stroke-[2.5]" />
       </button>
@@ -170,12 +181,12 @@ export const SaudaListPage: React.FC = () => {
 
       {/* Share / PDF Preview Modal */}
       {activeShareOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in">
-          <div className="w-full max-w-3xl bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
-            <div className="p-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between bg-sky-50/50 dark:bg-gray-700/50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in">
+          <div className="w-full max-w-3xl bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+            <div className="p-4 border-b border-[#DCE6F2] dark:border-slate-800 flex items-center justify-between bg-blue-50/50 dark:bg-slate-800/60">
               <div className="flex items-center gap-2">
-                <Share2 className="w-5 h-5 text-sky-600 dark:text-sky-400" />
-                <h3 className="font-bold text-gray-900 dark:text-white text-base">
+                <Share2 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                <h3 className="font-bold text-slate-900 dark:text-slate-100 text-base">
                   Vyapar Note #{activeShareOrder.id} Preview
                 </h3>
               </div>
@@ -191,14 +202,14 @@ export const SaudaListPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setActiveShareOrder(null)}
-                  className="p-1.5 text-gray-400 hover:text-gray-700 rounded-lg hover:bg-white transition-colors"
+                  className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-lg hover:bg-white/60 dark:hover:bg-slate-800 transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto overflow-x-auto p-3 sm:p-4 md:p-6 bg-gray-50 min-w-0">
+            <div className="flex-1 overflow-y-auto overflow-x-auto p-3 sm:p-4 md:p-6 bg-slate-50 dark:bg-[#0B1220] min-w-0">
               <SaudaNoteTemplate
                 order={activeShareOrder}
                 company={currentCompany || undefined}
@@ -213,14 +224,14 @@ export const SaudaListPage: React.FC = () => {
 
       {/* Filter Modal (iOS Glass Sheet) */}
       {showFilterDrawer && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-md animate-in fade-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/50 backdrop-blur-md animate-in fade-in">
           <div className="w-full max-w-sm glass-card rounded-3xl p-5 space-y-4 max-h-[85vh] flex flex-col">
             <div className="flex justify-between items-center">
-              <h3 className="font-extrabold text-base text-gray-900 dark:text-white">Filter by Item</h3>
+              <h3 className="font-extrabold text-base text-slate-900 dark:text-slate-100">Filter by Item</h3>
               <button
                 type="button"
                 onClick={() => setShowFilterDrawer(false)}
-                className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-xl hover:bg-white/50 dark:hover:bg-gray-800 transition-colors"
+                className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-xl hover:bg-white/50 dark:hover:bg-slate-800 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -235,8 +246,8 @@ export const SaudaListPage: React.FC = () => {
                 }}
                 className={`w-full text-left py-2.5 px-3.5 rounded-xl text-xs font-bold transition-all ${
                   selectedItemId === null
-                    ? 'bg-sky-500/15 text-sky-900 dark:text-sky-300 border border-sky-400/40 shadow-2xs'
-                    : 'hover:bg-white/60 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200'
+                    ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60 shadow-2xs'
+                    : 'hover:bg-white/60 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200'
                 }`}
               >
                 All Commodity Items
@@ -251,8 +262,8 @@ export const SaudaListPage: React.FC = () => {
                   }}
                   className={`w-full text-left py-2.5 px-3.5 rounded-xl text-xs font-bold transition-all uppercase ${
                     selectedItemId === itm.id
-                      ? 'bg-sky-500/15 text-sky-900 dark:text-sky-300 border border-sky-400/40 shadow-2xs'
-                      : 'hover:bg-white/60 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200'
+                      ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60 shadow-2xs'
+                      : 'hover:bg-white/60 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200'
                   }`}
                 >
                   {itm.name}

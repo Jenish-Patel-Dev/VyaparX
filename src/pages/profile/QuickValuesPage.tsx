@@ -49,11 +49,9 @@ export const QuickValuesPage: React.FC = () => {
   };
 
   const tabs: { key: QuickValue['category']; label: string }[] = [
-    { key: 'paymentTerms', label: 'Payment Terms' },
-    { key: 'deliveryTerms', label: 'Delivery Terms' },
-    { key: 'remark', label: 'Remarks' },
-    { key: 'quality', label: 'Quality / Variety' },
-    { key: 'unit', label: 'Units' },
+    { key: 'paymentTerms', label: 'Payment Days' },
+    { key: 'quality', label: 'Quality' },
+    { key: 'rdValue', label: 'RD Value' },
   ];
 
   return (
@@ -77,7 +75,7 @@ export const QuickValuesPage: React.FC = () => {
               className={`py-2 px-3.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                 activeTab === tab.key
                   ? 'btn-glass-primary text-white shadow-glass'
-                  : 'bg-white/40 dark:bg-white/5 border border-white/40 dark:border-white/10 text-gray-700 dark:text-gray-300 hover:bg-white/60 dark:hover:bg-white/10'
+                  : 'bg-white/40 dark:bg-white/5 border border-[#DCE6F2] dark:border-white/10 text-gray-700 dark:text-gray-300 hover:bg-white/60 dark:hover:bg-white/10'
               }`}
             >
               {tab.label}
@@ -102,7 +100,8 @@ export const QuickValuesPage: React.FC = () => {
             />
             <button
               type="submit"
-              className="btn-glass-primary px-5 py-3 font-bold rounded-2xl text-xs flex items-center gap-1 shrink-0"
+              disabled={!newValue.trim()}
+              className="btn-glass-primary px-5 py-3 font-bold rounded-2xl text-xs flex items-center gap-1 shrink-0 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none hover:disabled:shadow-none transition-all"
             >
               <Plus className="w-4 h-4" />
               <span>Add</span>
@@ -112,13 +111,12 @@ export const QuickValuesPage: React.FC = () => {
         </div>
 
         {/* List of shortcuts */}
-        <div className="glass-card rounded-3xl divide-y divide-gray-200/50 dark:divide-white/10 overflow-hidden shadow-glass-card">
+        <div className="glass-card rounded-3xl divide-y divide-[#DCE6F2]/70 dark:divide-white/10 overflow-hidden shadow-glass-card">
           {items.map(item => (
             <div key={item.id} className="p-4 flex items-center justify-between hover:bg-white/40 dark:hover:bg-white/5 transition-colors gap-2">
               <div className="flex items-center gap-2.5 min-w-0 flex-1">
                 <div 
-                  className="w-7 h-7 rounded-lg flex items-center justify-center backdrop-blur-xs shrink-0"
-                  style={{ backgroundColor: palette.light, color: palette.primary }}
+                  className="w-7 h-7 rounded-lg flex items-center justify-center backdrop-blur-xs shrink-0 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-200/50 dark:border-blue-700/50"
                 >
                   <Zap className="w-4 h-4" />
                 </div>

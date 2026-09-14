@@ -64,7 +64,7 @@ export const ReferralsPage: React.FC = () => {
             <span>My Referral Users ({dummyReferredUsers.length})</span>
           </div>
 
-          <div className="divide-y divide-gray-200/50 dark:divide-white/10">
+          <div className="divide-y divide-[#DCE6F2]/70 dark:divide-white/10">
             {dummyReferredUsers.map((user, i) => (
               <div key={i} className="py-3 flex justify-between items-center text-xs">
                 <div>

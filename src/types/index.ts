@@ -14,6 +14,7 @@ export interface Company {
   accountHolderName?: string;
   ifscCode?: string;
   upiId?: string;
+  logo?: string;
   saudaNoteColor: 'RED' | 'ORANGE' | 'BLUE' | 'GREEN' | 'BLACK';
   pdfTemplate: 1 | 2 | 3 | 4;
   showSignature: boolean;
@@ -64,6 +65,7 @@ export interface Party {
 
 export interface SaudaOrder {
   id?: number;
+  doNo?: string;
   companyId: number;
   financialYear: string;
   date: string;
@@ -73,63 +75,48 @@ export interface SaudaOrder {
   quantity: number;
   unit: string;
   billRate: number;
-  withGST: boolean;
-  gstPercent: number;
-  gstAmount: number;
+  withGST?: boolean;
+  gstPercent?: number;
+  gstAmount?: number;
   totalBillAmount: number;
   billNo?: string;
   paymentTerms?: string;
   deliveryTerms?: string;
   remark?: string;
   termsConditions?: string;
+
+  // Technical parameters
+  rdValue?: string;
+  stapleLength?: string;
+  mic?: string;
+  trashPercent?: string;
+  moisturePercent?: string;
+
+  // Seller details
   sellerId: number;
   sellerName: string;
+  sellerLocation?: string;
+  sellerCity?: string;
   sellerCommissionRate: number;
   sellerCommissionAmount: number;
   sellerContactPerson?: string;
+
+  // Buyer details
   buyerId: number;
   buyerName: string;
+  buyerLocation?: string;
+  buyerCity?: string;
   buyerCommissionRate: number;
   buyerCommissionAmount: number;
   buyerContactPerson?: string;
-  dispatchStatus: 'Pending' | 'Partial' | 'Dispatched' | 'Completed';
-  paymentStatus: 'Pending' | 'Partial' | 'Paid';
-  dispatchedQuantity?: number;
-  paidAmount?: number;
+
   createdAt: string;
   updatedAt: string;
 }
 
-export interface DispatchRecord {
-  id?: number;
-  saudaId: number;
-  dispatchDate: string;
-  quantity: number;
-  vehicleNumber: string;
-  transporter: string;
-  driverName?: string;
-  driverContact?: string;
-  remarks?: string;
-  status: 'Pending' | 'Partial' | 'Dispatched' | 'Completed';
-  createdAt: string;
-}
-
-export interface PaymentRecord {
-  id?: number;
-  saudaId: number;
-  partyId?: number;
-  partyType: 'seller' | 'buyer';
-  paymentDate: string;
-  amount: number;
-  paymentMode: 'Cash' | 'Bank Transfer' | 'UPI' | 'Cheque' | 'Other';
-  referenceNumber?: string;
-  remarks?: string;
-  createdAt: string;
-}
-
 export interface QuickValue {
   id?: number;
-  category: 'paymentTerms' | 'deliveryTerms' | 'remark' | 'quality' | 'unit';
+  category: 'paymentTerms' | 'quality' | 'rdValue' | 'deliveryTerms' | 'remark' | 'unit';
   value: string;
 }
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mail, ArrowRight, Download } from 'lucide-react';
+import { Mail, ArrowRight, Download, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -12,7 +12,7 @@ import { FieldError } from '../../components/common/FieldError';
 export const EmailLoginPage: React.FC = () => {
   const navigate = useNavigate();
   const toast = useToast();
-  const { palette } = useTheme();
+  const { palette, isDarkMode, setDarkMode } = useTheme();
   const { sendOtp, pendingEmail, setPendingEmail } = useAuth();
   const { promptInstall, isInstalled } = usePwa();
   const { t } = useLanguage();
@@ -44,15 +44,35 @@ export const EmailLoginPage: React.FC = () => {
 
   return (
     <div 
-      className="h-screen h-[100dvh] max-h-screen flex flex-col items-center justify-between p-3 sm:p-4 md:p-6 text-white transition-colors relative overflow-hidden select-none"
-      style={{ backgroundColor: palette.primary }}
+      className="h-screen h-[100dvh] max-h-screen flex flex-col items-center justify-between p-3 sm:p-4 md:p-6 text-white transition-colors relative overflow-hidden select-none bg-gradient-to-br from-[#1E40AF] via-[#1D4ED8] to-[#2563EB] dark:from-[#0B1220] dark:via-[#111827] dark:to-[#172033]"
     >
       {/* Ambient background refraction blobs */}
       <div className="absolute -top-28 -left-28 w-80 h-80 rounded-full bg-[#00ADEF]/25 blur-3xl pointer-events-none animate-pulse" />
       <div className="absolute -bottom-32 -right-28 w-96 h-96 rounded-full bg-[#272264]/40 blur-3xl pointer-events-none" />
 
-      {/* Top Header / Download Button */}
-      <div className="w-full flex justify-end relative z-10 shrink-0">
+      {/* Top Header / Action Buttons */}
+      <div className="w-full flex items-center justify-end gap-2 relative z-10 shrink-0">
+        {/* Dark / Light Mode Toggle */}
+        <button
+          type="button"
+          onClick={() => setDarkMode(!isDarkMode)}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 backdrop-blur-md border border-white/30 text-white text-xs font-bold shadow-glass transition-all cursor-pointer"
+          title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+          aria-label="Toggle Theme"
+        >
+          {isDarkMode ? (
+            <>
+              <Sun className="w-3.5 h-3.5 text-amber-300 stroke-[2.5]" />
+              <span>Light</span>
+            </>
+          ) : (
+            <>
+              <Moon className="w-3.5 h-3.5 text-white stroke-[2.5]" />
+              <span>Dark</span>
+            </>
+          )}
+        </button>
+
         <button
           type="button"
           onClick={promptInstall}
@@ -112,8 +132,8 @@ export const EmailLoginPage: React.FC = () => {
           {/* Send OTP Button */}
           <button
             type="submit"
-            disabled={isSubmitting}
-            className="btn-glass-primary w-full py-2.5 sm:py-3 px-5 font-bold text-xs sm:text-sm rounded-xl sm:rounded-2xl flex items-center justify-center gap-2"
+            disabled={!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) || isSubmitting}
+            className="btn-glass-primary w-full py-2.5 sm:py-3 px-5 font-bold text-xs sm:text-sm rounded-xl sm:rounded-2xl flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none hover:disabled:shadow-none transition-all"
           >
             {isSubmitting ? (
               <div className="flex items-center gap-2">

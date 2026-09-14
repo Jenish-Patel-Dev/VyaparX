@@ -100,8 +100,8 @@ export const GlassSelect: React.FC<GlassSelectProps> = ({
           error
             ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20'
             : isOpen
-              ? 'border-[var(--primary)] ring-2 ring-blue-200/50 dark:ring-blue-900/40 bg-white/95 dark:bg-gray-800/90'
-              : 'border-white/60 dark:border-white/10 hover:bg-white/80 dark:hover:bg-gray-800/70 hover:border-[var(--primary)]'
+              ? 'border-blue-600 ring-2 ring-blue-100 dark:ring-blue-900/40 bg-white/95 dark:bg-[#111827]/90'
+              : 'border-[#DCE6F2] dark:border-white/10 hover:bg-white/80 dark:hover:bg-gray-800/70 hover:border-blue-500'
         } ${triggerClassName}`}
       >
         <div className="flex items-center gap-2.5 min-w-0 flex-1 pr-1">
@@ -125,7 +125,7 @@ export const GlassSelect: React.FC<GlassSelectProps> = ({
 
         <ChevronDown
           className={`w-4 h-4 text-gray-400 shrink-0 transition-transform duration-200 ${
-            isOpen ? 'rotate-180 text-[var(--primary)]' : ''
+            isOpen ? 'rotate-180 text-blue-600' : ''
           }`}
         />
       </button>
@@ -133,22 +133,22 @@ export const GlassSelect: React.FC<GlassSelectProps> = ({
       {/* Dropdown Menu Popup */}
       {isOpen && (
         <div
-          className="absolute left-0 right-0 mt-2 bg-white/95 dark:bg-gray-900/95 backdrop-blur-2xl rounded-2xl shadow-glass-hover border border-white/60 dark:border-white/15 p-2 z-50 animate-in fade-in zoom-in-95 duration-150 space-y-1"
+          className="absolute left-0 right-0 mt-2 bg-white/95 dark:bg-[#111827]/95 backdrop-blur-2xl rounded-2xl shadow-glass-hover border border-[#DCE6F2] dark:border-white/15 p-2 z-50 animate-in fade-in zoom-in-95 duration-150 space-y-1"
           style={{ backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}
         >
           {/* Quick Search for large lists (e.g. 36 states) */}
           {isSearchEnabled && (
-            <div className="p-1 border-b border-gray-100 dark:border-gray-800 mb-1">
-              <div className="relative">
-                <Search className="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+            <div className="p-1 border-b border-[#DCE6F2]/70 dark:border-gray-800 mb-1">
+              <div className="relative group">
                 <input
                   ref={searchInputRef}
                   type="text"
                   placeholder="Search..."
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
-                  className="w-full pl-8 pr-3 py-1.5 text-xs bg-gray-50 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-[var(--primary)]"
+                  className="w-full !pl-8 !pr-3 py-1.5 text-xs bg-gray-50 dark:bg-gray-800/80 border border-[#DCE6F2] dark:border-gray-700 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-blue-600"
                 />
+                <Search className="w-3.5 h-3.5 text-slate-400 dark:text-slate-400 group-focus-within:text-blue-600 dark:group-focus-within:text-blue-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none stroke-[2.2] transition-colors" />
               </div>
             </div>
           )}
@@ -165,8 +165,8 @@ export const GlassSelect: React.FC<GlassSelectProps> = ({
                     onClick={() => handleSelect(opt.value)}
                     className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all text-left cursor-pointer ${
                       isSelected
-                        ? 'bg-gray-100 dark:bg-gray-700/90 text-gray-900 dark:text-white shadow-2xs'
-                        : 'hover:bg-gray-50 dark:hover:bg-gray-800/60 text-gray-700 dark:text-gray-300'
+                        ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 shadow-2xs'
+                        : 'hover:bg-blue-50/50 dark:hover:bg-gray-800/60 text-gray-700 dark:text-gray-300'
                     }`}
                   >
                     <div className="flex items-center gap-2.5 min-w-0 flex-1 pr-2">
