@@ -65,21 +65,12 @@ export const MobileBottomNav: React.FC = () => {
       className="md:hidden fixed bottom-3 left-3 right-3 max-w-md mx-auto z-40 h-[64px] select-none"
       aria-label="Mobile Navigation Dock"
     >
-      {/* Outer Floating Stadium Pill Container - Pure Refractive Liquid Glass */}
+      {/* Outer Floating Stadium Pill Container - Subtle Frosted Glass */}
       <div
-        className="w-full h-full rounded-full p-1.5 flex items-center justify-between backdrop-blur-3xl transition-all duration-300 relative overflow-hidden"
-        style={{
-          background:
-            'linear-gradient(135deg, rgba(255, 255, 255, 0.55) 0%, rgba(220, 238, 255, 0.30) 100%)',
-          backdropFilter: 'blur(30px) saturate(210%)',
-          WebkitBackdropFilter: 'blur(30px) saturate(210%)',
-          border: '1px solid rgba(255, 255, 255, 0.90)',
-          boxShadow:
-            'inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.98), inset 0 -1px 1.5px 0 rgba(191, 219, 254, 0.45), 0 14px 36px -4px rgba(37, 99, 235, 0.18), 0 4px 14px -2px rgba(0, 0, 0, 0.05)',
-        }}
+        className="w-full h-full rounded-full p-1.5 flex items-center justify-between bg-white/80 dark:bg-[#111827]/85 backdrop-blur-2xl border border-[#DCE6F2]/90 dark:border-slate-800 shadow-[0_8px_30px_rgba(37,99,235,0.08),0_2px_8px_rgba(0,0,0,0.03)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.5)] transition-all duration-300 relative overflow-hidden"
       >
         {/* Top Rim Specular Glint */}
-        <div className="absolute inset-x-6 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-white to-transparent pointer-events-none opacity-95" />
+        <div className="absolute inset-x-6 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/80 dark:via-white/20 to-transparent pointer-events-none opacity-80" />
         {navItems.map((item) => {
           const Icon = item.icon;
           const active = item.isActive;
@@ -92,34 +83,27 @@ export const MobileBottomNav: React.FC = () => {
             >
               {active ? (
                 <div
-                  className="w-full h-full rounded-full flex flex-col items-center justify-center transition-all duration-300 px-1"
-                  style={{
-                    background:
-                      'linear-gradient(180deg, rgba(239, 246, 255, 0.98) 0%, rgba(219, 234, 254, 0.85) 100%)',
-                    border: '1px solid rgba(191, 219, 254, 0.95)',
-                    boxShadow:
-                      'inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.98), 0 3px 10px rgba(37, 99, 235, 0.14)',
-                  }}
+                  className="w-full h-full rounded-full flex flex-col items-center justify-center bg-blue-50/95 dark:bg-blue-950/60 border border-blue-200/80 dark:border-blue-800/60 shadow-[0_2px_8px_-2px_rgba(37,99,235,0.12)] transition-all duration-300 px-1"
                 >
-                  <Icon className="w-5 h-5 text-blue-600 stroke-[2.3]" />
-                  <span className="text-[10px] sm:text-[11px] font-bold text-blue-950 tracking-tight leading-none mt-0.5 truncate max-w-full">
+                  <Icon className="w-5 h-5 text-[#2563EB] dark:text-[#38BDF8] stroke-[2.3]" />
+                  <span className="text-[10px] sm:text-[11px] font-bold text-[#1E3A8A] dark:text-[#F8FAFC] tracking-tight leading-none mt-0.5 truncate max-w-full">
                     {item.label}
                   </span>
                 </div>
               ) : (
-                <div className="w-full h-full rounded-full flex flex-col items-center justify-center text-gray-500 hover:text-gray-900 transition-colors px-1">
+                <div className="w-full h-full rounded-full flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors px-1">
                   {item.isCreate ? (
-                    <div className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-xs">
+                    <div className="w-6 h-6 rounded-full bg-[#2563EB] text-white flex items-center justify-center shadow-xs">
                       <Icon className="w-4 h-4 stroke-[2.5]" />
                     </div>
                   ) : (
-                    <Icon className="w-5 h-5 text-gray-500 stroke-[2]" />
+                    <Icon className="w-5 h-5 text-slate-400 dark:text-slate-400 stroke-[2]" />
                   )}
                   <span
                     className={`text-[10px] sm:text-[11px] font-medium tracking-tight leading-none truncate max-w-full ${
                       item.isCreate
-                        ? 'text-blue-700 font-bold mt-0.5'
-                        : 'text-gray-600 mt-1'
+                        ? 'text-[#2563EB] dark:text-[#38BDF8] font-bold mt-0.5'
+                        : 'text-slate-500 dark:text-slate-400 mt-1'
                     }`}
                   >
                     {item.label}

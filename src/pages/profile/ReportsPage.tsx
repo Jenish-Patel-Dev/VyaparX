@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Printer, Download, BarChart2, Users, Info } from 'lucide-react';
+import { Search, Printer, Download, BarChart2, Users, Info, X } from 'lucide-react';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { reportService, type PartyWiseReportRow } from '../../services/reportService';
 import { useApp } from '../../context/AppContext';
@@ -42,7 +42,7 @@ export const ReportsPage: React.FC = () => {
           <button
             type="button"
             onClick={handlePrint}
-            className="p-2 text-gray-600 dark:text-gray-300 hover:text-orange-600 rounded-xl hover:bg-white/40 dark:hover:bg-white/10 transition-colors"
+            className="p-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 rounded-xl hover:bg-blue-50/60 dark:hover:bg-blue-900/20 transition-colors"
             title="Print Report"
           >
             <Printer className="w-5 h-5" />
@@ -67,30 +67,40 @@ export const ReportsPage: React.FC = () => {
           </div>
           <div className="glass-card p-4 md:p-5 rounded-3xl text-center shadow-glass-card min-w-0 overflow-hidden">
             <div className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Turnover Amount</div>
-            <div className="text-base sm:text-lg md:text-xl font-black text-orange-600 dark:text-orange-400 mt-1 truncate" title={formatCurrency(totalBillSum, 0)}>
+            <div className="text-base sm:text-lg md:text-xl font-black text-blue-600 dark:text-blue-400 mt-1 truncate" title={formatCurrency(totalBillSum, 0)}>
               {formatCurrency(totalBillSum, 0)}
             </div>
           </div>
         </div>
 
         {/* Search */}
-        <div className="relative">
-          <Search className="w-5 h-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" />
+        <div className="relative group">
           <input
             type="text"
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             placeholder="Search party in report..."
-            className="input-vyapar pl-12 pr-4 py-3.5 text-sm font-medium"
+            className="w-full !pl-11 !pr-10 py-3.5 bg-white/80 dark:bg-[#111827]/80 backdrop-blur-xl border border-[#DCE6F2] dark:border-slate-800 rounded-2xl text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:bg-white dark:focus:bg-[#172033] focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-300/30 transition-all placeholder-slate-400 dark:placeholder-slate-500 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_2px_8px_rgba(37,99,235,0.06)] dark:shadow-none"
           />
+          <Search className="w-5 h-5 text-slate-400 dark:text-slate-400 group-focus-within:text-blue-600 dark:group-focus-within:text-blue-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none stroke-[2.2] transition-colors" />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer"
+              title="Clear Search"
+            >
+              <X className="w-4 h-4 stroke-[2.2]" />
+            </button>
+          )}
         </div>
 
         {/* Report Table / Cards */}
-        <div className="glass-panel rounded-3xl overflow-hidden shadow-glass-card border border-white/60 dark:border-white/10">
+        <div className="glass-panel rounded-3xl overflow-hidden shadow-glass-card border border-[#DCE6F2] dark:border-white/10">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse min-w-[500px]">
               <thead>
-                <tr className="bg-white/40 dark:bg-white/5 border-b border-gray-200/60 dark:border-white/10 text-gray-700 dark:text-gray-300 font-bold uppercase tracking-wider whitespace-nowrap">
+                <tr className="bg-blue-50/40 dark:bg-white/5 border-b border-[#DCE6F2] dark:border-white/10 text-gray-700 dark:text-gray-300 font-bold uppercase tracking-wider whitespace-nowrap">
                   <th className="p-4">Party Name</th>
                   <th className="p-4 text-center">Orders</th>
                   <th className="p-4 text-right">Volume</th>
@@ -98,9 +108,9 @@ export const ReportsPage: React.FC = () => {
                   <th className="p-4 text-right">Brokerage</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200/40 dark:divide-white/5 whitespace-nowrap">
+              <tbody className="divide-y divide-[#DCE6F2]/60 dark:divide-white/5 whitespace-nowrap">
                 {filteredData.map(row => (
-                  <tr key={row.partyId} className="hover:bg-orange-500/10 dark:hover:bg-white/5 transition-colors">
+                  <tr key={row.partyId} className="hover:bg-blue-50/40 dark:hover:bg-blue-900/10 transition-colors">
                     <td className="p-4 font-extrabold text-gray-900 dark:text-white uppercase">
                       <div className="truncate max-w-[180px] sm:max-w-xs" title={row.partyName}>{row.partyName}</div>
                       <div className="text-[10px] text-gray-400 dark:text-gray-500 font-normal">

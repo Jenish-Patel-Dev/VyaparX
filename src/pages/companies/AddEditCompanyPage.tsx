@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, useSearchParams, useLocation } from 'react-router-dom';
-import { Info, Trash2, Search, CheckCircle, LogOut, Plus, Save, X, Check } from 'lucide-react';
+import { Info, Trash2, CheckCircle, LogOut, Plus, Save, Sun, Moon } from 'lucide-react';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { companyService } from '../../services/companyService';
 import { authService } from '../../services/authService';
@@ -23,6 +23,8 @@ import {
   validatePan,
   validateGst,
   validateIfsc,
+  preventNonNumericInput,
+  sanitizeNumeric,
 } from '../../utils/validators';
 
 const INDIAN_STATES = [
@@ -53,7 +55,7 @@ const COLOR_OPTIONS = [
 export const AddEditCompanyPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { palette } = useTheme();
+  const { palette, isDarkMode, setDarkMode } = useTheme();
   const { t } = useLanguage();
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
@@ -98,8 +100,6 @@ export const AddEditCompanyPage: React.FC = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [showGstModal, setShowGstModal] = useState(false);
-  const [gstInput, setGstInput] = useState('');
 
   useEffect(() => {
     if (isEdit && id) {
@@ -135,23 +135,6 @@ export const AddEditCompanyPage: React.FC = () => {
       }
     }
   }, [id, isEdit, currentUser]);
-
-  const handleApplyGst = () => {
-    const gst = gstInput.trim().toUpperCase();
-    if (gst.length >= 10) {
-      setGstNumber(gst);
-      clearError('gstNumber');
-      if (gst.length >= 12) {
-        setPanNumber(gst.substring(2, 12));
-        clearError('panNumber');
-      }
-      toast.success('GST & PAN extracted successfully');
-      setShowGstModal(false);
-      setGstInput('');
-    } else {
-      toast.error('Please enter a valid GST number');
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -284,15 +267,26 @@ export const AddEditCompanyPage: React.FC = () => {
         showBack={!isFirstCompany}
         rightAction={
           isFirstCompany ? (
-            <button
-              type="button"
-              onClick={() => setShowLogoutConfirm(true)}
-              className="btn-glass-secondary flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer"
-              title="Sign out"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              <span>Logout</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setDarkMode(!isDarkMode)}
+                className="p-1.5 rounded-xl border border-[#DCE6F2] dark:border-slate-700/60 bg-white/80 dark:bg-slate-800/70 text-slate-700 dark:text-amber-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all shadow-2xs text-xs font-bold active:scale-95 cursor-pointer flex items-center justify-center"
+                title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+                aria-label="Toggle Theme"
+              >
+                {isDarkMode ? <Sun className="w-4 h-4 text-amber-400 stroke-[2.5]" /> : <Moon className="w-4 h-4 text-slate-700 stroke-[2.5]" />}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowLogoutConfirm(true)}
+                className="btn-glass-secondary flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                title="Sign out"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Logout</span>
+              </button>
+            </div>
           ) : isEdit ? (
             <button
               type="button"
@@ -310,8 +304,7 @@ export const AddEditCompanyPage: React.FC = () => {
         {/* First Company Welcome Banner */}
         {isFirstCompany && (
           <div 
-            className="p-4 border-2 rounded-2xl flex items-center gap-3 text-sm font-bold shadow-glass-card backdrop-blur-md animate-in fade-in"
-            style={{ backgroundColor: palette.light, borderColor: palette.primary, color: palette.text }}
+            className="p-4 border-2 border-blue-600 dark:border-blue-500 bg-blue-50 dark:bg-blue-950/40 text-blue-900 dark:text-blue-200 rounded-2xl flex items-center gap-3 text-sm font-bold shadow-glass-card backdrop-blur-md animate-in fade-in"
           >
             <span>👋 Let's create your first company to get started.</span>
           </div>
@@ -319,10 +312,9 @@ export const AddEditCompanyPage: React.FC = () => {
 
         {/* Info Banner */}
         <div 
-          className="p-4 rounded-2xl flex items-start gap-3 text-xs font-medium leading-relaxed glass-card-subtle"
-          style={{ borderColor: palette.primary + '33', color: palette.text }}
+          className="p-4 rounded-2xl flex items-start gap-3 text-xs font-medium leading-relaxed glass-card-subtle border border-blue-200/60 dark:border-blue-800/40 bg-blue-50/50 dark:bg-blue-950/30 text-slate-700 dark:text-slate-300"
         >
-          <Info className="w-5 h-5 shrink-0 mt-0.5" style={{ color: palette.primary }} />
+          <Info className="w-5 h-5 shrink-0 mt-0.5 text-blue-600 dark:text-blue-400" />
           <span>
             Fields marked with a red <span className="text-red-500 font-bold">*</span> are mandatory. Other details are optional and can be added later.
           </span>
@@ -331,13 +323,13 @@ export const AddEditCompanyPage: React.FC = () => {
         <form noValidate onSubmit={handleSubmit} className="space-y-6">
           {/* Basic Information */}
           <div className="glass-card p-5 md:p-6 rounded-3xl space-y-4">
-            <h2 className="text-lg font-black text-gray-900 dark:text-gray-100 tracking-tight flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: palette.primary }}></span>
+            <h2 className="text-lg font-black text-slate-900 dark:text-slate-100 tracking-tight flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400"></span>
               Basic Information
             </h2>
 
             <div>
-              <label className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-1.5">
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-1.5">
                 COMPANY NAME <span className="text-red-500 font-bold">*</span>
               </label>
               <input
@@ -354,7 +346,7 @@ export const AddEditCompanyPage: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-1.5">
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-1.5">
                 USERNAME <span className="text-red-500 font-bold">*</span>
               </label>
               <input
@@ -368,13 +360,13 @@ export const AddEditCompanyPage: React.FC = () => {
                 className={`input-sauda uppercase font-bold ${errors.username ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''}`}
               />
               <FieldError error={errors.username} />
-              <p className="text-[11px] text-gray-500 mt-1 font-medium">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 font-medium">
                 Your profile username for this company.
               </p>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-1.5">
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-1.5">
                 CONTACT NUMBER <span className="text-red-500 font-bold">*</span>
               </label>
               <input
@@ -382,8 +374,9 @@ export const AddEditCompanyPage: React.FC = () => {
                 placeholder="10-DIGIT CONTACT NUMBER"
                 maxLength={10}
                 value={contactNumber}
+                onKeyDown={e => preventNonNumericInput(e, false)}
                 onChange={e => {
-                  setContactNumber(e.target.value);
+                  setContactNumber(sanitizeNumeric(e.target.value, false).slice(0, 10));
                   clearError('contactNumber');
                 }}
                 className={`input-sauda font-semibold ${errors.contactNumber ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''}`}
@@ -392,7 +385,7 @@ export const AddEditCompanyPage: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-1.5">
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-1.5">
                 EMAIL (OPTIONAL)
               </label>
               <input
@@ -409,7 +402,7 @@ export const AddEditCompanyPage: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-1.5">
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-1.5">
                 ADDRESS <span className="text-red-500 font-bold">*</span>
               </label>
               <input
@@ -441,7 +434,7 @@ export const AddEditCompanyPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-1.5">
+                <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-1.5">
                   CITY <span className="text-red-500 font-bold">*</span>
                 </label>
                 <input
@@ -458,7 +451,7 @@ export const AddEditCompanyPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-1.5">
+                <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-1.5">
                   PIN CODE <span className="text-red-500 font-bold">*</span>
                 </label>
                 <input
@@ -466,8 +459,9 @@ export const AddEditCompanyPage: React.FC = () => {
                   maxLength={6}
                   placeholder="6-DIGIT PIN CODE"
                   value={pinCode}
+                  onKeyDown={e => preventNonNumericInput(e, false)}
                   onChange={e => {
-                    setPinCode(e.target.value);
+                    setPinCode(sanitizeNumeric(e.target.value, false).slice(0, 6));
                     clearError('pinCode');
                   }}
                   className={`input-sauda uppercase font-medium text-xs ${errors.pinCode ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''}`}
@@ -479,13 +473,13 @@ export const AddEditCompanyPage: React.FC = () => {
 
           {/* Business Details */}
           <div className="glass-card p-5 md:p-6 rounded-3xl space-y-4">
-            <h2 className="text-lg font-black text-gray-900 dark:text-gray-100 tracking-tight flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: palette.primary }}></span>
+            <h2 className="text-lg font-black text-slate-900 dark:text-slate-100 tracking-tight flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400"></span>
               Business Details
             </h2>
 
             <div>
-              <label className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-1.5">
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-1.5">
                 GST NUMBER
               </label>
               <input
@@ -503,7 +497,7 @@ export const AddEditCompanyPage: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-1.5">
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-1.5">
                 PAN NUMBER
               </label>
               <input
@@ -523,13 +517,13 @@ export const AddEditCompanyPage: React.FC = () => {
 
           {/* Bank Details */}
           <div className="glass-card p-5 md:p-6 rounded-3xl space-y-4">
-            <h2 className="text-lg font-black text-gray-900 dark:text-gray-100 tracking-tight flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: palette.primary }}></span>
+            <h2 className="text-lg font-black text-slate-900 dark:text-slate-100 tracking-tight flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400"></span>
               Bank Details
             </h2>
 
             <div>
-              <label className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-1.5">
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-1.5">
                 BANK NAME
               </label>
               <input
@@ -542,7 +536,7 @@ export const AddEditCompanyPage: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-1.5">
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-1.5">
                 ACCOUNT NUMBER
               </label>
               <input
@@ -555,7 +549,7 @@ export const AddEditCompanyPage: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-1.5">
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-1.5">
                 ACCOUNT HOLDER NAME
               </label>
               <input
@@ -568,7 +562,7 @@ export const AddEditCompanyPage: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-1.5">
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-1.5">
                 IFSC CODE
               </label>
               <input
@@ -586,7 +580,7 @@ export const AddEditCompanyPage: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-1.5">
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-1.5">
                 UPI ID
               </label>
               <input
@@ -601,14 +595,14 @@ export const AddEditCompanyPage: React.FC = () => {
 
           {/* Vyapar Note Customization (Screenshots 13 & 14) */}
           <div className="glass-card p-5 md:p-6 rounded-3xl space-y-4">
-            <h2 className="text-lg font-black text-gray-900 dark:text-gray-100 tracking-tight flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: palette.primary }}></span>
+            <h2 className="text-lg font-black text-slate-900 dark:text-slate-100 tracking-tight flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400"></span>
               Vyapar Note Customization
             </h2>
 
             {/* Vyapar Note Color with Swatch */}
             <div>
-              <label className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-1.5">
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-1.5">
                 VYAPAR NOTE COLOR
               </label>
               <div className="flex items-center gap-3">
@@ -623,7 +617,7 @@ export const AddEditCompanyPage: React.FC = () => {
                   className="flex-1"
                 />
                 <div
-                  className="w-12 h-12 rounded-2xl shadow-glass border border-white/40 dark:border-white/10 shrink-0"
+                  className="w-12 h-12 rounded-2xl shadow-glass border border-slate-200 dark:border-slate-700 shrink-0"
                   style={{ backgroundColor: currentColorHex }}
                   title={`Color Preview: ${saudaNoteColor}`}
                 />
@@ -632,19 +626,18 @@ export const AddEditCompanyPage: React.FC = () => {
 
             {/* Vyapar Note PDF Template Selector */}
             <div>
-              <label className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-2">
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-2">
                 VYAPAR NOTE PDF TEMPLATE
               </label>
               <div className="flex items-center gap-6 py-1">
                 {[1, 2, 3, 4].map(num => (
-                  <label key={num} className="flex items-center gap-2 cursor-pointer text-sm font-bold text-gray-800 dark:text-gray-200">
+                  <label key={num} className="flex items-center gap-2 cursor-pointer text-sm font-bold text-slate-800 dark:text-slate-200">
                     <input
                       type="radio"
                       name="pdfTemplate"
                       checked={pdfTemplate === num}
                       onChange={() => setPdfTemplate(num as 1 | 2 | 3 | 4)}
-                      style={{ accentColor: palette.primary }}
-                      className="w-4 h-4 cursor-pointer"
+                      className="w-4 h-4 cursor-pointer text-blue-600 focus:ring-blue-500"
                     />
                     <span>{num}</span>
                   </label>
@@ -659,10 +652,9 @@ export const AddEditCompanyPage: React.FC = () => {
                 id="showSignature"
                 checked={showSignature}
                 onChange={e => setShowSignature(e.target.checked)}
-                style={{ accentColor: palette.primary }}
-                className="w-5 h-5 rounded cursor-pointer"
+                className="w-5 h-5 rounded cursor-pointer text-blue-600 focus:ring-blue-500"
               />
-              <label htmlFor="showSignature" className="text-sm font-semibold text-gray-800 dark:text-gray-200 cursor-pointer">
+              <label htmlFor="showSignature" className="text-sm font-semibold text-slate-800 dark:text-slate-200 cursor-pointer">
                 Show signature in Vyapar Note PDF
               </label>
             </div>
@@ -674,35 +666,44 @@ export const AddEditCompanyPage: React.FC = () => {
                 id="isDefaultCompany"
                 checked={isDefault}
                 onChange={e => setIsDefault(e.target.checked)}
-                style={{ accentColor: palette.primary }}
-                className="w-5 h-5 rounded cursor-pointer"
+                className="w-5 h-5 rounded cursor-pointer text-blue-600 focus:ring-blue-500"
               />
-              <label htmlFor="isDefaultCompany" className="text-sm font-semibold text-gray-800 dark:text-gray-200 cursor-pointer">
+              <label htmlFor="isDefaultCompany" className="text-sm font-semibold text-slate-800 dark:text-slate-200 cursor-pointer">
                 Set as Default Business Profile
               </label>
             </div>
 
             {/* Live PDF Template Preview */}
             <div className="pt-2">
-              <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
+              <div className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
                 Live PDF Template Preview:
               </div>
               <div className="overflow-x-auto">
                 <SaudaNoteTemplate
                   order={{
-                    id: 13,
+                    id: 1,
+                    doNo: '20260418001',
                     date: '2026-04-18',
-                    itemName: 'KHOL',
-                    itemQuality: '1 GADI',
-                    quantity: 120,
-                    unit: '50 KG',
-                    billRate: 2099,
-                    totalBillAmount: 251880,
-                    sellerName: 'RAJ OIL MILL',
-                    buyerName: 'JINESH GINNING AND PRESSING FECTORY',
-                    paymentTerms: 'NEXT DAY',
-                    deliveryTerms: 'next day',
-                    remark: '10% moisture',
+                    itemName: 'COTTON',
+                    itemQuality: 'A-1',
+                    quantity: 100,
+                    unit: 'CANDY',
+                    billRate: 3723,
+                    totalBillAmount: 372300,
+                    sellerName: 'VIVEK',
+                    sellerLocation: 'Ahmedabad',
+                    sellerCity: 'Ahmedabad',
+                    sellerCommissionRate: 2.4,
+                    buyerName: 'JENISH',
+                    buyerLocation: 'Botad',
+                    buyerCity: 'Botad',
+                    buyerCommissionRate: 2.3,
+                    paymentTerms: '15',
+                    rdValue: 'A-1',
+                    stapleLength: '30',
+                    mic: '4-5',
+                    trashPercent: '3.5',
+                    moisturePercent: '5.3',
                   }}
                   company={{
                     name: name || 'KRISHNA FIBERS',
@@ -726,8 +727,8 @@ export const AddEditCompanyPage: React.FC = () => {
           {/* Create / Update Button */}
           <button
             type="submit"
-            disabled={isSubmitting}
-            className="btn-glass-primary w-full py-4 px-4 font-extrabold text-sm uppercase tracking-wider rounded-2xl mt-6 flex items-center justify-center gap-2"
+            disabled={!name.trim() || !username.trim() || contactNumber.trim().length !== 10 || !address.trim() || !city.trim() || !state.trim() || pinCode.trim().length !== 6 || isSubmitting}
+            className="btn-glass-primary w-full py-4 px-4 font-extrabold text-sm uppercase tracking-wider rounded-2xl mt-6 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none hover:disabled:shadow-none transition-all"
           >
             {isSubmitting ? (
               <>
@@ -748,46 +749,6 @@ export const AddEditCompanyPage: React.FC = () => {
           </button>
         </form>
       </div>
-
-      {/* GST Search Modal */}
-      {showGstModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md animate-in fade-in">
-          <div className="w-full max-w-sm bg-white/85 dark:bg-gray-900/85 backdrop-blur-2xl rounded-3xl shadow-glass-hover p-6 space-y-4 border border-white/60 dark:border-white/10">
-            <h3 className="text-base font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-              <Search className="w-5 h-5" style={{ color: palette.primary }} />
-              <span>Search by GST</span>
-            </h3>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              Enter 15-digit GSTIN to auto-fill GST & PAN:
-            </p>
-            <input
-              type="text"
-              placeholder="Ex. 24AAECK9823P1Z3"
-              value={gstInput}
-              onChange={e => setGstInput(e.target.value)}
-              className="input-sauda uppercase font-bold text-xs"
-            />
-            <div className="flex gap-2 pt-2">
-              <button
-                type="button"
-                onClick={() => setShowGstModal(false)}
-                className="btn-glass-secondary flex-1 py-2.5 px-3 text-xs font-bold rounded-2xl flex items-center justify-center gap-1.5"
-              >
-                <X className="w-4 h-4" />
-                <span>Cancel</span>
-              </button>
-              <button
-                type="button"
-                onClick={handleApplyGst}
-                className="btn-glass-primary flex-1 py-2.5 px-3 text-xs font-bold rounded-2xl flex items-center justify-center gap-1.5"
-              >
-                <Check className="w-4 h-4" />
-                <span>Apply</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       <ConfirmDialog
         isOpen={showDeleteConfirm}

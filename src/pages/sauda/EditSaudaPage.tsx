@@ -1,15 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Save } from 'lucide-react';
+import { Check, CheckCircle2, ChevronDown, ArrowLeft, ArrowRight, Save, Package, Settings2, Percent, Sliders } from 'lucide-react';
 import { PageHeader } from '../../components/layout/PageHeader';
-import { saudaService } from '../../services/saudaService';
+import { SearchSelectModal, type SelectOption } from '../../components/common/SearchSelectModal';
+import { SaudaWizardStepper } from '../../components/sauda/SaudaWizardStepper';
+import { QuickAddItemModal } from '../../components/common/QuickAddItemModal';
+import { QuickAddPartyModal } from '../../components/common/QuickAddPartyModal';
+import { GlassDatePicker } from '../../components/common/GlassDatePicker';
 import { useToast } from '../../context/ToastContext';
 import { useTheme } from '../../context/ThemeContext';
-import type { SaudaOrder } from '../../types';
+import { itemService } from '../../services/itemService';
+import { partyService } from '../../services/partyService';
+import { saudaService } from '../../services/saudaService';
+import { quickValueService } from '../../services/quickValueService';
+import type { Item, Party, SaudaOrder } from '../../types';
 import { calculateBillAmount, calculateCommission } from '../../utils/calculations';
-import { formatCurrency } from '../../utils/formatters';
+import { formatCurrency, formatISODate } from '../../utils/formatters';
 import { FieldError } from '../../components/common/FieldError';
-import { validateRequired, validatePositiveNumber } from '../../utils/validators';
+import { validatePositiveNumber, preventNonNumericInput, sanitizeNumeric } from '../../utils/validators';
 
 export const EditSaudaPage: React.FC = () => {
   const navigate = useNavigate();
@@ -17,6 +25,10 @@ export const EditSaudaPage: React.FC = () => {
   const toast = useToast();
   const { palette } = useTheme();
 
+  const [isLoading, setIsLoading] = useState(true);
+  const [order, setOrder] = useState<SaudaOrder | null>(null);
+
+  const [step, setStep] = useState<1 | 2 | 3>(1);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const clearError = (field: string) => {
@@ -29,72 +41,289 @@ export const EditSaudaPage: React.FC = () => {
     }
   };
 
-  const [order, setOrder] = useState<SaudaOrder | null>(null);
-  const [quantity, setQuantity] = useState('');
-  const [unit, setUnit] = useState('');
-  const [billRate, setBillRate] = useState('');
+  // Entities
+  const [items, setItems] = useState<Item[]>([]);
+  const [parties, setParties] = useState<Party[]>([]);
+  const [quickValues, setQuickValues] = useState<Record<string, string[]>>({});
+
+  // Step 1: Item Data, Material & Quality, Technical Parameters
+  const [date, setDate] = useState(formatISODate());
+  const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
+  const [itemName, setItemName] = useState('');
   const [itemQuality, setItemQuality] = useState('');
-  const [sellerCommRate, setSellerCommRate] = useState('');
-  const [buyerCommRate, setBuyerCommRate] = useState('');
-  const [paymentTerms, setPaymentTerms] = useState('');
-  const [deliveryTerms, setDeliveryTerms] = useState('');
-  const [remark, setRemark] = useState('');
-  const [billNo, setBillNo] = useState('');
+  const [quantity, setQuantity] = useState('');
+  const [unit, setUnit] = useState('100');
+  const [billRate, setBillRate] = useState('');
+  const [paymentTerms, setPaymentTerms] = useState('15');
+
+  // Technical parameters
+  const [rdValue, setRdValue] = useState('');
+  const [stapleLength, setStapleLength] = useState('');
+  const [mic, setMic] = useState('');
+  const [trashPercent, setTrashPercent] = useState('');
+  const [moisturePercent, setMoisturePercent] = useState('');
+
+  // Step 2: Seller Data
+  const [selectedSellerId, setSelectedSellerId] = useState<number | null>(null);
+  const [sellerName, setSellerName] = useState('');
+  const [sellerLocation, setSellerLocation] = useState('');
+  const [sellerCity, setSellerCity] = useState('');
+  const [sellerCommRate, setSellerCommRate] = useState('2.4');
+  const [sellerContactPerson, setSellerContactPerson] = useState('');
+
+  // Step 3: Buyer Data
+  const [selectedBuyerId, setSelectedBuyerId] = useState<number | null>(null);
+  const [buyerName, setBuyerName] = useState('');
+  const [buyerLocation, setBuyerLocation] = useState('');
+  const [buyerCity, setBuyerCity] = useState('');
+  const [buyerCommRate, setBuyerCommRate] = useState('2.3');
+  const [buyerContactPerson, setBuyerContactPerson] = useState('');
+
+  // Modal selector states
+  const [isItemModalOpen, setIsItemModalOpen] = useState(false);
+  const [isSellerModalOpen, setIsSellerModalOpen] = useState(false);
+  const [isBuyerModalOpen, setIsBuyerModalOpen] = useState(false);
+
+  // Quick creation modal states
+  const [isQuickAddItemOpen, setIsQuickAddItemOpen] = useState(false);
+  const [isQuickAddPartyOpen, setIsQuickAddPartyOpen] = useState(false);
+  const [quickAddPartyContext, setQuickAddPartyContext] = useState<'seller' | 'buyer'>('seller');
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Load existing order & related datasets
   useEffect(() => {
-    if (id) {
-      saudaService.getById(Number(id)).then(ord => {
-        if (ord) {
-          setOrder(ord);
-          setQuantity(String(ord.quantity));
-          setUnit(ord.unit);
-          setBillRate(String(ord.billRate));
-          setItemQuality(ord.itemQuality);
-          setSellerCommRate(String(ord.sellerCommissionRate));
-          setBuyerCommRate(String(ord.buyerCommissionRate));
-          setPaymentTerms(ord.paymentTerms || '');
-          setDeliveryTerms(ord.deliveryTerms || '');
-          setRemark(ord.remark || '');
-          setBillNo(ord.billNo || '');
-        } else {
-          toast.error('Order not found');
-          navigate('/vyapar');
-        }
+    if (!id) return;
+    setIsLoading(true);
+
+    Promise.all([
+      saudaService.getById(Number(id)),
+      itemService.getAll(),
+      partyService.getAll(),
+      quickValueService.getAll(),
+    ]).then(([existingOrder, fetchedItems, fetchedParties, fetchedQVs]) => {
+      setItems(fetchedItems);
+      setParties(fetchedParties);
+
+      const qvMap: Record<string, string[]> = {};
+      fetchedQVs.forEach(qv => {
+        if (!qvMap[qv.category]) qvMap[qv.category] = [];
+        qvMap[qv.category].push(qv.value);
       });
-    }
+      setQuickValues(qvMap);
+
+      if (existingOrder) {
+        setOrder(existingOrder);
+        setDate(existingOrder.date);
+        setSelectedItemId(existingOrder.itemId);
+        setItemName(existingOrder.itemName);
+        setItemQuality(existingOrder.itemQuality);
+        setQuantity(String(existingOrder.quantity));
+        setUnit(existingOrder.unit);
+        setBillRate(String(existingOrder.billRate));
+        setPaymentTerms(existingOrder.paymentTerms || '15');
+
+        setRdValue(existingOrder.rdValue || '');
+        setStapleLength(existingOrder.stapleLength || '');
+        setMic(existingOrder.mic || '');
+        setTrashPercent(existingOrder.trashPercent || '');
+        setMoisturePercent(existingOrder.moisturePercent || '');
+
+        setSelectedSellerId(existingOrder.sellerId);
+        setSellerName(existingOrder.sellerName);
+        setSellerLocation(existingOrder.sellerLocation || '');
+        setSellerCity(existingOrder.sellerCity || '');
+        setSellerCommRate(String(existingOrder.sellerCommissionRate));
+        setSellerContactPerson(existingOrder.sellerContactPerson || '');
+
+        setSelectedBuyerId(existingOrder.buyerId);
+        setBuyerName(existingOrder.buyerName);
+        setBuyerLocation(existingOrder.buyerLocation || '');
+        setBuyerCity(existingOrder.buyerCity || '');
+        setBuyerCommRate(String(existingOrder.buyerCommissionRate));
+        setBuyerContactPerson(existingOrder.buyerContactPerson || '');
+      }
+      setIsLoading(false);
+    });
   }, [id]);
 
-  if (!order) return null;
+  // Dynamically calculate total bill amount
+  const totalBillAmount = useMemo(() => {
+    return calculateBillAmount(Number(quantity) || 0, Number(billRate) || 0, false, 0).totalBillAmount;
+  }, [quantity, billRate]);
 
-  const { totalBillAmount } = calculateBillAmount(
-    Number(quantity) || 0,
-    Number(billRate) || 0,
-    order.withGST,
-    order.gstPercent
+  // Dynamically calculate commissions
+  const sellerCommissionAmount = useMemo(() => {
+    return calculateCommission(Number(quantity) || 0, Number(sellerCommRate) || 0);
+  }, [quantity, sellerCommRate]);
+
+  const buyerCommissionAmount = useMemo(() => {
+    return calculateCommission(Number(quantity) || 0, Number(buyerCommRate) || 0);
+  }, [quantity, buyerCommRate]);
+
+  // Convert items and parties to SearchSelectModal options
+  const itemOptions: SelectOption[] = useMemo(() => {
+    return items.map(item => ({
+      id: item.id!,
+      title: item.name,
+      subtitle: `UNIT: ${item.unit} • SELLER: ${item.sellerCommissionRate}% • BUYER: ${item.buyerCommissionRate}%`,
+      raw: item,
+    }));
+  }, [items]);
+
+  const sellerPartyOptions: SelectOption[] = useMemo(() => {
+    return parties
+      .filter(p => !selectedBuyerId || p.id !== selectedBuyerId)
+      .map(p => ({
+        id: p.id!,
+        title: p.name,
+        subtitle: `ID: ${p.id} • ${p.city || 'BOTAD'} • ${p.state || 'GUJARAT'}`,
+        raw: p,
+      }));
+  }, [parties, selectedBuyerId]);
+
+  const buyerPartyOptions: SelectOption[] = useMemo(() => {
+    return parties
+      .filter(p => !selectedSellerId || p.id !== selectedSellerId)
+      .map(p => ({
+        id: p.id!,
+        title: p.name,
+        subtitle: `ID: ${p.id} • ${p.city || 'BOTAD'} • ${p.state || 'GUJARAT'}`,
+        raw: p,
+      }));
+  }, [parties, selectedSellerId]);
+
+
+  // Validation flags to disable buttons until data is valid
+  const isStep1Valid = Boolean(
+    date &&
+    date.trim() &&
+    itemName.trim() &&
+    itemQuality.trim() &&
+    quantity &&
+    Number(quantity) > 0 &&
+    unit.trim() &&
+    billRate &&
+    Number(billRate) > 0 &&
+    paymentTerms.trim() &&
+    rdValue.trim() &&
+    stapleLength.trim() &&
+    mic.trim() &&
+    trashPercent.trim() &&
+    moisturePercent.trim()
   );
 
-  const sellerCommAmt = calculateCommission(Number(quantity) || 0, Number(sellerCommRate) || 0);
-  const buyerCommAmt = calculateCommission(Number(quantity) || 0, Number(buyerCommRate) || 0);
+  const isStep2Valid = Boolean(
+    selectedSellerId &&
+    sellerName.trim() &&
+    sellerCity.trim() &&
+    sellerCommRate !== '' &&
+    Number(sellerCommRate) >= 0
+  );
 
-  const handleUpdate = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const isStep3Valid = Boolean(
+    selectedBuyerId &&
+    buyerName.trim() &&
+    buyerCity.trim() &&
+    buyerCommRate !== '' &&
+    Number(buyerCommRate) >= 0 &&
+    (!selectedSellerId || selectedSellerId !== selectedBuyerId) &&
+    !isSubmitting
+  );
+
+  // Step 1 Validation & Incremental Update
+  const handleNextFromItem = async () => {
     const newErrors: Record<string, string> = {};
-
+    if (!date || !date.trim()) newErrors.date = 'Date is required';
+    if (!itemName.trim()) newErrors.itemName = 'Please select an Item Name';
+    if (!itemQuality.trim()) newErrors.itemQuality = 'Quality is required';
     const qtyErr = validatePositiveNumber(quantity, 'Quantity');
     if (qtyErr) newErrors.quantity = qtyErr;
-
-    const rateErr = validatePositiveNumber(billRate, 'Bill Rate');
+    const rateErr = validatePositiveNumber(billRate, 'Rate');
     if (rateErr) newErrors.billRate = rateErr;
+    if (!unit.trim()) newErrors.unit = 'Unit is required';
+    if (!paymentTerms.trim()) newErrors.paymentTerms = 'Payment terms are required';
+    if (!rdValue.trim()) newErrors.rdValue = 'RD Value is required';
+    if (!stapleLength.trim()) newErrors.stapleLength = 'Staple Length is required';
+    if (!mic.trim()) newErrors.mic = 'Mic is required';
+    if (!trashPercent.trim()) newErrors.trashPercent = 'Trash % is required';
+    if (!moisturePercent.trim()) newErrors.moisturePercent = 'Moisture % is required';
 
-    const unitErr = validateRequired(unit, 'Unit');
-    if (unitErr) newErrors.unit = unitErr;
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      toast.error('Please resolve the errors highlighted below');
+      return;
+    }
 
+    if (order?.id) {
+      try {
+        await saudaService.update(order.id, {
+          date,
+          itemId: selectedItemId || order.itemId,
+          itemName,
+          itemQuality: itemQuality || 'STANDARD',
+          quantity: Number(quantity),
+          unit,
+          billRate: Number(billRate),
+          totalBillAmount,
+          paymentTerms,
+          rdValue,
+          stapleLength,
+          mic,
+          trashPercent,
+          moisturePercent,
+        });
+      } catch (err) {
+        console.error('Auto-update step 1 failed', err);
+      }
+    }
+
+    setStep(2);
+  };
+
+  // Step 2 Validation & Incremental Update
+  const handleNextFromSeller = async () => {
+    const newErrors: Record<string, string> = {};
+    if (!sellerName.trim()) newErrors.sellerName = 'Please select a Seller';
+    if (!sellerCity.trim()) newErrors.sellerCity = 'Seller City is required';
     if (sellerCommRate !== '') {
       const commErr = validatePositiveNumber(sellerCommRate, 'Seller commission rate', true);
       if (commErr) newErrors.sellerCommRate = commErr;
     }
 
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      toast.error('Please resolve the errors highlighted below');
+      return;
+    }
+
+    if (order?.id) {
+      try {
+        await saudaService.update(order.id, {
+          sellerId: selectedSellerId || order.sellerId,
+          sellerName,
+          sellerLocation,
+          sellerCity,
+          sellerCommissionRate: Number(sellerCommRate),
+          sellerCommissionAmount,
+          sellerContactPerson,
+        });
+      } catch (err) {
+        console.error('Auto-update step 2 failed', err);
+      }
+    }
+
+    setStep(3);
+  };
+
+  // Step 3 Final Update & Return to List
+  const handleUpdateOrder = async () => {
+    const newErrors: Record<string, string> = {};
+    if (!buyerName.trim()) newErrors.buyerName = 'Please select a Buyer';
+    if (!buyerCity.trim()) newErrors.buyerCity = 'Buyer City is required';
+    if (selectedSellerId && selectedBuyerId && selectedSellerId === selectedBuyerId) {
+      newErrors.buyerName = 'Seller and Buyer cannot be the same party';
+    }
     if (buyerCommRate !== '') {
       const commErr = validatePositiveNumber(buyerCommRate, 'Buyer commission rate', true);
       if (commErr) newErrors.buyerCommRate = commErr;
@@ -106,213 +335,839 @@ export const EditSaudaPage: React.FC = () => {
       return;
     }
 
+    if (!order?.id) return;
+
     try {
       setIsSubmitting(true);
-      await saudaService.update(order.id!, {
+      await saudaService.update(order.id, {
+        date,
+        itemId: selectedItemId || order.itemId,
+        itemName,
+        itemQuality: itemQuality || 'STANDARD',
         quantity: Number(quantity),
         unit,
         billRate: Number(billRate),
-        itemQuality,
         totalBillAmount,
-        sellerCommissionRate: Number(sellerCommRate),
-        sellerCommissionAmount: sellerCommAmt,
-        buyerCommissionRate: Number(buyerCommRate),
-        buyerCommissionAmount: buyerCommAmt,
         paymentTerms,
-        deliveryTerms,
-        remark,
-        billNo,
+        rdValue,
+        stapleLength,
+        mic,
+        trashPercent,
+        moisturePercent,
+        sellerId: selectedSellerId || order.sellerId,
+        sellerName,
+        sellerLocation,
+        sellerCity,
+        sellerCommissionRate: Number(sellerCommRate),
+        sellerCommissionAmount,
+        sellerContactPerson,
+        buyerId: selectedBuyerId || order.buyerId,
+        buyerName,
+        buyerLocation,
+        buyerCity,
+        buyerCommissionRate: Number(buyerCommRate),
+        buyerCommissionAmount,
+        buyerContactPerson,
       });
 
-      toast.success('Vyapar order updated successfully');
+      toast.success(`Vyapar Order updated successfully!`);
       navigate('/vyapar');
     } catch (err) {
-      toast.error('Failed to update Vyapar order');
+      console.error(err);
+      toast.error('Failed to update Vyapar Order');
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-3">
+          <div className="w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-xs font-semibold text-slate-500">Loading Vyapar Order...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!order) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="text-center space-y-3">
+          <p className="text-sm font-bold text-slate-700 dark:text-slate-300">Order not found</p>
+          <button
+            onClick={() => navigate('/vyapar')}
+            className="btn-glass-primary px-4 py-2 text-xs rounded-xl text-white"
+          >
+            Back to Vyapar List
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen pb-24 md:pb-12 transition-colors">
-      <PageHeader title={`Edit Vyapar #${order.id}`} />
+      <PageHeader
+        title={`EDIT VYAPAR #${order.doNo || order.id}`}
+        subtitle={`${order.itemName} • ${order.sellerName} ➔ ${order.buyerName}`}
+      />
 
-      <div className="p-4 md:p-6 max-w-xl mx-auto">
-        <form noValidate onSubmit={handleUpdate} className="space-y-4">
-          <div className="liquid-glass-card p-5 md:p-6 rounded-3xl space-y-4 shadow-glass-card">
-            <div className="flex justify-between items-center pb-3 border-b border-gray-200/60 dark:border-white/10">
-              <span className="font-extrabold text-base text-gray-900 dark:text-gray-100">{order.itemName}</span>
-              <span className="text-xs font-bold text-gray-500 dark:text-gray-400">Date: {order.date}</span>
+      <div className="p-4 md:p-6 max-w-2xl mx-auto space-y-5">
+        {/* Step Indicator Bar matching Image 1 */}
+        <SaudaWizardStepper
+          currentStep={step}
+          onStepClick={(targetStep) => {
+            if (targetStep < step) setStep(targetStep as 1 | 2 | 3);
+            else if (targetStep === 2 && isStep1Valid) setStep(2);
+            else if (targetStep === 3 && isStep1Valid && isStep2Valid) setStep(3);
+          }}
+          maxAllowedStep={isStep1Valid ? (isStep2Valid ? 3 : 2) : 1}
+        />
+
+        {/* STEP 1: ITEM, MATERIAL & QUALITY, TECHNICAL PARAMETERS */}
+        {step === 1 && (
+          <div className="liquid-glass-card p-5 md:p-6 rounded-3xl space-y-5 shadow-glass-card">
+            {/* DATE */}
+            <div>
+              <GlassDatePicker
+                label="DATE"
+                required
+                value={date || formatISODate()}
+                onChange={val => {
+                  setDate(val);
+                  clearError('date');
+                }}
+                error={errors.date}
+                placeholder="DD-MM-YYYY"
+              />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-1.5">
-                  QUANTITY <span className="text-red-500 font-bold">*</span>
-                </label>
-                <input
-                  type="number"
-                  step="any"
-                  value={quantity}
-                  onChange={e => {
-                    setQuantity(e.target.value);
-                    clearError('quantity');
-                  }}
-                  className={`input-sauda font-bold ${errors.quantity ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''}`}
-                />
-                <FieldError error={errors.quantity} />
+            {/* ITEM NAME * */}
+            <div>
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-1.5">
+                ITEM NAME <span className="text-red-500 font-bold">*</span>
+              </label>
+              <div
+                onClick={() => {
+                  setIsItemModalOpen(true);
+                  clearError('itemName');
+                }}
+                className={`input-sauda flex items-center justify-between cursor-pointer font-bold uppercase text-slate-900 dark:text-slate-100 ${
+                  errors.itemName ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                }`}
+              >
+                <span>{itemName || 'SELECT ITEM NAME'}</span>
+                <ChevronDown className="w-4 h-4 text-slate-500 dark:text-slate-400" />
               </div>
+              <FieldError error={errors.itemName} />
+            </div>
+
+            {/* SECTION: MATERIAL & QUALITY */}
+            <div className="pt-3 border-t border-slate-200/80 dark:border-slate-800/80 space-y-4">
+              <div className="flex items-center gap-2">
+                <Package className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                <h3 className="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+                  Material & Quality
+                </h3>
+              </div>
+
+              {/* QUALITY */}
               <div>
-                <label className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-1.5">
-                  UNIT <span className="text-red-500 font-bold">*</span>
+                <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-1.5">
+                  QUALITY <span className="text-red-500 font-bold">*</span>
                 </label>
                 <input
                   type="text"
-                  value={unit}
+                  placeholder="EX. A-1, 1 GADI, 50 BORI 40 Kg"
+                  value={itemQuality}
                   onChange={e => {
-                    setUnit(e.target.value);
-                    clearError('unit');
+                    setItemQuality(e.target.value);
+                    clearError('itemQuality');
                   }}
-                  className={`input-sauda font-bold ${errors.unit ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''}`}
+                  className={`input-sauda font-semibold uppercase text-xs ${
+                    errors.itemQuality ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                  }`}
                 />
-                <FieldError error={errors.unit} />
+                <FieldError error={errors.itemQuality} />
+                {quickValues.quality && (
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {quickValues.quality.slice(0, 5).map(val => (
+                      <button
+                        key={val}
+                        type="button"
+                        onClick={() => {
+                          setItemQuality(val);
+                          clearError('itemQuality');
+                        }}
+                        className="text-[10px] px-2.5 py-1 rounded-lg bg-white/80 dark:bg-slate-800 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/50 border border-blue-200/70 dark:border-blue-800/40 font-bold transition-colors cursor-pointer"
+                      >
+                        + {val}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
-            </div>
 
-            <div>
-              <label className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-1.5">
-                BILL RATE <span className="text-red-500 font-bold">*</span>
-              </label>
-              <input
-                type="number"
-                step="any"
-                value={billRate}
-                onChange={e => {
-                  setBillRate(e.target.value);
-                  clearError('billRate');
-                }}
-                className={`input-sauda font-bold border-2 ${
-                  errors.billRate
-                    ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20'
-                    : 'border-[var(--primary)]'
-                }`}
-              />
-              <FieldError error={errors.billRate} />
-            </div>
+              {/* QUANTITY & UNIT */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-1.5">
+                    QUANTITY <span className="text-red-500 font-bold">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    placeholder="EX. 100"
+                    value={quantity}
+                    onKeyDown={e => preventNonNumericInput(e, true)}
+                    onChange={e => {
+                      setQuantity(sanitizeNumeric(e.target.value, true));
+                      clearError('quantity');
+                    }}
+                    className={`input-sauda font-extrabold text-slate-900 dark:text-slate-100 ${
+                      errors.quantity ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                    }`}
+                  />
+                  <FieldError error={errors.quantity} />
+                </div>
 
-            <div className="p-3.5 sm:p-4 bg-emerald-500/10 dark:bg-emerald-500/15 rounded-2xl flex flex-wrap justify-between items-center gap-2 font-bold text-xs text-emerald-800 dark:text-emerald-300 border border-emerald-500/30 backdrop-blur-md shadow-glass-card">
-              <span className="uppercase tracking-wider font-extrabold text-[11px] sm:text-xs text-emerald-700 dark:text-emerald-300">Total Bill Amount:</span>
-              <span className="text-base sm:text-lg font-black text-emerald-600 dark:text-emerald-400 break-all">{formatCurrency(totalBillAmount)}</span>
-            </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-1.5">
+                    UNIT <span className="text-red-500 font-bold">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="EX. CANDY / TON"
+                    value={unit}
+                    onChange={e => {
+                      setUnit(e.target.value);
+                      clearError('unit');
+                    }}
+                    className={`input-sauda font-bold uppercase text-slate-900 dark:text-slate-100 ${
+                      errors.unit ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                    }`}
+                  />
+                  <FieldError error={errors.unit} />
+                </div>
+              </div>
 
-            <div>
-              <label className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-1.5">
-                QUALITY / VARIETY
-              </label>
-              <input
-                type="text"
-                value={itemQuality}
-                onChange={e => setItemQuality(e.target.value)}
-                className="input-sauda text-xs uppercase"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-1.5">
-                BILL NO.
-              </label>
-              <input
-                type="text"
-                value={billNo}
-                onChange={e => setBillNo(e.target.value)}
-                className="input-sauda text-xs"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-2 sm:gap-3 pt-3 border-t border-gray-200/60 dark:border-white/10 min-w-0">
-              <div className="min-w-0">
-                <label className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-1.5 truncate" title={`Seller (${order.sellerName}) Comm.`}>
-                  SELLER COMM.
-                  <span className="block text-[10px] text-gray-400 dark:text-gray-500 truncate font-normal">({order.sellerName})</span>
+              {/* RATE (PER CANDY / UNIT) */}
+              <div>
+                <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-1.5">
+                  RATE (PER {unit ? unit.toUpperCase() : 'CANDY'}) <span className="text-red-500 font-bold">*</span>
                 </label>
                 <input
-                  type="number"
-                  step="any"
-                  value={sellerCommRate}
+                  type="text"
+                  inputMode="decimal"
+                  placeholder="EX. 3723"
+                  value={billRate}
+                  onKeyDown={e => preventNonNumericInput(e, true)}
                   onChange={e => {
-                    setSellerCommRate(e.target.value);
-                    clearError('sellerCommRate');
+                    setBillRate(sanitizeNumeric(e.target.value, true));
+                    clearError('billRate');
                   }}
-                  className={`input-sauda text-xs font-bold ${errors.sellerCommRate ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''}`}
+                  className={`input-sauda font-extrabold text-slate-900 dark:text-slate-100 ${
+                    errors.billRate ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                  }`}
                 />
-                <FieldError error={errors.sellerCommRate} />
+                <FieldError error={errors.billRate} />
               </div>
-              <div className="min-w-0">
-                <label className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-1.5 truncate" title={`Buyer (${order.buyerName}) Comm.`}>
-                  BUYER COMM.
-                  <span className="block text-[10px] text-gray-400 dark:text-gray-500 truncate font-normal">({order.buyerName})</span>
+
+              {/* PAYMENT TERMS (DAYS) */}
+              <div>
+                <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-1.5">
+                  PAYMENT TERMS (DAYS) <span className="text-red-500 font-bold">*</span>
                 </label>
                 <input
-                  type="number"
-                  step="any"
-                  value={buyerCommRate}
+                  type="text"
+                  placeholder="EX. 15, NEXT DAY, ADVANCE"
+                  value={paymentTerms}
                   onChange={e => {
-                    setBuyerCommRate(e.target.value);
-                    clearError('buyerCommRate');
+                    setPaymentTerms(e.target.value);
+                    clearError('paymentTerms');
                   }}
-                  className={`input-sauda text-xs font-bold ${errors.buyerCommRate ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''}`}
+                  className={`input-sauda font-semibold ${
+                    errors.paymentTerms ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                  }`}
                 />
-                <FieldError error={errors.buyerCommRate} />
+                <FieldError error={errors.paymentTerms} />
+                {quickValues.paymentTerms && (
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {quickValues.paymentTerms.map(val => (
+                      <button
+                        key={val}
+                        type="button"
+                        onClick={() => {
+                          setPaymentTerms(val);
+                          clearError('paymentTerms');
+                        }}
+                        className="text-[10px] px-2.5 py-1 rounded-lg bg-white/80 dark:bg-slate-800 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/50 border border-blue-200/70 dark:border-blue-800/40 font-bold transition-colors cursor-pointer"
+                      >
+                        + {val} Days
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Total Bill Amount Calculated Box */}
+              {quantity && billRate && (
+                <div className="p-3.5 sm:p-4 bg-emerald-500/10 dark:bg-emerald-950/30 border border-emerald-500/25 dark:border-emerald-800/40 rounded-2xl flex flex-wrap items-center justify-between gap-2 text-sm font-bold text-emerald-800 dark:text-emerald-300 shadow-glass-card backdrop-blur-md animate-in fade-in">
+                  <span className="text-[11px] sm:text-xs uppercase tracking-wider font-extrabold text-emerald-700 dark:text-emerald-400">Total Bill Amount:</span>
+                  <span className="text-base sm:text-xl font-black text-emerald-600 dark:text-emerald-400 break-all">{formatCurrency(totalBillAmount)}</span>
+                </div>
+              )}
+            </div>
+
+            {/* SECTION: TECHNICAL PARAMETERS */}
+            <div className="pt-3 border-t border-slate-200/80 dark:border-slate-800/80 space-y-4">
+              <div className="flex items-center gap-2">
+                <Sliders className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                <h3 className="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+                  Technical Parameters
+                </h3>
+              </div>
+
+              {/* RD VALUE */}
+              <div>
+                <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-1.5">
+                  RD VALUE <span className="text-red-500 font-bold">*</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="EX. A-1, 75, 76"
+                  value={rdValue}
+                  onChange={e => {
+                    setRdValue(e.target.value);
+                    clearError('rdValue');
+                  }}
+                  className={`input-sauda font-semibold uppercase text-xs ${
+                    errors.rdValue ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                  }`}
+                />
+                <FieldError error={errors.rdValue} />
+                {quickValues.rdValue && (
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {quickValues.rdValue.map(val => (
+                      <button
+                        key={val}
+                        type="button"
+                        onClick={() => {
+                          setRdValue(val);
+                          clearError('rdValue');
+                        }}
+                        className="text-[10px] px-2.5 py-1 rounded-lg bg-white/80 dark:bg-slate-800 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/50 border border-blue-200/70 dark:border-blue-800/40 font-bold transition-colors cursor-pointer"
+                      >
+                        + {val}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* STAPLE LENGTH & MIC */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-1.5">
+                    STAPLE LENGTH (MM) <span className="text-red-500 font-bold">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    placeholder="EX. 30"
+                    value={stapleLength}
+                    onKeyDown={e => preventNonNumericInput(e, true)}
+                    onChange={e => {
+                      setStapleLength(sanitizeNumeric(e.target.value, true));
+                      clearError('stapleLength');
+                    }}
+                    className={`input-sauda font-semibold ${
+                      errors.stapleLength ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                    }`}
+                  />
+                  <FieldError error={errors.stapleLength} />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-1.5">
+                    MIC <span className="text-red-500 font-bold">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="EX. 4-5"
+                    value={mic}
+                    onChange={e => {
+                      setMic(e.target.value);
+                      clearError('mic');
+                    }}
+                    className={`input-sauda font-semibold ${
+                      errors.mic ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                    }`}
+                  />
+                  <FieldError error={errors.mic} />
+                </div>
+              </div>
+
+              {/* TRASH % & MOISTURE % */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-1.5 flex items-center justify-between">
+                    <span>TRASH % <span className="text-red-500 font-bold">*</span></span>
+                    <Percent className="w-3 h-3 text-slate-400" />
+                  </label>
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    placeholder="EX. 3.5"
+                    value={trashPercent}
+                    onKeyDown={e => preventNonNumericInput(e, true)}
+                    onChange={e => {
+                      setTrashPercent(sanitizeNumeric(e.target.value, true));
+                      clearError('trashPercent');
+                    }}
+                    className={`input-sauda font-semibold ${
+                      errors.trashPercent ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                    }`}
+                  />
+                  <FieldError error={errors.trashPercent} />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-1.5 flex items-center justify-between">
+                    <span>MOISTURE % <span className="text-red-500 font-bold">*</span></span>
+                    <Percent className="w-3 h-3 text-slate-400" />
+                  </label>
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    placeholder="EX. 5.3"
+                    value={moisturePercent}
+                    onKeyDown={e => preventNonNumericInput(e, true)}
+                    onChange={e => {
+                      setMoisturePercent(sanitizeNumeric(e.target.value, true));
+                      clearError('moisturePercent');
+                    }}
+                    className={`input-sauda font-semibold ${
+                      errors.moisturePercent ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                    }`}
+                  />
+                  <FieldError error={errors.moisturePercent} />
+                </div>
               </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-1.5">
-                PAYMENT TERMS
-              </label>
-              <input
-                type="text"
-                value={paymentTerms}
-                onChange={e => setPaymentTerms(e.target.value)}
-                className="input-sauda text-xs uppercase"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-1.5">
-                DELIVERY TERMS
-              </label>
-              <input
-                type="text"
-                value={deliveryTerms}
-                onChange={e => setDeliveryTerms(e.target.value)}
-                className="input-sauda text-xs uppercase"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-1.5">
-                REMARK
-              </label>
-              <input
-                type="text"
-                value={remark}
-                onChange={e => setRemark(e.target.value)}
-                className="input-sauda text-xs"
-              />
+            {/* Step 1 Footer */}
+            <div className="flex items-center justify-between pt-4 mt-6 border-t border-slate-200/60 dark:border-slate-800 gap-2">
+              <span className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400 shrink-0">
+                Step 1 of 3
+              </span>
+              <button
+                type="button"
+                onClick={handleNextFromItem}
+                disabled={!isStep1Valid}
+                className="btn-glass-primary px-5 sm:px-7 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 shrink-0 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none hover:disabled:shadow-none transition-all"
+              >
+                <span>Next: Seller Details</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
             </div>
           </div>
+        )}
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="btn-glass-primary w-full py-4 px-4 font-extrabold text-sm uppercase tracking-wider rounded-2xl flex items-center justify-center gap-2"
-          >
-            <Save className={`w-4 h-4 stroke-[2.5] ${isSubmitting ? 'animate-spin' : ''}`} />
-            <span>{isSubmitting ? 'UPDATING...' : 'UPDATE VYAPAR ORDER'}</span>
-          </button>
-        </form>
+        {/* STEP 2: SELLER FORM */}
+        {step === 2 && (
+          <div className="liquid-glass-card p-5 md:p-6 rounded-3xl space-y-4 shadow-glass-card animate-in fade-in">
+            {/* SELLER NAME * */}
+            <div>
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-1.5">
+                SELLER NAME <span className="text-red-500 font-bold">*</span>
+              </label>
+              <div
+                onClick={() => {
+                  setIsSellerModalOpen(true);
+                  clearError('sellerName');
+                }}
+                className={`input-sauda flex items-center justify-between cursor-pointer font-bold uppercase text-slate-900 dark:text-slate-100 ${
+                  errors.sellerName ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                }`}
+              >
+                <span>{sellerName || 'SELECT SELLER PARTY'}</span>
+                <ChevronDown className="w-4 h-4 text-slate-400" />
+              </div>
+              <FieldError error={errors.sellerName} />
+            </div>
+
+            {/* PICKUP LOCATION & CITY */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-1.5">
+                  PICKUP LOCATION <span className="text-slate-400 font-normal text-[11px]">(OPTIONAL)</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="Factory, GIDC, etc."
+                  value={sellerLocation}
+                  onChange={e => setSellerLocation(e.target.value)}
+                  className="input-sauda font-semibold"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-1.5">
+                  CITY <span className="text-red-500 font-bold">*</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="City"
+                  value={sellerCity}
+                  onChange={e => {
+                    setSellerCity(e.target.value);
+                    clearError('sellerCity');
+                  }}
+                  className={`input-sauda font-semibold uppercase ${
+                    errors.sellerCity ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                  }`}
+                />
+                <FieldError error={errors.sellerCity} />
+              </div>
+            </div>
+
+            {/* SELLER COMMISSION % */}
+            <div>
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-1.5 flex items-center justify-between">
+                <span>SELLER COMMISSION % <span className="text-red-500 font-bold">*</span></span>
+                <span className="text-[11px] text-slate-400 font-medium">% per {unit || 'Candy'}</span>
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  placeholder="2.4"
+                  value={sellerCommRate}
+                  onKeyDown={e => preventNonNumericInput(e, true)}
+                  onChange={e => {
+                    setSellerCommRate(sanitizeNumeric(e.target.value, true));
+                    clearError('sellerCommRate');
+                  }}
+                  className={`input-sauda font-bold !pr-10 ${
+                    errors.sellerCommRate ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                  }`}
+                />
+                <Percent className="w-4 h-4 text-slate-500 dark:text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
+              <FieldError error={errors.sellerCommRate} />
+            </div>
+
+            {/* Commission Amount Banner */}
+            <div className="p-3.5 sm:p-4 bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-800/50 rounded-2xl flex flex-wrap items-center justify-between gap-2 text-sm font-bold text-blue-800 dark:text-blue-300 shadow-glass-card backdrop-blur-md">
+              <span className="text-[11px] sm:text-xs uppercase tracking-wider font-extrabold text-blue-700 dark:text-blue-300">Seller Commission Amount:</span>
+              <span className="text-base sm:text-xl font-black text-blue-600 dark:text-blue-400 break-all">{formatCurrency(sellerCommissionAmount)}</span>
+            </div>
+
+            {/* SELLER CONTACT PERSON */}
+            <div>
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-1.5">
+                SELLER CONTACT PERSON / PHONE
+              </label>
+              <input
+                type="text"
+                placeholder="Eg. Sharma / 9876543210"
+                value={sellerContactPerson}
+                onChange={e => setSellerContactPerson(e.target.value)}
+                className="input-sauda font-medium"
+              />
+            </div>
+
+            {/* Step 2 Footer */}
+            <div className="flex items-center justify-between pt-4 mt-6 border-t border-slate-200/60 dark:border-slate-800 gap-2">
+              <span className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400 shrink-0">
+                Step 2 of 3
+              </span>
+              <div className="flex items-center gap-2 sm:gap-3">
+                <button
+                  type="button"
+                  onClick={() => setStep(1)}
+                  className="btn-glass-secondary px-3 sm:px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-1.5 shrink-0 cursor-pointer"
+                  title="Previous Step"
+                  aria-label="Previous Step"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span className="hidden sm:inline">Previous</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleNextFromSeller}
+                  disabled={!isStep2Valid}
+                  className="btn-glass-primary px-5 sm:px-7 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 shrink-0 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none hover:disabled:shadow-none transition-all"
+                >
+                  <span>Next: Buyer Details</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* STEP 3: BUYER FORM */}
+        {step === 3 && (
+          <div className="liquid-glass-card p-5 md:p-6 rounded-3xl space-y-4 shadow-glass-card animate-in fade-in">
+            {/* BUYER NAME * */}
+            <div>
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-1.5">
+                BUYER NAME <span className="text-red-500 font-bold">*</span>
+              </label>
+              <div
+                onClick={() => {
+                  setIsBuyerModalOpen(true);
+                  clearError('buyerName');
+                }}
+                className={`input-sauda flex items-center justify-between cursor-pointer font-bold uppercase text-slate-900 dark:text-slate-100 ${
+                  errors.buyerName ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                }`}
+              >
+                <span>{buyerName || 'SELECT BUYER PARTY'}</span>
+                <ChevronDown className="w-4 h-4 text-slate-400" />
+              </div>
+              <FieldError error={errors.buyerName} />
+            </div>
+
+            {/* SHIPPING LOCATION & CITY */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-1.5">
+                  SHIPPING LOCATION <span className="text-slate-400 font-normal text-[11px]">(OPTIONAL)</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="Mill, Unit, Address"
+                  value={buyerLocation}
+                  onChange={e => setBuyerLocation(e.target.value)}
+                  className="input-sauda font-semibold"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-1.5">
+                  CITY <span className="text-red-500 font-bold">*</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="City"
+                  value={buyerCity}
+                  onChange={e => {
+                    setBuyerCity(e.target.value);
+                    clearError('buyerCity');
+                  }}
+                  className={`input-sauda font-semibold uppercase ${
+                    errors.buyerCity ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                  }`}
+                />
+                <FieldError error={errors.buyerCity} />
+              </div>
+            </div>
+
+            {/* BUYER COMMISSION % */}
+            <div>
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-1.5 flex items-center justify-between">
+                <span>BUYER COMMISSION % <span className="text-red-500 font-bold">*</span></span>
+                <span className="text-[11px] text-slate-400 font-medium">% per {unit || 'Candy'}</span>
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  placeholder="2.3"
+                  value={buyerCommRate}
+                  onKeyDown={e => preventNonNumericInput(e, true)}
+                  onChange={e => {
+                    setBuyerCommRate(sanitizeNumeric(e.target.value, true));
+                    clearError('buyerCommRate');
+                  }}
+                  className={`input-sauda font-bold !pr-10 ${
+                    errors.buyerCommRate ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                  }`}
+                />
+                <Percent className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
+              <FieldError error={errors.buyerCommRate} />
+            </div>
+
+            {/* Commission Amount Banner */}
+            <div className="p-3.5 sm:p-4 bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-800/50 rounded-2xl flex flex-wrap items-center justify-between gap-2 text-sm font-bold text-blue-800 dark:text-blue-300 shadow-glass-card backdrop-blur-md">
+              <span className="text-[11px] sm:text-xs uppercase tracking-wider font-extrabold text-blue-700 dark:text-blue-300">Buyer Commission Amount:</span>
+              <span className="text-base sm:text-xl font-black text-blue-600 dark:text-blue-400 break-all">{formatCurrency(buyerCommissionAmount)}</span>
+            </div>
+
+            {/* BUYER CONTACT PERSON */}
+            <div>
+              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-1.5">
+                BUYER CONTACT PERSON / PHONE
+              </label>
+              <input
+                type="text"
+                placeholder="Eg. Sharma / 9876543210"
+                value={buyerContactPerson}
+                onChange={e => setBuyerContactPerson(e.target.value)}
+                className="input-sauda font-medium"
+              />
+            </div>
+
+            {/* Step 3 Footer */}
+            <div className="flex items-center justify-between pt-4 mt-6 border-t border-slate-200/60 dark:border-slate-800 gap-2">
+              <span className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400 shrink-0">
+                Step 3 of 3
+              </span>
+              <div className="flex items-center gap-2 sm:gap-3">
+                <button
+                  type="button"
+                  onClick={() => setStep(2)}
+                  className="btn-glass-secondary px-3 sm:px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-1.5 shrink-0 cursor-pointer"
+                  title="Previous Step"
+                  aria-label="Previous Step"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span className="hidden sm:inline">Previous</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleUpdateOrder}
+                  disabled={!isStep3Valid}
+                  className="btn-glass-primary px-5 sm:px-7 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 shrink-0 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none hover:disabled:shadow-none transition-all"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <CheckCircle2 className="w-4 h-4 animate-spin" />
+                      <span>UPDATING...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4" />
+                      <span>UPDATE VYAPAR</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Item Search Selector Modal */}
+      <SearchSelectModal
+        isOpen={isItemModalOpen}
+        onClose={() => setIsItemModalOpen(false)}
+        title="Select Commodity Item"
+        placeholder="Search items..."
+        options={itemOptions}
+        onAddNew={() => setIsQuickAddItemOpen(true)}
+        addNewButtonText="ADD ITEM"
+        onSelect={opt => {
+          const itm = opt.raw as Item;
+          setSelectedItemId(itm.id!);
+          setItemName(itm.name);
+          setUnit(itm.unit || '100');
+          setSellerCommRate(String(itm.sellerCommissionRate || 2.4));
+          setBuyerCommRate(String(itm.buyerCommissionRate || 2.3));
+        }}
+      />
+
+      {/* Seller Search Selector Modal */}
+      <SearchSelectModal
+        isOpen={isSellerModalOpen}
+        onClose={() => setIsSellerModalOpen(false)}
+        title="Select Seller Party"
+        placeholder="Search..."
+        options={sellerPartyOptions}
+        onAddNew={() => {
+          setQuickAddPartyContext('seller');
+          setIsQuickAddPartyOpen(true);
+        }}
+        addNewButtonText="ADD PARTY"
+        onSelect={opt => {
+          const p = opt.raw as Party;
+          setSelectedSellerId(p.id!);
+          setSellerName(p.name);
+          setSellerLocation(p.address || '');
+          setSellerCity(p.city || '');
+          if (p.mobileNumber) setSellerContactPerson(p.mobileNumber);
+          if (selectedBuyerId === p.id) {
+            setSelectedBuyerId(null);
+            setBuyerName('');
+            setBuyerLocation('');
+            setBuyerCity('');
+          }
+        }}
+      />
+
+      {/* Buyer Search Selector Modal */}
+      <SearchSelectModal
+        isOpen={isBuyerModalOpen}
+        onClose={() => setIsBuyerModalOpen(false)}
+        title="Select Buyer Party"
+        placeholder="Search..."
+        options={buyerPartyOptions}
+        onAddNew={() => {
+          setQuickAddPartyContext('buyer');
+          setIsQuickAddPartyOpen(true);
+        }}
+        addNewButtonText="ADD PARTY"
+        onSelect={opt => {
+          const p = opt.raw as Party;
+          setSelectedBuyerId(p.id!);
+          setBuyerName(p.name);
+          setBuyerLocation(p.address || '');
+          setBuyerCity(p.city || '');
+          if (p.mobileNumber) setBuyerContactPerson(p.mobileNumber);
+          if (selectedSellerId === p.id) {
+            setSelectedSellerId(null);
+            setSellerName('');
+            setSellerLocation('');
+            setSellerCity('');
+          }
+        }}
+      />
+
+      {/* Quick Add Item Modal */}
+      <QuickAddItemModal
+        isOpen={isQuickAddItemOpen}
+        onClose={() => setIsQuickAddItemOpen(false)}
+        onItemCreated={newItem => {
+          setItems(prev => [newItem, ...prev.filter(i => i.id !== newItem.id)]);
+          setSelectedItemId(newItem.id!);
+          setItemName(newItem.name);
+          setUnit(newItem.unit || '100');
+          setSellerCommRate(String(newItem.sellerCommissionRate || 2.4));
+          setBuyerCommRate(String(newItem.buyerCommissionRate || 2.3));
+          setIsItemModalOpen(false);
+        }}
+      />
+
+      {/* Quick Add Party Modal */}
+      <QuickAddPartyModal
+        isOpen={isQuickAddPartyOpen}
+        onClose={() => setIsQuickAddPartyOpen(false)}
+        defaultPartyType={quickAddPartyContext}
+        onPartyCreated={newParty => {
+          setParties(prev => [newParty, ...prev.filter(p => p.id !== newParty.id)]);
+          if (quickAddPartyContext === 'seller') {
+            setSelectedSellerId(newParty.id!);
+            setSellerName(newParty.name);
+            setSellerLocation(newParty.address || '');
+            setSellerCity(newParty.city || '');
+            if (newParty.mobileNumber) setSellerContactPerson(newParty.mobileNumber);
+            setIsSellerModalOpen(false);
+          } else {
+            setSelectedBuyerId(newParty.id!);
+            setBuyerName(newParty.name);
+            setBuyerLocation(newParty.address || '');
+            setBuyerCity(newParty.city || '');
+            if (newParty.mobileNumber) setBuyerContactPerson(newParty.mobileNumber);
+            setIsBuyerModalOpen(false);
+          }
+        }}
+      />
     </div>
   );
 };

@@ -25,6 +25,9 @@ import {
   X,
   Mail,
   Phone,
+  Sun,
+  Moon,
+  Palette,
 } from 'lucide-react';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { useApp } from '../../context/AppContext';
@@ -40,7 +43,7 @@ export const ProfilePage: React.FC = () => {
   const toast = useToast();
   const { userProfile, lockApp, currentCompany } = useApp();
   const { currentUser, logout } = useAuth();
-  const { palette } = useTheme();
+  const { palette, isDarkMode, setDarkMode } = useTheme();
   const { language, setLanguage, languages, t } = useLanguage();
 
   const [showSwitchModal, setShowSwitchModal] = useState(false);
@@ -76,13 +79,13 @@ export const ProfilePage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen pb-24 md:pb-12 transition-colors">
+    <div className="min-h-screen pb-24 md:pb-12 transition-colors overflow-x-hidden">
       {/* Header Replicating Screenshot 15 */}
       <PageHeader title={t('profile.title', 'My Profile')} />
 
-      <div className="p-4 md:p-6 max-w-xl mx-auto space-y-4">
+      <div className="p-3 sm:p-4 md:p-6 max-w-xl mx-auto space-y-4 min-w-0 w-full">
         {/* Top Profile Card */}
-        <div className="glass-card rounded-3xl p-6 flex flex-col items-center text-center transition-all shadow-glass-card">
+        <div className="glass-card rounded-3xl p-5 sm:p-6 flex flex-col items-center text-center transition-all shadow-glass-card min-w-0 overflow-hidden">
           {/* Avatar with Edit Icon linking to Company Edit */}
           <div className="relative mb-3">
             <div
@@ -99,41 +102,41 @@ export const ProfilePage: React.FC = () => {
                   navigate('/companies');
                 }
               }}
-              className="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-white/90 dark:bg-gray-800/90 border border-white/60 dark:border-white/20 text-gray-700 dark:text-gray-200 flex items-center justify-center shadow-glass hover:text-[var(--primary)] backdrop-blur-xs transition-colors"
+              className="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-white/90 dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/80 text-slate-700 dark:text-slate-200 flex items-center justify-center shadow-glass hover:text-blue-600 dark:hover:text-blue-400 backdrop-blur-xs transition-colors"
               title="Edit Company Details"
             >
               <Edit2 className="w-3.5 h-3.5" />
             </button>
           </div>
 
-          <h2 className="text-xl font-extrabold text-gray-900 dark:text-white tracking-tight uppercase">
+          <h2 className="text-xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight uppercase">
             {currentCompany?.name || userProfile?.name || 'COMPANY NAME'}
           </h2>
-          <p className="text-xs font-bold mt-0.5 uppercase tracking-wide" style={{ color: palette.primary }}>
+          <p className="text-xs font-bold mt-0.5 uppercase tracking-wide text-blue-600 dark:text-blue-400">
             {currentCompany?.username ? `Username: ${currentCompany.username}` : (userProfile?.name ? `Username: ${userProfile.name}` : '')}
           </p>
-          <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mt-1">
+          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1">
             {currentCompany?.city ? `${currentCompany.city}, ${currentCompany.state}` : 'BOTAD, GUJARAT'} • {currentCompany?.contactNumber || userProfile?.phone || ''}
           </p>
         </div>
 
         {/* 1. Personal Information Card */}
-        <div className="glass-card rounded-3xl p-5 space-y-4 transition-all shadow-glass-card">
-          <div className="flex items-center gap-2 font-bold text-sm" style={{ color: palette.primary }}>
+        <div className="glass-card rounded-3xl p-4 sm:p-5 space-y-4 transition-all shadow-glass-card min-w-0 overflow-hidden">
+          <div className="flex items-center gap-2 font-bold text-sm text-blue-600 dark:text-blue-400">
             <User className="w-4 h-4" />
             <span>{t('profile.personalInfo', 'Personal Information')}</span>
           </div>
 
-          <div className="flex items-center justify-between py-2 border-b border-gray-200/50 dark:border-white/10 text-sm">
-            <span className="text-gray-600 dark:text-gray-400 font-medium">{t('profile.phone', 'Phone Number')}:</span>
-            <span className="font-bold text-gray-900 dark:text-gray-100">
+          <div className="flex items-center justify-between py-2 border-b border-slate-200/60 dark:border-slate-800 text-sm">
+            <span className="text-slate-600 dark:text-slate-400 font-medium">{t('profile.phone', 'Phone Number')}:</span>
+            <span className="font-bold text-slate-900 dark:text-slate-100">
               {currentCompany?.contactNumber || userProfile?.phone || '9574823170'}
             </span>
           </div>
 
-          <div className="flex items-center justify-between py-2 border-b border-gray-200/50 dark:border-white/10 text-sm min-w-0 gap-2">
-            <span className="text-gray-600 dark:text-gray-400 font-medium shrink-0">Email:</span>
-            <span className="font-bold text-gray-900 dark:text-gray-100 text-xs lowercase truncate max-w-[190px] sm:max-w-xs text-right" title={currentCompany?.email || currentCompany?.userEmail || currentUser?.email || 'krishnafibers@gmail.com'}>
+          <div className="flex items-center justify-between py-2 border-b border-slate-200/60 dark:border-slate-800 text-sm min-w-0 gap-2">
+            <span className="text-slate-600 dark:text-slate-400 font-medium shrink-0">Email:</span>
+            <span className="font-bold text-slate-900 dark:text-slate-100 text-xs lowercase truncate max-w-[190px] sm:max-w-xs text-right" title={currentCompany?.email || currentCompany?.userEmail || currentUser?.email || 'krishnafibers@gmail.com'}>
               {currentCompany?.email || currentCompany?.userEmail || currentUser?.email || 'krishnafibers@gmail.com'}
             </span>
           </div>
@@ -141,29 +144,66 @@ export const ProfilePage: React.FC = () => {
           <button
             type="button"
             onClick={() => setShowSwitchModal(true)}
-            className="w-full flex items-center justify-between py-2 text-sm text-gray-900 dark:text-gray-100 font-bold hover:text-[var(--primary)] dark:hover:text-[var(--primary)] transition-colors min-w-0 gap-2"
+            className="w-full flex items-center justify-between py-2 text-sm text-slate-900 dark:text-slate-100 font-bold hover:text-blue-600 dark:hover:text-blue-400 transition-colors min-w-0 gap-2"
           >
             <div className="flex items-center gap-2.5 min-w-0 flex-1">
               <div 
-                className="w-8 h-8 rounded-xl flex items-center justify-center backdrop-blur-xs shrink-0"
-                style={{ backgroundColor: palette.light, color: palette.primary }}
+                className="w-8 h-8 rounded-xl flex items-center justify-center backdrop-blur-xs shrink-0 bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-200/80 dark:border-blue-800/60"
               >
                 <Repeat className="w-4 h-4" />
               </div>
               <span className="truncate">{t('profile.changeCompany', 'Change company / financial year')}</span>
             </div>
-            <ChevronRight className="w-4 h-4 text-gray-400 shrink-0" />
+            <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
           </button>
+        </div>
+
+        {/* Appearance & Theme Card (Light / Dark Mode) */}
+        <div className="glass-card rounded-3xl p-4 sm:p-5 space-y-4 transition-all shadow-glass-card min-w-0 overflow-hidden">
+          <div className="flex items-center gap-2 font-bold text-sm text-blue-600 dark:text-blue-400">
+            <Palette className="w-4 h-4 shrink-0" />
+            <span>Appearance & Theme</span>
+          </div>
+
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 py-1 text-sm">
+            <span className="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">Interface Mode:</span>
+            <div className="grid grid-cols-2 p-1 rounded-2xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 w-full sm:w-auto">
+              <button
+                type="button"
+                onClick={() => setDarkMode(false)}
+                className={`flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  !isDarkMode
+                    ? 'bg-white text-blue-600 shadow-xs'
+                    : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                }`}
+              >
+                <Sun className="w-3.5 h-3.5 shrink-0" />
+                <span>Light</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setDarkMode(true)}
+                className={`flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  isDarkMode
+                    ? 'bg-blue-600 text-white shadow-xs'
+                    : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                }`}
+              >
+                <Moon className="w-3.5 h-3.5 shrink-0" />
+                <span>Dark</span>
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* App Language Card */}
         <div className="glass-card rounded-3xl p-5 space-y-4 transition-all shadow-glass-card">
-          <div className="flex items-center gap-2 font-bold text-sm" style={{ color: palette.primary }}>
+          <div className="flex items-center gap-2 font-bold text-sm text-blue-600 dark:text-blue-400">
             <Globe className="w-4 h-4" />
             <span>{t('profile.appLanguage', 'App Language')}</span>
           </div>
 
-          <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
             {t('profile.selectLanguageDesc', 'Choose your preferred language for VyaparX')}
           </p>
 
@@ -178,19 +218,19 @@ export const ProfilePage: React.FC = () => {
                     setLanguage(item.code);
                     toast.success(`Language set to ${item.nativeLabel}`);
                   }}
-                  className={`py-3 px-2 rounded-2xl border flex flex-col items-center justify-center text-center transition-all ${
+                  className={`py-3 px-2 rounded-2xl border flex flex-col items-center justify-center text-center transition-all cursor-pointer ${
                     isSelected
-                      ? 'border-gray-900 dark:border-white ring-2 ring-blue-200 dark:ring-gray-600 bg-blue-500/10 dark:bg-white/10 shadow-glass backdrop-blur-md'
-                      : 'border-white/40 dark:border-white/10 bg-white/40 dark:bg-white/5 hover:bg-white/60 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300'
+                      ? 'border-blue-600 dark:border-blue-400 ring-2 ring-blue-200 dark:ring-blue-800 bg-blue-50 dark:bg-blue-950/50 shadow-glass backdrop-blur-md'
+                      : 'border-[#DCE6F2] dark:border-slate-800 bg-white/60 dark:bg-slate-800/60 hover:bg-white dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
                   }`}
                 >
                   <div className="flex items-center gap-1">
-                    <span className="text-sm font-black text-gray-900 dark:text-white">
+                    <span className="text-sm font-black text-slate-900 dark:text-slate-100">
                       {item.nativeLabel}
                     </span>
-                    {isSelected && <Check className="w-3.5 h-3.5 text-emerald-500 stroke-[3]" />}
+                    {isSelected && <Check className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 stroke-[3]" />}
                   </div>
-                  <span className="text-[11px] text-gray-500 dark:text-gray-400 font-semibold mt-0.5">
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold mt-0.5">
                     {item.label}
                   </span>
                 </button>

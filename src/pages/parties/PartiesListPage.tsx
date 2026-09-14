@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Building, Phone, Plus, CheckCircle2, Info, Users } from 'lucide-react';
+import { Search, Building, Phone, Plus, CheckCircle2, Info, Users, X } from 'lucide-react';
 import { partyService } from '../../services/partyService';
 import type { Party } from '../../types';
 import { PageHeader } from '../../components/layout/PageHeader';
@@ -40,15 +40,25 @@ export const PartiesListPage: React.FC = () => {
 
       <div className="p-4 md:p-6 space-y-4 max-w-3xl mx-auto">
         {/* Search Bar matching screenshot */}
-        <div className="relative">
-          <Search className="w-5 h-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" />
+        <div className="relative group">
           <input
             type="text"
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             placeholder="Search parties..."
-            className="w-full pl-12 pr-4 py-3.5 bg-white/80 backdrop-blur-xl border border-blue-200/90 rounded-2xl text-sm font-medium text-gray-900 focus:outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-300/50 transition-all placeholder-gray-400 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_2px_8px_rgba(37,99,235,0.06)]"
+            className="w-full !pl-11 !pr-10 py-3.5 bg-white/80 dark:bg-[#111827]/80 backdrop-blur-xl border border-[#DCE6F2] dark:border-slate-800 rounded-2xl text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:bg-white dark:focus:bg-[#172033] focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-300/30 transition-all placeholder-slate-400 dark:placeholder-slate-500 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_2px_8px_rgba(37,99,235,0.06)] dark:shadow-none"
           />
+          <Search className="w-5 h-5 text-slate-400 dark:text-slate-400 group-focus-within:text-blue-600 dark:group-focus-within:text-blue-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none stroke-[2.2] transition-colors" />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer"
+              title="Clear Search"
+            >
+              <X className="w-4 h-4 stroke-[2.2]" />
+            </button>
+          )}
         </div>
 
         {/* Party Cards List */}
@@ -61,30 +71,29 @@ export const PartiesListPage: React.FC = () => {
             >
               {/* Building Icon in Soft Circle */}
               <div 
-                className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 mt-0.5 border border-blue-200/80 shadow-xs"
-                style={{ backgroundColor: palette.light, color: palette.primary }}
+                className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 mt-0.5 bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-200/80 dark:border-blue-800/60 shadow-xs"
               >
                 <Building className="w-6 h-6 stroke-[2.2]" />
               </div>
 
               {/* Details matching screenshot 8 */}
               <div className="flex-1 min-w-0">
-                <h3 className="font-extrabold text-base text-gray-900 dark:text-gray-100 uppercase tracking-wide truncate" title={party.name}>
+                <h3 className="font-extrabold text-base text-slate-900 dark:text-slate-100 uppercase tracking-wide truncate" title={party.name}>
                   {party.name}
                 </h3>
-                <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mt-0.5 truncate">
+                <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mt-0.5 truncate">
                   {party.city || 'BOTAD'} - {party.state || 'GUJARAT'}
                 </div>
 
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold text-gray-600 dark:text-gray-300 mt-2">
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold text-slate-600 dark:text-slate-300 mt-2">
                   <div className="flex items-center gap-1.5 shrink-0">
-                    <Phone className="w-3.5 h-3.5 text-gray-500" />
+                    <Phone className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                     <span>{party.mobileNumber}</span>
                   </div>
-                  <span className="text-gray-400 shrink-0">#ID: {party.id}</span>
+                  <span className="text-slate-400 dark:text-slate-500 shrink-0">#ID: {party.id}</span>
                 </div>
 
-                <div className="text-xs text-gray-400 italic mt-2 group-hover:text-[var(--primary)] transition-colors">
+                <div className="text-xs text-slate-400 dark:text-slate-500 italic mt-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                   Tap to view or edit
                 </div>
               </div>
@@ -92,19 +101,19 @@ export const PartiesListPage: React.FC = () => {
           ))}
 
           {!isLoading && parties.length > 0 && (
-            <div className="text-center py-6 text-gray-400 dark:text-gray-500 text-xs font-medium flex items-center justify-center gap-1.5">
-              <Info className="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" />
+            <div className="text-center py-6 text-slate-400 dark:text-slate-500 text-xs font-medium flex items-center justify-center gap-1.5">
+              <Info className="w-4 h-4 text-slate-400 dark:text-slate-500 shrink-0" />
               <span>No more parties</span>
             </div>
           )}
 
           {!isLoading && parties.length === 0 && (
-            <div className="text-center py-12 px-4 rounded-3xl bg-white/40 dark:bg-gray-850/40 backdrop-blur-xl border border-white/50 dark:border-white/10 shadow-glass">
+            <div className="text-center py-12 px-4 rounded-3xl bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/50 dark:border-slate-800/60 shadow-glass">
               <div className="w-12 h-12 rounded-2xl bg-blue-500/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 mx-auto flex items-center justify-center mb-3">
                 <Users className="w-6 h-6 stroke-[2]" />
               </div>
-              <h3 className="text-sm font-bold text-gray-800 dark:text-gray-200">No parties found</h3>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">No parties found</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                 {searchQuery ? 'No parties match your search criteria' : 'Click the + button below to add your first party.'}
               </p>
             </div>

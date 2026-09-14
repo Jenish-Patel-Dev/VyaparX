@@ -78,13 +78,11 @@ export function App() {
                       <Route path="/vyapar" element={<SaudaListPage />} />
                       <Route path="/vyapar/create" element={<CreateSaudaPage />} />
                       <Route path="/vyapar/edit/:id" element={<EditSaudaPage />} />
-                      <Route path="/vyapar/dispatch" element={<Navigate to="/vyapar" replace />} />
                       <Route path="/vyapar/bills" element={<SaudaBillsPage />} />
 
                       <Route path="/sauda" element={<Navigate to="/vyapar" replace />} />
                       <Route path="/sauda/create" element={<Navigate to="/vyapar/create" replace />} />
                       <Route path="/sauda/edit/:id" element={<EditSaudaPage />} />
-                      <Route path="/sauda/dispatch" element={<Navigate to="/vyapar" replace />} />
                       <Route path="/sauda/bills" element={<Navigate to="/vyapar/bills" replace />} />
 
                       {/* Profile & Utilities */}

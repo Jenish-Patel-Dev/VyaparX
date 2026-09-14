@@ -5,7 +5,7 @@ import { useToast } from '../../context/ToastContext';
 import { itemService } from '../../services/itemService';
 import type { Item } from '../../types';
 import { FieldError } from './FieldError';
-import { validateRequired, validatePositiveNumber } from '../../utils/validators';
+import { validateRequired, validatePositiveNumber, preventNonNumericInput, sanitizeNumeric } from '../../utils/validators';
 
 interface QuickAddItemModalProps {
   isOpen: boolean;
@@ -101,13 +101,12 @@ export const QuickAddItemModal: React.FC<QuickAddItemModalProps> = ({
       style={{ backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
     >
       <div 
-        className="w-full max-w-md bg-white/95 dark:bg-gray-900/95 backdrop-blur-3xl rounded-3xl shadow-glass-hover overflow-hidden flex flex-col max-h-[90vh] border border-white/70 dark:border-white/15 animate-in zoom-in-95 duration-150"
+        className="w-full max-w-md bg-white/95 dark:bg-[#111827]/95 backdrop-blur-3xl rounded-3xl shadow-glass-hover overflow-hidden flex flex-col max-h-[90vh] border border-[#DCE6F2] dark:border-white/15 animate-in zoom-in-95 duration-150"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
         <div 
-          className="px-6 py-4 text-white flex items-center justify-between shadow-glass"
-          style={{ backgroundColor: palette.primary }}
+          className="px-6 py-4 text-white flex items-center justify-between shadow-glass bg-gradient-to-r from-blue-700 via-blue-600 to-sky-600"
         >
           <div className="flex items-center gap-2.5">
             <Package className="w-5 h-5 stroke-[2.5]" />
@@ -172,11 +171,10 @@ export const QuickAddItemModal: React.FC<QuickAddItemModalProps> = ({
                     setUnit(u);
                     clearError('unit');
                   }}
-                  style={unit === u ? { backgroundColor: `${palette.primary}20`, borderColor: palette.primary, color: palette.primary } : {}}
                   className={`text-[10px] font-bold px-2.5 py-1 rounded-xl transition-all border ${
                     unit === u
-                      ? 'shadow-glass'
-                      : 'bg-white/40 dark:bg-white/5 text-gray-600 dark:text-gray-400 border-white/40 dark:border-white/10 hover:bg-white/60 dark:hover:bg-white/10'
+                      ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-600 text-blue-600 dark:text-blue-400 shadow-glass'
+                      : 'bg-white/40 dark:bg-white/5 text-gray-600 dark:text-gray-400 border-[#DCE6F2] dark:border-white/10 hover:bg-white/60 dark:hover:bg-white/10'
                   }`}
                 >
                   {u}
@@ -239,8 +237,8 @@ export const QuickAddItemModal: React.FC<QuickAddItemModalProps> = ({
             </button>
             <button
               type="submit"
-              disabled={isSubmitting}
-              className="btn-glass-primary flex-2 py-3 px-4 font-bold rounded-2xl text-xs flex items-center justify-center gap-1.5"
+              disabled={!name.trim() || !unit.trim() || isSubmitting}
+              className="btn-glass-primary flex-2 py-3 px-4 font-bold rounded-2xl text-xs flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none hover:disabled:shadow-none transition-all"
             >
               <Check className="w-4 h-4 stroke-[3]" />
               <span>{isSubmitting ? 'Saving...' : 'Save Item'}</span>

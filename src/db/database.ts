@@ -5,8 +5,6 @@ import type {
   Item,
   Party,
   SaudaOrder,
-  DispatchRecord,
-  PaymentRecord,
   QuickValue,
   UserProfile,
 } from '../types';
@@ -17,8 +15,6 @@ export class SaudaBookDB extends Dexie {
   items!: Table<Item, number>;
   parties!: Table<Party, number>;
   saudaOrders!: Table<SaudaOrder, number>;
-  dispatches!: Table<DispatchRecord, number>;
-  payments!: Table<PaymentRecord, number>;
   quickValues!: Table<QuickValue, number>;
   userProfile!: Table<UserProfile & { id: number }, number>;
 
@@ -47,6 +43,12 @@ export class SaudaBookDB extends Dexie {
           comp.username = 'JENISH';
         }
       });
+    });
+
+    this.version(3).stores({
+      dispatches: null,
+      payments: null,
+      saudaOrders: '++id, companyId, financialYear, date, itemId, sellerId, buyerId, billNo',
     });
   }
 }

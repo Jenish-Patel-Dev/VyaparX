@@ -42,7 +42,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
       style={{ backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
     >
       <div 
-        className="w-full max-w-sm bg-white/95 dark:bg-gray-900/95 backdrop-blur-3xl rounded-3xl shadow-glass-hover p-6 animate-in zoom-in-95 duration-150 border border-white/70 dark:border-white/15"
+        className="w-full max-w-sm bg-white/95 dark:bg-[#111827]/95 backdrop-blur-3xl rounded-3xl shadow-glass-hover p-6 animate-in zoom-in-95 duration-150 border border-[#DCE6F2] dark:border-white/15"
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center gap-3.5 mb-3">
