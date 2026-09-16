@@ -36,8 +36,7 @@ export const ReportsPage: React.FC = () => {
   return (
     <div className="min-h-screen pb-24 md:pb-12 transition-colors">
       <PageHeader
-        title="Brokerage Total Amount Report"
-        subtitle={`Party Wise Summary • FY: ${currentFinancialYear} • ${currentCompany?.name}`}
+        title="BROKERAGE TOTAL AMOUNT REPORT"
         rightAction={
           <button
             type="button"

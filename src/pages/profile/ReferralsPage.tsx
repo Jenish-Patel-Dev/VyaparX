@@ -26,7 +26,7 @@ export const ReferralsPage: React.FC = () => {
 
   return (
     <div className="min-h-screen pb-24 md:pb-12 transition-colors">
-      <PageHeader title="Referrals & Rewards" />
+      <PageHeader title="REFERRALS & REWARDS" />
 
       <div className="p-4 md:p-6 max-w-lg mx-auto space-y-5">
         <div className="glass-card rounded-3xl p-6 text-center space-y-4 shadow-glass-card">

@@ -81,7 +81,7 @@ export const ProfilePage: React.FC = () => {
   return (
     <div className="min-h-screen pb-24 md:pb-12 transition-colors overflow-x-hidden">
       {/* Header Replicating Screenshot 15 */}
-      <PageHeader title={t('profile.title', 'My Profile')} />
+      <PageHeader title={t('profile.title', 'MY PROFILE')} />
 
       <div className="p-3 sm:p-4 md:p-6 max-w-xl mx-auto space-y-4 min-w-0 w-full">
         {/* Top Profile Card */}

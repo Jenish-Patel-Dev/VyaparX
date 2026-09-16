@@ -15,6 +15,8 @@ import {
   validatePan,
   validateGst,
   validateIfsc,
+  preventNonNumericInput,
+  sanitizeNumeric,
 } from '../../utils/validators';
 
 const INDIAN_STATES = [
@@ -100,7 +102,7 @@ export const AddEditPartyPage: React.FC = () => {
     const nameErr = validateRequired(name, 'Party Name');
     if (nameErr) newErrors.name = nameErr;
 
-    const phoneErr = validatePhone(mobileNumber, 'Mobile Number', false);
+    const phoneErr = validatePhone(mobileNumber, 'Mobile Number', true);
     if (phoneErr) newErrors.mobileNumber = phoneErr;
 
     const emailErr = validateEmail(email, false);
@@ -173,7 +175,7 @@ export const AddEditPartyPage: React.FC = () => {
     <div className="min-h-screen pb-24 md:pb-12 transition-colors">
       {/* Header Replicating Screenshots 6, 7 */}
       <PageHeader
-        title={isEdit ? 'Edit Party' : 'Add Party'}
+        title={isEdit ? 'EDIT PARTY' : 'ADD PARTY'}
         rightAction={
           isEdit ? (
             <button
@@ -226,7 +228,7 @@ export const AddEditPartyPage: React.FC = () => {
 
             <div>
               <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-1.5">
-                MOBILE NUMBER
+                MOBILE NUMBER <span className="text-red-500 font-bold">*</span>
               </label>
               <div className="relative">
                 <input
@@ -234,14 +236,15 @@ export const AddEditPartyPage: React.FC = () => {
                   maxLength={10}
                   placeholder="10-DIGIT MOBILE NUMBER"
                   value={mobileNumber}
+                  onKeyDown={e => preventNonNumericInput(e, false)}
                   onChange={e => {
-                    setMobileNumber(e.target.value);
+                    setMobileNumber(sanitizeNumeric(e.target.value, false).slice(0, 10));
                     clearError('mobileNumber');
                   }}
                   className={`input-sauda pr-12 font-medium ${errors.mobileNumber ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''}`}
                 />
                 <div 
-                  className="w-8 h-8 rounded-lg flex items-center justify-center absolute right-2.5 top-1/2 -translate-y-1/2 bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-200/80 dark:border-blue-800/60 shadow-xs"
+                  className="w-8 h-8 rounded-lg flex items-center justify-center absolute right-2.5 top-1/2 -translate-y-1/2 bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-200/80 dark:border-blue-800/60 shadow-xs pointer-events-none"
                 >
                   <Contact className="w-5 h-5" />
                 </div>
@@ -345,7 +348,7 @@ export const AddEditPartyPage: React.FC = () => {
                 placeholder="15-CHARACTER GSTIN (OPTIONAL)"
                 value={gstNumber}
                 onChange={e => {
-                  setGstNumber(e.target.value.toUpperCase());
+                  setGstNumber(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 15));
                   clearError('gstNumber');
                 }}
                 className={`input-sauda uppercase font-semibold ${errors.gstNumber ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''}`}
@@ -363,7 +366,7 @@ export const AddEditPartyPage: React.FC = () => {
                 placeholder="10-CHARACTER PAN (OPTIONAL)"
                 value={panNumber}
                 onChange={e => {
-                  setPanNumber(e.target.value.toUpperCase());
+                  setPanNumber(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10));
                   clearError('panNumber');
                 }}
                 className={`input-sauda uppercase font-semibold ${errors.panNumber ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''}`}
@@ -398,9 +401,11 @@ export const AddEditPartyPage: React.FC = () => {
               </label>
               <input
                 type="text"
+                maxLength={20}
                 placeholder="ACCOUNT NUMBER"
                 value={accountNumber}
-                onChange={e => setAccountNumber(e.target.value)}
+                onKeyDown={e => preventNonNumericInput(e, false)}
+                onChange={e => setAccountNumber(sanitizeNumeric(e.target.value, false).slice(0, 20))}
                 className="input-sauda font-medium"
               />
             </div>
@@ -415,7 +420,7 @@ export const AddEditPartyPage: React.FC = () => {
                 placeholder="11-CHARACTER IFSC CODE"
                 value={ifscCode}
                 onChange={e => {
-                  setIfscCode(e.target.value.toUpperCase());
+                  setIfscCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 11));
                   clearError('ifscCode');
                 }}
                 className={`input-sauda uppercase font-semibold ${errors.ifscCode ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''}`}
@@ -440,7 +445,7 @@ export const AddEditPartyPage: React.FC = () => {
           {/* Action Button */}
           <button
             type="submit"
-            disabled={!name.trim() || !city.trim() || !state.trim() || isSubmitting}
+            disabled={!name.trim() || mobileNumber.trim().length !== 10 || !city.trim() || !state.trim() || isSubmitting}
             className="btn-glass-primary w-full py-4 px-4 font-extrabold text-sm uppercase tracking-wider rounded-2xl mt-6 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none hover:disabled:shadow-none transition-all"
           >
             {isSubmitting ? (

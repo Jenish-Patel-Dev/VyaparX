@@ -34,9 +34,13 @@ export const itemService = {
 
   async search(query: string): Promise<Item[]> {
     if (!query.trim()) return await this.getAll();
-    const q = query.toLowerCase();
+    const q = query.trim().toLowerCase().replace('#', '');
     return await db.items
-      .filter(item => item.name.toLowerCase().includes(q))
+      .filter(item => 
+        item.name.toLowerCase().includes(q) ||
+        String(item.id).includes(q) ||
+        Boolean(item.unit && item.unit.toLowerCase().includes(q))
+      )
       .toArray();
   },
 };

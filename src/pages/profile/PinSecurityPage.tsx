@@ -68,7 +68,7 @@ export const PinSecurityPage: React.FC = () => {
 
   return (
     <div className="min-h-screen pb-24 md:pb-12 transition-colors">
-      <PageHeader title="Security & PIN" />
+      <PageHeader title="SECURITY & PIN" />
 
       <div className="p-4 md:p-6 max-w-md mx-auto space-y-5">
         <div className="glass-card rounded-3xl p-6 space-y-5 shadow-glass-card">

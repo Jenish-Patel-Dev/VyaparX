@@ -81,11 +81,19 @@ export const companyService = {
   async search(query: string, userEmail?: string): Promise<Company[]> {
     const base = userEmail ? await this.getByUser(userEmail) : await this.getAll();
     if (!query.trim()) return base;
-    const q = query.toLowerCase();
+    const q = query.trim().toLowerCase().replace('#', '');
     return base.filter(c => 
-      c.name.toLowerCase().includes(q) || 
-      c.city.toLowerCase().includes(q) || 
-      c.contactNumber.includes(q)
+      Boolean(
+        (c.name && c.name.toLowerCase().includes(q)) || 
+        (c.username && c.username.toLowerCase().includes(q)) ||
+        (c.email && c.email.toLowerCase().includes(q)) ||
+        (c.userEmail && c.userEmail.toLowerCase().includes(q)) ||
+        (c.address && c.address.toLowerCase().includes(q)) ||
+        (c.city && c.city.toLowerCase().includes(q)) || 
+        (c.contactNumber && c.contactNumber.includes(q)) ||
+        (c.state && c.state.toLowerCase().includes(q)) ||
+        (c.gstNumber && c.gstNumber.toLowerCase().includes(q))
+      )
     );
   },
 };

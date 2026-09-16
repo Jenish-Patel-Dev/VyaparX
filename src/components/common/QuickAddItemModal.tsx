@@ -110,7 +110,7 @@ export const QuickAddItemModal: React.FC<QuickAddItemModalProps> = ({
         >
           <div className="flex items-center gap-2.5">
             <Package className="w-5 h-5 stroke-[2.5]" />
-            <h2 className="font-extrabold text-base tracking-wide uppercase">Add New Item</h2>
+            <h2 className="font-extrabold text-base tracking-wide uppercase">ADD NEW ITEM</h2>
           </div>
           <button
             type="button"
@@ -157,7 +157,7 @@ export const QuickAddItemModal: React.FC<QuickAddItemModalProps> = ({
                 setUnit(e.target.value);
                 clearError('unit');
               }}
-              className={`input-vyapar font-semibold text-xs ${
+              className={`input-vyapar font-semibold ${
                 errors.unit ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
               }`}
             />
@@ -198,7 +198,7 @@ export const QuickAddItemModal: React.FC<QuickAddItemModalProps> = ({
                   setSellerRate(e.target.value);
                   clearError('sellerRate');
                 }}
-                className={`input-vyapar font-semibold text-xs ${
+                className={`input-vyapar font-semibold ${
                   errors.sellerRate ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
                 }`}
               />
@@ -217,7 +217,7 @@ export const QuickAddItemModal: React.FC<QuickAddItemModalProps> = ({
                   setBuyerRate(e.target.value);
                   clearError('buyerRate');
                 }}
-                className={`input-vyapar font-semibold text-xs ${
+                className={`input-vyapar font-semibold ${
                   errors.buyerRate ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
                 }`}
               />
@@ -230,7 +230,7 @@ export const QuickAddItemModal: React.FC<QuickAddItemModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="btn-glass-secondary flex-1 py-3 px-4 text-xs font-bold rounded-2xl flex items-center justify-center gap-1.5"
+              className="btn-glass-secondary flex-1 h-11 sm:h-12 px-4 text-xs font-bold rounded-xl sm:rounded-2xl flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <X className="w-4 h-4" />
               <span>Cancel</span>
@@ -238,7 +238,7 @@ export const QuickAddItemModal: React.FC<QuickAddItemModalProps> = ({
             <button
               type="submit"
               disabled={!name.trim() || !unit.trim() || isSubmitting}
-              className="btn-glass-primary flex-2 py-3 px-4 font-bold rounded-2xl text-xs flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none hover:disabled:shadow-none transition-all"
+              className="btn-glass-primary flex-2 h-11 sm:h-12 px-4 font-bold rounded-xl sm:rounded-2xl text-xs flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none hover:disabled:shadow-none transition-all"
             >
               <Check className="w-4 h-4 stroke-[3]" />
               <span>{isSubmitting ? 'Saving...' : 'Save Item'}</span>

@@ -57,8 +57,7 @@ export const QuickValuesPage: React.FC = () => {
   return (
     <div className="min-h-screen pb-24 md:pb-12 transition-colors">
       <PageHeader
-        title="Manage Quick Values"
-        subtitle="Shortcuts for repetitive order fields"
+        title="MANAGE QUICK VALUES"
       />
 
       <div className="p-4 md:p-6 max-w-xl mx-auto space-y-5">
