@@ -262,8 +262,9 @@ export const AddEditCompanyPage: React.FC = () => {
   return (
     <div className="min-h-screen pb-24 md:pb-12 transition-colors">
       <PageHeader
-        title={isFirstCompany ? 'Create Your First Company' : (isEdit ? 'Edit Company' : 'Add Company')}
+        title={isFirstCompany ? 'CREATE YOUR FIRST COMPANY' : (isEdit ? 'EDIT COMPANY' : 'ADD COMPANY')}
         subtitle={isFirstCompany ? 'Add company details to unlock VyaparX application' : undefined}
+        showCompanyInfo={!isFirstCompany}
         showBack={!isFirstCompany}
         rightAction={
           isFirstCompany ? (
@@ -445,7 +446,7 @@ export const AddEditCompanyPage: React.FC = () => {
                     setCity(e.target.value);
                     clearError('city');
                   }}
-                  className={`input-sauda uppercase font-medium text-xs ${errors.city ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''}`}
+                  className={`input-sauda uppercase font-medium ${errors.city ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''}`}
                 />
                 <FieldError error={errors.city} />
               </div>
@@ -464,7 +465,7 @@ export const AddEditCompanyPage: React.FC = () => {
                     setPinCode(sanitizeNumeric(e.target.value, false).slice(0, 6));
                     clearError('pinCode');
                   }}
-                  className={`input-sauda uppercase font-medium text-xs ${errors.pinCode ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''}`}
+                  className={`input-sauda uppercase font-medium ${errors.pinCode ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''}`}
                 />
                 <FieldError error={errors.pinCode} />
               </div>

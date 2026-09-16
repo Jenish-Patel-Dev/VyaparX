@@ -8,6 +8,8 @@ export interface SaudaFilters {
   itemId?: number;
   sellerId?: number;
   buyerId?: number;
+  partyId?: number;
+  date?: string;
   startDate?: string;
   endDate?: string;
 }
@@ -38,6 +40,14 @@ export const saudaService = {
       orders = orders.filter(o => o.buyerId === filters.buyerId);
     }
 
+    if (filters?.partyId) {
+      orders = orders.filter(o => o.sellerId === filters.partyId || o.buyerId === filters.partyId);
+    }
+
+    if (filters?.date) {
+      orders = orders.filter(o => o.date === filters.date);
+    }
+
     if (filters?.startDate) {
       orders = orders.filter(o => o.date >= filters.startDate!);
     }
@@ -51,10 +61,15 @@ export const saudaService = {
       orders = orders.filter(o =>
         String(o.id).includes(q) ||
         (o.doNo && o.doNo.toLowerCase().includes(q)) ||
-        o.itemName.toLowerCase().includes(q) ||
-        o.sellerName.toLowerCase().includes(q) ||
-        o.buyerName.toLowerCase().includes(q) ||
-        (o.billNo && o.billNo.toLowerCase().includes(q))
+        (o.itemName && o.itemName.toLowerCase().includes(q)) ||
+        (o.sellerName && o.sellerName.toLowerCase().includes(q)) ||
+        (o.sellerLocation && o.sellerLocation.toLowerCase().includes(q)) ||
+        (o.sellerCity && o.sellerCity.toLowerCase().includes(q)) ||
+        (o.buyerName && o.buyerName.toLowerCase().includes(q)) ||
+        (o.buyerLocation && o.buyerLocation.toLowerCase().includes(q)) ||
+        (o.buyerCity && o.buyerCity.toLowerCase().includes(q)) ||
+        (o.billNo && o.billNo.toLowerCase().includes(q)) ||
+        (o.deliveryTerms && o.deliveryTerms.toLowerCase().includes(q))
       );
     }
 

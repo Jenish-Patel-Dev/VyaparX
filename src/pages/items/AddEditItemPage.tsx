@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Info, Package, Scale, Binary, Trash2, Plus, Save } from 'lucide-react';
+import { Info, Package, Scale, Percent, Trash2, Plus, Save } from 'lucide-react';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { itemService } from '../../services/itemService';
 import { useToast } from '../../context/ToastContext';
@@ -18,6 +18,60 @@ export const AddEditItemPage: React.FC = () => {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const [name, setName] = useState('');
+  const [sellerRate, setSellerRate] = useState('2.8');
+  const [buyerRate, setBuyerRate] = useState('2.6');
+  const [unit, setUnit] = useState('100');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  useEffect(() => {
+    if (id) {
+      loadItem(Number(id));
+    }
+  }, [id]);
+
+  const loadItem = async (itemId: number) => {
+    try {
+      const itm = await itemService.getById(itemId);
+      if (itm) {
+        setName(itm.name);
+        setSellerRate(itm.sellerCommissionRate !== undefined ? String(itm.sellerCommissionRate) : '2.8');
+        setBuyerRate(itm.buyerCommissionRate !== undefined ? String(itm.buyerCommissionRate) : '2.6');
+        setUnit(itm.unit || '100');
+      } else {
+        toast.error('Item not found');
+        navigate('/items');
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to load item');
+    }
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    const nameErr = validateRequired(name, 'Item Name');
+    if (nameErr) newErrors.name = nameErr;
+
+    const unitErr = validateRequired(unit, 'Unit');
+    if (unitErr) newErrors.unit = unitErr;
+
+    if (sellerRate.trim()) {
+      const sRateErr = validatePositiveNumber(sellerRate, 'Seller Rate');
+      if (sRateErr) newErrors.sellerRate = sRateErr;
+    }
+
+    if (buyerRate.trim()) {
+      const bRateErr = validatePositiveNumber(buyerRate, 'Buyer Rate');
+      if (bRateErr) newErrors.buyerRate = bRateErr;
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const clearError = (field: string) => {
     if (errors[field]) {
       setErrors(prev => {
@@ -28,73 +82,33 @@ export const AddEditItemPage: React.FC = () => {
     }
   };
 
-  const [name, setName] = useState('');
-  const [sellerRate, setSellerRate] = useState('2.8');
-  const [buyerRate, setBuyerRate] = useState('2.6');
-  const [unit, setUnit] = useState('100');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-
-  useEffect(() => {
-    if (isEdit && id) {
-      itemService.getById(Number(id)).then(item => {
-        if (item) {
-          setName(item.name);
-          setSellerRate(String(item.sellerCommissionRate));
-          setBuyerRate(String(item.buyerCommissionRate));
-          setUnit(item.unit);
-        } else {
-          toast.error('Item not found');
-          navigate('/items');
-        }
-      });
-    }
-  }, [id, isEdit]);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newErrors: Record<string, string> = {};
-
-    const nameErr = validateRequired(name, 'Item Name');
-    if (nameErr) newErrors.name = nameErr;
-
-    const unitErr = validateRequired(unit, 'Unit');
-    if (unitErr) newErrors.unit = unitErr;
-
-    if (sellerRate !== '') {
-      const sellerErr = validatePositiveNumber(sellerRate, 'Seller commission rate', true);
-      if (sellerErr) newErrors.sellerRate = sellerErr;
-    }
-
-    if (buyerRate !== '') {
-      const buyerErr = validatePositiveNumber(buyerRate, 'Buyer commission rate', true);
-      if (buyerErr) newErrors.buyerRate = buyerErr;
-    }
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      toast.error('Please resolve the errors highlighted below');
+    if (!validateForm()) {
+      const firstError = Object.values(errors)[0];
+      if (firstError) toast.error(firstError);
       return;
     }
 
     try {
       setIsSubmitting(true);
-      const itemData = {
+      const payload = {
         name: name.trim().toUpperCase(),
         sellerCommissionRate: Number(sellerRate) || 0,
         buyerCommissionRate: Number(buyerRate) || 0,
-        unit: unit.trim() || '100',
+        unit: unit.trim().toUpperCase(),
       };
 
       if (isEdit && id) {
-        await itemService.update(Number(id), itemData);
+        await itemService.update(Number(id), payload);
         toast.success('Item updated successfully');
       } else {
-        await itemService.create(itemData);
+        await itemService.create(payload);
         toast.success('Item created successfully');
       }
       navigate('/items');
     } catch (err) {
+      console.error(err);
       toast.error('Failed to save item');
     } finally {
       setIsSubmitting(false);
@@ -102,17 +116,21 @@ export const AddEditItemPage: React.FC = () => {
   };
 
   const handleDelete = async () => {
-    if (id) {
+    if (!id) return;
+    try {
       await itemService.delete(Number(id));
       toast.success('Item deleted successfully');
       navigate('/items');
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to delete item');
     }
   };
 
   return (
     <div className="min-h-screen pb-24 md:pb-12 transition-colors">
       <PageHeader
-        title={isEdit ? 'Edit Item' : 'Add Item'}
+        title={isEdit ? 'EDIT ITEM' : 'ADD ITEM'}
         rightAction={
           isEdit ? (
             <button
@@ -150,8 +168,10 @@ export const AddEditItemPage: React.FC = () => {
               <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5 uppercase">
                 Item Name <span className="text-red-500 font-bold">*</span>
               </label>
-              <div className="relative">
-                <Package className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+              <div className="relative flex items-center">
+                <div className="w-8 h-8 rounded-xl flex items-center justify-center absolute left-2.5 top-1/2 -translate-y-1/2 bg-blue-50 dark:bg-blue-950/70 text-blue-600 dark:text-blue-400 border border-blue-200/80 dark:border-blue-800/60 shadow-xs pointer-events-none z-10">
+                  <Package className="w-4 h-4 stroke-[2.3]" />
+                </div>
                 <input
                   type="text"
                   placeholder="Ex. KAPAS"
@@ -160,7 +180,7 @@ export const AddEditItemPage: React.FC = () => {
                     setName(e.target.value);
                     clearError('name');
                   }}
-                  className={`input-vyapar !pl-12 pr-4 py-3.5 font-bold text-sm uppercase ${errors.name ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''}`}
+                  className={`input-vyapar !pl-[50px] pr-4 font-bold text-sm uppercase ${errors.name ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''}`}
                 />
               </div>
               <FieldError error={errors.name} />
@@ -171,18 +191,21 @@ export const AddEditItemPage: React.FC = () => {
               <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5 uppercase">
                 Commission Rate (Seller)
               </label>
-              <div className="relative">
-                <Binary className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+              <div className="relative flex items-center">
+                <div className="w-8 h-8 rounded-xl flex items-center justify-center absolute left-2.5 top-1/2 -translate-y-1/2 bg-blue-50 dark:bg-blue-950/70 text-blue-600 dark:text-blue-400 border border-blue-200/80 dark:border-blue-800/60 shadow-xs pointer-events-none z-10">
+                  <Percent className="w-4 h-4 stroke-[2.3]" />
+                </div>
                 <input
                   type="number"
                   step="any"
                   placeholder="2.8"
                   value={sellerRate}
+                  onKeyDown={e => preventNonNumericInput(e, true)}
                   onChange={e => {
-                    setSellerRate(e.target.value);
+                    setSellerRate(sanitizeNumeric(e.target.value, true));
                     clearError('sellerRate');
                   }}
-                  className={`input-vyapar !pl-12 pr-4 py-3.5 font-bold text-sm ${errors.sellerRate ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''}`}
+                  className={`input-vyapar !pl-[50px] pr-4 font-bold text-sm ${errors.sellerRate ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''}`}
                 />
               </div>
               <FieldError error={errors.sellerRate} />
@@ -193,18 +216,21 @@ export const AddEditItemPage: React.FC = () => {
               <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5 uppercase">
                 Commission Rate (Buyer)
               </label>
-              <div className="relative">
-                <Binary className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+              <div className="relative flex items-center">
+                <div className="w-8 h-8 rounded-xl flex items-center justify-center absolute left-2.5 top-1/2 -translate-y-1/2 bg-blue-50 dark:bg-blue-950/70 text-blue-600 dark:text-blue-400 border border-blue-200/80 dark:border-blue-800/60 shadow-xs pointer-events-none z-10">
+                  <Percent className="w-4 h-4 stroke-[2.3]" />
+                </div>
                 <input
                   type="number"
                   step="any"
                   placeholder="2.6"
                   value={buyerRate}
+                  onKeyDown={e => preventNonNumericInput(e, true)}
                   onChange={e => {
-                    setBuyerRate(e.target.value);
+                    setBuyerRate(sanitizeNumeric(e.target.value, true));
                     clearError('buyerRate');
                   }}
-                  className={`input-vyapar !pl-12 pr-4 py-3.5 font-bold text-sm ${errors.buyerRate ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''}`}
+                  className={`input-vyapar !pl-[50px] pr-4 font-bold text-sm ${errors.buyerRate ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''}`}
                 />
               </div>
               <FieldError error={errors.buyerRate} />
@@ -215,8 +241,10 @@ export const AddEditItemPage: React.FC = () => {
               <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5 uppercase">
                 Unit <span className="text-red-500 font-bold">*</span>
               </label>
-              <div className="relative">
-                <Scale className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+              <div className="relative flex items-center">
+                <div className="w-8 h-8 rounded-xl flex items-center justify-center absolute left-2.5 top-1/2 -translate-y-1/2 bg-blue-50 dark:bg-blue-950/70 text-blue-600 dark:text-blue-400 border border-blue-200/80 dark:border-blue-800/60 shadow-xs pointer-events-none z-10">
+                  <Scale className="w-4 h-4 stroke-[2.3]" />
+                </div>
                 <input
                   type="text"
                   placeholder="100"
@@ -225,7 +253,7 @@ export const AddEditItemPage: React.FC = () => {
                     setUnit(e.target.value);
                     clearError('unit');
                   }}
-                  className={`input-vyapar !pl-12 pr-4 py-3.5 font-bold text-sm uppercase ${errors.unit ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''}`}
+                  className={`input-vyapar !pl-[50px] pr-4 font-bold text-sm uppercase ${errors.unit ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''}`}
                 />
               </div>
               <FieldError error={errors.unit} />

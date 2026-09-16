@@ -34,13 +34,17 @@ export const partyService = {
 
   async search(query: string): Promise<Party[]> {
     if (!query.trim()) return await this.getAll();
-    const q = query.toLowerCase();
+    const q = query.toLowerCase().trim();
     return await db.parties
       .filter(p => 
-        p.name.toLowerCase().includes(q) || 
-        p.city.toLowerCase().includes(q) || 
-        p.state.toLowerCase().includes(q) ||
-        p.mobileNumber.includes(q) ||
+        (p.name && p.name.toLowerCase().includes(q)) || 
+        (p.mobileNumber && p.mobileNumber.toLowerCase().includes(q)) ||
+        (p.city && p.city.toLowerCase().includes(q)) || 
+        (p.state && p.state.toLowerCase().includes(q)) ||
+        (p.address && p.address.toLowerCase().includes(q)) ||
+        (p.email && p.email.toLowerCase().includes(q)) ||
+        (p.gstNumber && p.gstNumber.toLowerCase().includes(q)) ||
+        (p.panNumber && p.panNumber.toLowerCase().includes(q)) ||
         String(p.id).includes(q)
       )
       .toArray();

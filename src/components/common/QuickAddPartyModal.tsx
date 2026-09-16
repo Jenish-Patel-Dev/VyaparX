@@ -89,6 +89,9 @@ export const QuickAddPartyModal: React.FC<QuickAddPartyModalProps> = ({
     const phoneErr = validatePhone(mobileNumber, 'Mobile Number', true);
     if (phoneErr) newErrors.mobileNumber = phoneErr;
 
+    const stateErr = validateRequired(state, 'State');
+    if (stateErr) newErrors.state = stateErr;
+
     const cityErr = validateRequired(city, 'City');
     if (cityErr) newErrors.city = cityErr;
 
@@ -180,8 +183,8 @@ export const QuickAddPartyModal: React.FC<QuickAddPartyModalProps> = ({
                 setName(e.target.value);
                 clearError('name');
               }}
-              className={`w-full px-3.5 py-2.5 bg-white/60 dark:bg-white/5 border rounded-xl font-bold uppercase text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:bg-white dark:focus:bg-gray-900 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-600 transition-all shadow-2xs placeholder-gray-400 ${
-                errors.name ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : 'border-[#DCE6F2] dark:border-white/10'
+              className={`input-sauda font-bold uppercase ${
+                errors.name ? '!border-red-500 !ring-2 !ring-red-200/50 !bg-red-50/20' : ''
               }`}
             />
             <FieldError error={errors.name} />
@@ -202,8 +205,8 @@ export const QuickAddPartyModal: React.FC<QuickAddPartyModalProps> = ({
                 setMobileNumber(sanitizeNumeric(e.target.value, false).slice(0, 10));
                 clearError('mobileNumber');
               }}
-              className={`w-full px-3.5 py-2.5 bg-white/60 dark:bg-white/5 border rounded-xl font-semibold text-xs text-gray-900 dark:text-gray-100 focus:outline-none focus:bg-white dark:focus:bg-gray-900 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-600 transition-all shadow-2xs placeholder-gray-400 ${
-                errors.mobileNumber ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : 'border-[#DCE6F2] dark:border-white/10'
+              className={`input-sauda font-semibold ${
+                errors.mobileNumber ? '!border-red-500 !ring-2 !ring-red-200/50 !bg-red-50/20' : ''
               }`}
             />
             <FieldError error={errors.mobileNumber} />
@@ -224,8 +227,8 @@ export const QuickAddPartyModal: React.FC<QuickAddPartyModalProps> = ({
                   setCity(e.target.value);
                   clearError('city');
                 }}
-                className={`w-full px-3.5 py-2.5 bg-white/60 dark:bg-white/5 border rounded-xl font-semibold uppercase text-xs text-gray-900 dark:text-gray-100 focus:outline-none focus:bg-white dark:focus:bg-gray-900 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-600 transition-all shadow-2xs placeholder-gray-400 ${
-                  errors.city ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : 'border-[#DCE6F2] dark:border-white/10'
+                className={`input-sauda font-semibold uppercase ${
+                  errors.city ? '!border-red-500 !ring-2 !ring-red-200/50 !bg-red-50/20' : ''
                 }`}
               />
               <FieldError error={errors.city} />
@@ -235,8 +238,13 @@ export const QuickAddPartyModal: React.FC<QuickAddPartyModalProps> = ({
             <div className="min-w-0">
               <GlassSelect
                 label="STATE"
+                required
                 value={state}
-                onChange={v => setState(v)}
+                error={errors.state}
+                onChange={v => {
+                  setState(v);
+                  clearError('state');
+                }}
                 options={INDIAN_STATES.map(s => ({ value: s, label: s }))}
                 searchable
                 placeholder="Select State"
@@ -254,7 +262,7 @@ export const QuickAddPartyModal: React.FC<QuickAddPartyModalProps> = ({
               placeholder="e.g. Station Road, Near APMC Market"
               value={address}
               onChange={e => setAddress(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-white/60 dark:bg-white/5 border border-[#DCE6F2] dark:border-white/10 rounded-xl font-semibold text-xs text-gray-900 dark:text-gray-100 focus:outline-none focus:bg-white dark:focus:bg-gray-900 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-600 transition-all shadow-2xs placeholder-gray-400"
+              className="input-sauda font-semibold"
             />
           </div>
 
@@ -269,11 +277,11 @@ export const QuickAddPartyModal: React.FC<QuickAddPartyModalProps> = ({
               placeholder="e.g. 24AAAAA0000A1Z5"
               value={gstNumber}
               onChange={e => {
-                setGstNumber(e.target.value.toUpperCase());
+                setGstNumber(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 15));
                 clearError('gstNumber');
               }}
-              className={`w-full px-3.5 py-2.5 bg-white/60 dark:bg-white/5 border rounded-xl font-mono uppercase text-xs text-gray-900 dark:text-gray-100 focus:outline-none focus:bg-white dark:focus:bg-gray-900 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-600 transition-all shadow-2xs placeholder-gray-400 ${
-                errors.gstNumber ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : 'border-[#DCE6F2] dark:border-white/10'
+              className={`input-sauda font-mono uppercase ${
+                errors.gstNumber ? '!border-red-500 !ring-2 !ring-red-200/50 !bg-red-50/20' : ''
               }`}
             />
             <FieldError error={errors.gstNumber} />
@@ -284,15 +292,15 @@ export const QuickAddPartyModal: React.FC<QuickAddPartyModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="btn-glass-secondary flex-1 py-3 px-4 text-xs font-bold rounded-2xl flex items-center justify-center gap-1.5"
+              className="btn-glass-secondary flex-1 h-11 sm:h-12 px-4 text-xs font-bold rounded-xl sm:rounded-2xl flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <X className="w-4 h-4" />
               <span>Cancel</span>
             </button>
             <button
               type="submit"
-              disabled={!name.trim() || mobileNumber.trim().length !== 10 || !city.trim() || isSubmitting}
-              className="btn-glass-primary flex-2 py-3 px-4 font-bold rounded-2xl text-xs flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none hover:disabled:shadow-none transition-all"
+              disabled={!name.trim() || mobileNumber.trim().length !== 10 || !city.trim() || !state.trim() || isSubmitting}
+              className="btn-glass-primary flex-2 h-11 sm:h-12 px-4 font-bold rounded-xl sm:rounded-2xl text-xs flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none hover:disabled:shadow-none transition-all"
             >
               <Check className="w-4 h-4 stroke-[3]" />
               <span>{isSubmitting ? 'Saving...' : 'Save Party'}</span>

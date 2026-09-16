@@ -65,7 +65,7 @@ export const SearchSelectModal: React.FC<SearchSelectModalProps> = ({
               onChange={e => setSearchTerm(e.target.value)}
               placeholder={placeholder}
               autoFocus
-              className="w-full !pl-11 !pr-10 py-3 bg-white/90 dark:bg-[#111827]/90 backdrop-blur-xl border border-[#DCE6F2] dark:border-slate-700/60 rounded-2xl text-[#0F172A] dark:text-[#F8FAFC] placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:bg-white dark:focus:bg-[#111827] focus:border-[#2563EB] dark:focus:border-[#3B82F6] focus:ring-2 focus:ring-blue-500/15 transition-all text-sm sm:text-base font-medium shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.9),0_1px_3px_rgba(37,99,235,0.04)] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]"
+              className="input-sauda !pl-11 !pr-10 text-sm sm:text-base"
             />
             <Search className="w-5 h-5 text-slate-400 dark:text-slate-400 group-focus-within:text-blue-600 dark:group-focus-within:text-blue-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none stroke-[2.2] transition-colors" />
             {searchTerm && (

@@ -52,8 +52,8 @@ export const ChangeCompanyFYModal: React.FC<Props> = ({ isOpen, onClose }) => {
         onClick={e => e.stopPropagation()}
       >
         <div className="flex justify-between items-center border-b border-[#DCE6F2] dark:border-white/10 pb-3">
-          <h3 className="font-extrabold text-base text-gray-900 dark:text-white tracking-tight">
-            Change Company & FY
+          <h3 className="font-extrabold text-base text-gray-900 dark:text-white tracking-tight uppercase">
+            CHANGE COMPANY & FY
           </h3>
           <button onClick={onClose} className="p-1 rounded-xl text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-white/60 dark:hover:bg-white/10 transition-colors">
             <X className="w-5 h-5" />

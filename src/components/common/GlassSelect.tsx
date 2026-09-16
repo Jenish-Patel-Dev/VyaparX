@@ -96,12 +96,12 @@ export const GlassSelect: React.FC<GlassSelectProps> = ({
         type="button"
         disabled={disabled}
         onClick={() => !disabled && setIsOpen(prev => !prev)}
-        className={`w-full flex items-center justify-between gap-2 px-4 py-3 bg-white/60 dark:bg-gray-800/50 backdrop-blur-xl border rounded-xl text-sm font-semibold transition-all shadow-2xs text-left cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
+        className={`input-sauda flex items-center justify-between gap-2 text-left cursor-pointer select-none font-semibold disabled:opacity-50 disabled:cursor-not-allowed ${
           error
-            ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20'
+            ? '!border-red-500 !ring-2 !ring-red-200/50 !bg-red-50/20'
             : isOpen
-              ? 'border-blue-600 ring-2 ring-blue-100 dark:ring-blue-900/40 bg-white/95 dark:bg-[#111827]/90'
-              : 'border-[#DCE6F2] dark:border-white/10 hover:bg-white/80 dark:hover:bg-gray-800/70 hover:border-blue-500'
+              ? '!border-blue-600 !ring-2 !ring-blue-100 dark:!ring-blue-900/40 bg-white/95 dark:bg-[#111827]/90'
+              : 'hover:border-blue-500'
         } ${triggerClassName}`}
       >
         <div className="flex items-center gap-2.5 min-w-0 flex-1 pr-1">
@@ -113,7 +113,7 @@ export const GlassSelect: React.FC<GlassSelectProps> = ({
             />
           )}
           {selectedOption?.icon && <span className="shrink-0">{selectedOption.icon}</span>}
-          <span className={`truncate ${selectedOption ? 'text-gray-900 dark:text-gray-100 font-bold' : 'text-gray-400 dark:text-gray-500 font-normal'}`}>
+          <span className={`truncate ${selectedOption ? 'text-gray-900 dark:text-gray-100 font-bold' : 'text-slate-400 dark:text-slate-500 font-normal'}`}>
             {selectedOption ? selectedOption.label : placeholder}
           </span>
           {selectedOption?.sublabel && (
@@ -124,7 +124,7 @@ export const GlassSelect: React.FC<GlassSelectProps> = ({
         </div>
 
         <ChevronDown
-          className={`w-4 h-4 text-gray-400 shrink-0 transition-transform duration-200 ${
+          className={`w-4 h-4 text-slate-400 shrink-0 transition-transform duration-200 ${
             isOpen ? 'rotate-180 text-blue-600' : ''
           }`}
         />

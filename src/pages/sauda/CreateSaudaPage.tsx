@@ -382,7 +382,7 @@ export const CreateSaudaPage: React.FC = () => {
                     setItemQuality(e.target.value);
                     clearError('itemQuality');
                   }}
-                  className={`input-sauda font-semibold uppercase text-xs ${
+                  className={`input-sauda font-semibold uppercase ${
                     errors.itemQuality ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
                   }`}
                 />
@@ -539,7 +539,7 @@ export const CreateSaudaPage: React.FC = () => {
                     setRdValue(e.target.value);
                     clearError('rdValue');
                   }}
-                  className={`input-sauda font-semibold uppercase text-xs ${
+                  className={`input-sauda font-semibold uppercase ${
                     errors.rdValue ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
                   }`}
                 />

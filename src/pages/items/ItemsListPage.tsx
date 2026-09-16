@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Package, Plus, Info, X } from 'lucide-react';
+import { Search, Package, Plus, Info, X, RotateCcw } from 'lucide-react';
 import { itemService } from '../../services/itemService';
 import type { Item } from '../../types';
 import { PageHeader } from '../../components/layout/PageHeader';
+import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 
 export const ItemsListPage: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const { palette } = useTheme();
   const [items, setItems] = useState<Item[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -29,36 +31,59 @@ export const ItemsListPage: React.FC = () => {
     fetchItems();
   }, [searchQuery]);
 
+  const handleReset = () => {
+    setSearchQuery('');
+  };
+
   return (
     <div className="min-h-[calc(100vh-60px)] pb-24 md:pb-12">
       {/* Header matching screenshot */}
       <PageHeader
         title={`ITEM DETAIL (${items.length})`}
-        subtitle="Manage your commodity items"
         onRefresh={fetchItems}
       />
 
       <div className="p-4 md:p-6 space-y-4 max-w-3xl mx-auto">
-        {/* Search Bar matching screenshot */}
-        <div className="relative group">
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            placeholder="Search items..."
-            className="w-full !pl-11 !pr-10 py-3.5 bg-white/80 dark:bg-[#111827]/80 backdrop-blur-xl border border-[#DCE6F2] dark:border-slate-800 rounded-2xl text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:bg-white dark:focus:bg-[#172033] focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-300/30 transition-all placeholder-slate-400 dark:placeholder-slate-500 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_2px_8px_rgba(37,99,235,0.06)] dark:shadow-none"
-          />
-          <Search className="w-5 h-5 text-slate-400 dark:text-slate-400 group-focus-within:text-blue-600 dark:group-focus-within:text-blue-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none stroke-[2.2] transition-colors" />
-          {searchQuery && (
-            <button
-              type="button"
-              onClick={() => setSearchQuery('')}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer"
-              title="Clear Search"
-            >
-              <X className="w-4 h-4 stroke-[2.2]" />
-            </button>
-          )}
+        {/* Search Bar & Reset Button Row */}
+        <div className="flex items-center gap-2 sm:gap-2.5">
+          <div className="relative flex-1 group">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder={t('items.searchPlaceholder', 'Search by Item Name...')}
+              className="input-sauda !pl-11 !pr-10 text-xs sm:text-sm font-semibold"
+            />
+            <Search className="w-5 h-5 text-slate-400 dark:text-slate-400 group-focus-within:text-blue-600 dark:group-focus-within:text-blue-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none stroke-[2.2] transition-colors" />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer"
+                title="Clear Search"
+              >
+                <X className="w-4 h-4 stroke-[2.2]" />
+              </button>
+            )}
+          </div>
+
+          {/* Reset Button: Icon on mobile, Label + Icon on desktop */}
+          <button
+            type="button"
+            onClick={handleReset}
+            className={`h-11 sm:h-12 px-3 sm:px-4 rounded-xl sm:rounded-2xl border transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-1.5 shrink-0 font-bold text-xs sm:text-sm ${
+              searchQuery
+                ? 'bg-blue-50 dark:bg-blue-950/60 border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 shadow-sm'
+                : 'bg-white/90 dark:bg-[#111827]/90 border-[#DCE6F2] dark:border-slate-700/60 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/80 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_1px_3px_rgba(37,99,235,0.04)] dark:shadow-none'
+            }`}
+            title="Reset Search"
+            aria-label="Reset Search"
+          >
+            <RotateCcw className="w-4 h-4 stroke-[2.3]" />
+            <span className="hidden sm:inline uppercase tracking-wider font-extrabold text-xs">
+              {t('common.reset', 'Reset')}
+            </span>
+          </button>
         </div>
 
         {/* Item Cards List */}
