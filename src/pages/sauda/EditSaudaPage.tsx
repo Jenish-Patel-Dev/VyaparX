@@ -15,7 +15,7 @@ import { saudaService } from '../../services/saudaService';
 import { quickValueService } from '../../services/quickValueService';
 import type { Item, Party, SaudaOrder } from '../../types';
 import { calculateBillAmount, calculateCommission } from '../../utils/calculations';
-import { formatCurrency, formatISODate } from '../../utils/formatters';
+import { formatCurrency, formatISODate, formatDoNo } from '../../utils/formatters';
 import { FieldError } from '../../components/common/FieldError';
 import { validatePositiveNumber, preventNonNumericInput, sanitizeNumeric } from '../../utils/validators';
 
@@ -370,7 +370,7 @@ export const EditSaudaPage: React.FC = () => {
         buyerContactPerson,
       });
 
-      toast.success(`Vyapar Order updated successfully!`);
+      toast.success(`Vyapar Order ${formatDoNo(order.doNo, order.id)} updated successfully!`);
       navigate('/vyapar');
     } catch (err) {
       console.error(err);
@@ -410,7 +410,7 @@ export const EditSaudaPage: React.FC = () => {
   return (
     <div className="min-h-screen pb-24 md:pb-12 transition-colors">
       <PageHeader
-        title={`EDIT VYAPAR #${order.doNo || order.id}`}
+        title={`EDIT VYAPAR ${formatDoNo(order.doNo, order.id)}`}
         subtitle={`${order.itemName} • ${order.sellerName} ➔ ${order.buyerName}`}
       />
 

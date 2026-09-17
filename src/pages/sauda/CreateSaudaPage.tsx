@@ -16,7 +16,7 @@ import { saudaService } from '../../services/saudaService';
 import { quickValueService } from '../../services/quickValueService';
 import type { Item, Party } from '../../types';
 import { calculateBillAmount, calculateCommission } from '../../utils/calculations';
-import { formatCurrency, formatISODate } from '../../utils/formatters';
+import { formatCurrency, formatISODate, formatDoNo } from '../../utils/formatters';
 import { FieldError } from '../../components/common/FieldError';
 import { validatePositiveNumber, preventNonNumericInput, sanitizeNumeric } from '../../utils/validators';
 
@@ -290,7 +290,8 @@ export const CreateSaudaPage: React.FC = () => {
         buyerContactPerson,
       });
 
-      toast.success(`Vyapar Order created successfully!`);
+      const created = await saudaService.getById(newId);
+      toast.success(`Vyapar Order ${formatDoNo(created?.doNo, newId)} created successfully!`);
       navigate('/vyapar');
     } catch (err) {
       console.error(err);

@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, RefreshCw, Info, X, CheckCircle2, HelpCircle, Lightbulb } from 'lucide-react';
+import { ArrowLeft, RefreshCw, Info, X, CheckCircle2, HelpCircle, Lightbulb, Printer } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { resolvePageGuide, UI_GUIDE_STRINGS, type PageInfoGuide } from '../../data/pageGuides';
@@ -16,6 +16,7 @@ interface PageHeaderProps {
   showBack?: boolean;
   onBack?: () => void;
   onRefresh?: () => void;
+  onPrint?: () => void;
   rightAction?: React.ReactNode;
   info?: PageInfoGuide | string;
   showInfo?: boolean;
@@ -29,6 +30,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
   showBack = true,
   onBack,
   onRefresh,
+  onPrint,
   rightAction,
   info,
   showInfo = true,
@@ -95,6 +97,17 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
         </div>
 
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          {onPrint && (
+            <button
+              type="button"
+              onClick={onPrint}
+              className="p-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 rounded-full bg-white/95 dark:bg-slate-800/90 border border-[#DCE6F2] dark:border-slate-700/80 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_2px_8px_rgba(37,99,235,0.08)] transition-all active:scale-95 duration-150 cursor-pointer flex items-center justify-center"
+              aria-label="Print Report"
+              title="Print Report / PDF"
+            >
+              <Printer className="w-4 h-4 stroke-[2.2]" />
+            </button>
+          )}
           {showInfo && activeGuide && (
             <button
               type="button"

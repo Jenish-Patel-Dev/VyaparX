@@ -28,7 +28,8 @@ import { useApp } from '../../context/AppContext';
 import { useToast } from '../../context/ToastContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
-import { formatDate } from '../../utils/formatters';
+import { formatDate, formatDoNo } from '../../utils/formatters';
+import { printVyaparReport } from '../../utils/printReportService';
 import type { SaudaOrder, Item, Party } from '../../types';
 
 export const SaudaListPage: React.FC = () => {
@@ -133,7 +134,7 @@ export const SaudaListPage: React.FC = () => {
     if (orderToDelete?.id) {
       try {
         await saudaService.delete(orderToDelete.id);
-        toast.success(`Vyapar #${orderToDelete.id} deleted`);
+        toast.success(`Vyapar ${formatDoNo(orderToDelete.doNo, orderToDelete.id)} deleted`);
         setOrderToDelete(null);
         fetchOrders();
       } catch (err) {
@@ -146,6 +147,27 @@ export const SaudaListPage: React.FC = () => {
     window.print();
   };
 
+  const handlePrintReport = () => {
+    const activeFiltersList: string[] = [];
+    if (searchQuery.trim()) activeFiltersList.push(`Search: "${searchQuery.trim()}"`);
+    if (selectedDate) activeFiltersList.push(`Date: ${formatDate(selectedDate)}`);
+    if (selectedItemId !== null) {
+      const itm = items.find(i => i.id === selectedItemId);
+      if (itm) activeFiltersList.push(`Item: ${itm.name}`);
+    }
+    if (selectedPartyId !== null) {
+      const pty = parties.find(p => p.id === selectedPartyId);
+      if (pty) activeFiltersList.push(`Party: ${pty.name}`);
+    }
+
+    printVyaparReport({
+      orders,
+      companyName: currentCompany?.name,
+      financialYear: currentFinancialYear,
+      filterText: activeFiltersList.length > 0 ? activeFiltersList.join(' • ') : undefined,
+    });
+  };
+
   return (
     <div className="min-h-[calc(100vh-60px)] pb-24 md:pb-12">
       {/* Header Replicating Screenshot 23 */}
@@ -156,6 +178,7 @@ export const SaudaListPage: React.FC = () => {
           companyName: currentCompany?.name,
         }}
         onRefresh={fetchOrders}
+        onPrint={handlePrintReport}
       />
 
       <div className="p-4 md:p-6 space-y-4 max-w-3xl mx-auto">
@@ -336,7 +359,7 @@ export const SaudaListPage: React.FC = () => {
       <ConfirmDialog
         isOpen={Boolean(orderToDelete)}
         title="Delete Vyapar?"
-        message={`Are you sure you want to delete Vyapar #${orderToDelete?.id} (${orderToDelete?.itemName})? This action cannot be undone.`}
+        message={`Are you sure you want to delete Vyapar ${formatDoNo(orderToDelete?.doNo, orderToDelete?.id)} (${orderToDelete?.itemName})? This action cannot be undone.`}
         onConfirm={handleDeleteOrder}
         onCancel={() => setOrderToDelete(null)}
       />
@@ -349,7 +372,7 @@ export const SaudaListPage: React.FC = () => {
               <div className="flex items-center gap-2">
                 <Share2 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 <h3 className="font-bold text-slate-900 dark:text-slate-100 text-base">
-                  Vyapar Note #{activeShareOrder.id} Preview
+                  Vyapar Note {formatDoNo(activeShareOrder.doNo, activeShareOrder.id)} Preview
                 </h3>
               </div>
               <div className="flex items-center gap-2">

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Printer, Download, BarChart2, Users, Info, X } from 'lucide-react';
+import { Search, BarChart2, Info, X } from 'lucide-react';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { reportService, type PartyWiseReportRow } from '../../services/reportService';
 import { useApp } from '../../context/AppContext';
 import { formatCurrency } from '../../utils/formatters';
+import { printBrokerageReport } from '../../utils/printReportService';
 
 export const ReportsPage: React.FC = () => {
   const { currentCompany, currentFinancialYear } = useApp();
@@ -30,23 +31,26 @@ export const ReportsPage: React.FC = () => {
   const totalBillSum = filteredData.reduce((sum, r) => sum + r.totalBillAmount, 0);
 
   const handlePrint = () => {
-    window.print();
+    printBrokerageReport({
+      rows: filteredData,
+      totalBrokerage: totalBrokerageSum,
+      totalVolume: totalVolumeSum,
+      totalTurnover: totalBillSum,
+      companyName: currentCompany?.name,
+      financialYear: currentFinancialYear,
+      filterText: searchQuery.trim() ? `Search: "${searchQuery.trim()}"` : undefined,
+    });
   };
 
   return (
     <div className="min-h-screen pb-24 md:pb-12 transition-colors">
       <PageHeader
         title="BROKERAGE TOTAL AMOUNT REPORT"
-        rightAction={
-          <button
-            type="button"
-            onClick={handlePrint}
-            className="p-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 rounded-xl hover:bg-blue-50/60 dark:hover:bg-blue-900/20 transition-colors"
-            title="Print Report"
-          >
-            <Printer className="w-5 h-5" />
-          </button>
-        }
+        companyInfo={{
+          companyName: currentCompany?.name,
+          financialYear: currentFinancialYear,
+        }}
+        onPrint={handlePrint}
       />
 
       <div className="p-4 md:p-6 max-w-4xl mx-auto space-y-5">

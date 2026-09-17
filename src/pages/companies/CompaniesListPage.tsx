@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Building2, Phone, Plus, CheckCircle2, Info, X, RotateCcw } from 'lucide-react';
+import { TapIcon } from '../../components/common/TapIcon';
 import { companyService } from '../../services/companyService';
 import type { Company } from '../../types';
 import { PageHeader } from '../../components/layout/PageHeader';
@@ -8,6 +9,7 @@ import { useApp } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
+import { printCompaniesReport } from '../../utils/printReportService';
 
 export const CompaniesListPage: React.FC = () => {
   const navigate = useNavigate();
@@ -39,6 +41,13 @@ export const CompaniesListPage: React.FC = () => {
     setSearchQuery('');
   };
 
+  const handlePrint = () => {
+    printCompaniesReport({
+      companies,
+      filterText: searchQuery ? `Search "${searchQuery}"` : undefined,
+    });
+  };
+
   return (
     <div className="min-h-[calc(100vh-60px)] pb-24 md:pb-12">
       {/* Header Replicating Screenshot 12 */}
@@ -48,6 +57,7 @@ export const CompaniesListPage: React.FC = () => {
           fetchCompanies();
           refreshAppContext();
         }}
+        onPrint={handlePrint}
       />
 
       <div className="p-4 md:p-6 space-y-4 max-w-3xl mx-auto">
@@ -128,8 +138,9 @@ export const CompaniesListPage: React.FC = () => {
                   </div>
                 )}
 
-                <div className="text-xs text-slate-400 dark:text-slate-500 italic mt-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                  Tap to view or edit
+                <div className="flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500 italic mt-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                  <TapIcon className="w-3.5 h-3.5 stroke-[2.2] shrink-0 not-italic" />
+                  <span>Tap to view or edit</span>
                 </div>
               </div>
             </div>

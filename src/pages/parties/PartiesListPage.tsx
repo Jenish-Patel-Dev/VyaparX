@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Building, Phone, Plus, CheckCircle2, Info, Users, X, RotateCcw } from 'lucide-react';
+import { TapIcon } from '../../components/common/TapIcon';
 import { partyService } from '../../services/partyService';
 import type { Party } from '../../types';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { useTheme } from '../../context/ThemeContext';
 import { useLanguage } from '../../context/LanguageContext';
+import { useApp } from '../../context/AppContext';
+import { printPartiesReport } from '../../utils/printReportService';
 
 export const PartiesListPage: React.FC = () => {
   const navigate = useNavigate();
   const { palette } = useTheme();
   const { t } = useLanguage();
+  const { currentCompany, currentFinancialYear } = useApp();
   const [parties, setParties] = useState<Party[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -32,6 +36,15 @@ export const PartiesListPage: React.FC = () => {
     partyService.getAll().then(setParties);
   };
 
+  const handlePrint = () => {
+    printPartiesReport({
+      parties,
+      companyName: currentCompany?.name,
+      financialYear: currentFinancialYear,
+      filterText: searchQuery ? `Search "${searchQuery}"` : undefined,
+    });
+  };
+
   useEffect(() => {
     fetchParties();
   }, [searchQuery]);
@@ -42,6 +55,7 @@ export const PartiesListPage: React.FC = () => {
       <PageHeader
         title={`PARTIES (${parties.length})`}
         onRefresh={fetchParties}
+        onPrint={handlePrint}
       />
 
       <div className="p-4 md:p-6 space-y-4 max-w-3xl mx-auto">
@@ -119,8 +133,9 @@ export const PartiesListPage: React.FC = () => {
                   <span className="text-slate-400 dark:text-slate-500 shrink-0">#ID: {party.id}</span>
                 </div>
 
-                <div className="text-xs text-slate-400 dark:text-slate-500 italic mt-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                  Tap to view or edit
+                <div className="flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500 italic mt-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                  <TapIcon className="w-3.5 h-3.5 stroke-[2.2] shrink-0 not-italic" />
+                  <span>Tap to view or edit</span>
                 </div>
               </div>
             </div>
