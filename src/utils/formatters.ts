@@ -41,3 +41,30 @@ export function formatISODate(date: Date = new Date()): string {
   const dd = String(date.getDate()).padStart(2, '0');
   return `${yyyy}-${mm}-${dd}`;
 }
+
+/**
+ * Formats a DO number uniformly across the application.
+ * E.g., '20260917004' -> 'DO #20260917004'
+ * E.g., 'DO #20260917004' -> 'DO #20260917004'
+ */
+export function formatDoNo(doNo?: string, id?: number): string {
+  const raw = String(doNo || id || '').trim();
+  if (!raw) return '';
+  if (/^do\s*#/i.test(raw)) return raw;
+  if (/^do/i.test(raw)) return raw.replace(/^do\s*/i, 'DO #');
+  if (raw.startsWith('#')) return `DO ${raw}`;
+  return `DO #${raw}`;
+}
+
+/**
+ * Formats a DO number without the 'DO ' prefix, starting directly with '#'
+ * E.g., '20260917004' -> '#20260917004'
+ * E.g., 'DO #20260917004' -> '#20260917004'
+ */
+export function formatReportDoNo(doNo?: string, id?: number): string {
+  const raw = String(doNo || id || '').trim();
+  if (!raw) return '-';
+  const clean = raw.replace(/^DO\s*#?/i, '').replace(/^#/, '');
+  return `#${clean}`;
+}
+

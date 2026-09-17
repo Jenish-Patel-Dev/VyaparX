@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Package, Plus, Info, X, RotateCcw } from 'lucide-react';
+import { TapIcon } from '../../components/common/TapIcon';
 import { itemService } from '../../services/itemService';
 import type { Item } from '../../types';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
+import { useApp } from '../../context/AppContext';
+import { printItemsReport } from '../../utils/printReportService';
 
 export const ItemsListPage: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { palette } = useTheme();
+  const { currentCompany, currentFinancialYear } = useApp();
   const [items, setItems] = useState<Item[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -35,12 +39,22 @@ export const ItemsListPage: React.FC = () => {
     setSearchQuery('');
   };
 
+  const handlePrint = () => {
+    printItemsReport({
+      items,
+      companyName: currentCompany?.name,
+      financialYear: currentFinancialYear,
+      filterText: searchQuery ? `Search "${searchQuery}"` : undefined,
+    });
+  };
+
   return (
     <div className="min-h-[calc(100vh-60px)] pb-24 md:pb-12">
       {/* Header matching screenshot */}
       <PageHeader
         title={`ITEM DETAIL (${items.length})`}
         onRefresh={fetchItems}
+        onPrint={handlePrint}
       />
 
       <div className="p-4 md:p-6 space-y-4 max-w-3xl mx-auto">
@@ -115,8 +129,9 @@ export const ItemsListPage: React.FC = () => {
                   <span className="text-slate-400">|</span>
                   <span>{item.buyerCommissionRate} (Buyer)</span>
                 </div>
-                <div className="text-xs text-slate-400 dark:text-slate-500 italic mt-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                  Tap to view or edit
+                <div className="flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500 italic mt-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                  <TapIcon className="w-3.5 h-3.5 stroke-[2.2] shrink-0 not-italic" />
+                  <span>Tap to view or edit</span>
                 </div>
               </div>
             </div>

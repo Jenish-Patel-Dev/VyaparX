@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { 
   FileSpreadsheet, 
   Printer, 
@@ -31,7 +32,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useToast } from '../../context/ToastContext';
 import type { SaudaOrder, Item, Party } from '../../types';
-import { formatCurrency, formatDate } from '../../utils/formatters';
+import { formatCurrency, formatDate, formatDoNo } from '../../utils/formatters';
 
 export const SaudaBillsPage: React.FC = () => {
   const { currentCompany, currentFinancialYear } = useApp();
@@ -49,6 +50,9 @@ export const SaudaBillsPage: React.FC = () => {
   // Collapsible customization panel (collapsed by default for mobile and clean UX)
   const [isSettingsExpanded, setIsSettingsExpanded] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const orderIdParam = searchParams.get('orderId');
 
   // Filters
   const [searchQuery, setSearchQuery] = useState('');
@@ -94,6 +98,22 @@ export const SaudaBillsPage: React.FC = () => {
         date: selectedDate || undefined,
       };
       const data = await saudaService.getAll(filters);
+
+      // If an orderId query param is provided (e.g. from tapping a card in the list):
+      // Only show this selected record and display its preview immediately
+      if (orderIdParam) {
+        const target = data.find(o => String(o.id) === String(orderIdParam))
+          || await saudaService.getById(Number(orderIdParam)).catch(() => null);
+        if (target) {
+          setOrders([target]);
+          setSelectedOrder(target);
+          setTimeout(() => {
+            previewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 150);
+          return;
+        }
+      }
+
       setOrders(data);
       // Only keep selected order if it still exists in the fetched list, do not auto-select on load
       if (selectedOrder) {
@@ -109,12 +129,13 @@ export const SaudaBillsPage: React.FC = () => {
 
   useEffect(() => {
     fetchOrders();
-  }, [currentCompany?.id, currentFinancialYear, searchQuery, selectedItemId, selectedPartyId, selectedDate]);
+  }, [currentCompany?.id, currentFinancialYear, searchQuery, selectedItemId, selectedPartyId, selectedDate, orderIdParam]);
 
   const activeFiltersCount =
     (selectedDate ? 1 : 0) +
     (selectedItemId !== null ? 1 : 0) +
-    (selectedPartyId !== null ? 1 : 0);
+    (selectedPartyId !== null ? 1 : 0) +
+    (orderIdParam ? 1 : 0);
 
   const hasAnyFilterOrSearch = Boolean(searchQuery.trim() || activeFiltersCount > 0);
 
@@ -126,6 +147,10 @@ export const SaudaBillsPage: React.FC = () => {
     setTempDate('');
     setTempItemId(null);
     setTempPartyId(null);
+    if (orderIdParam) {
+      setSearchParams({});
+    }
+    setSelectedOrder(null);
   };
 
   const handleOpenFilterModal = () => {
@@ -274,10 +299,7 @@ export const SaudaBillsPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex items-center gap-2 shrink-0">
-              <span className="text-[11px] font-bold text-blue-600 dark:text-blue-400 hidden sm:inline uppercase tracking-wider">
-                {isSettingsExpanded ? 'Collapse' : 'Customize'}
-              </span>
+            <div className="flex items-center shrink-0">
               <div className={`p-1.5 rounded-lg text-slate-500 dark:text-slate-400 transition-transform duration-200 ${isSettingsExpanded ? 'rotate-180' : ''}`}>
                 <ChevronDown className="w-4 h-4 stroke-[2.5]" />
               </div>
@@ -289,11 +311,8 @@ export const SaudaBillsPage: React.FC = () => {
             <div className="p-4 sm:p-5 border-t border-[#DCE6F2] dark:border-slate-800/80 space-y-4 bg-slate-50/40 dark:bg-slate-900/20 animate-in fade-in duration-200">
               {/* PDF Template: Full Width Row (No empty right space) */}
               <div className="space-y-1.5 w-full">
-                <div className="flex justify-between items-center text-xs font-bold text-slate-700 dark:text-slate-300 uppercase">
-                  <span>PDF Template Layout:</span>
-                  <span className="text-blue-600 dark:text-blue-400 font-extrabold text-[11px]">
-                    Template {activeTemplate} Selected
-                  </span>
+                <div className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase">
+                  PDF Template Layout:
                 </div>
                 <div className="grid grid-cols-4 gap-2 w-full">
                   {[1, 2, 3, 4].map(num => (
@@ -315,30 +334,8 @@ export const SaudaBillsPage: React.FC = () => {
 
               {/* Note Color: Full Width Row (No empty right space) */}
               <div className="space-y-1.5 w-full">
-                <div className="flex justify-between items-center text-xs font-bold text-slate-700 dark:text-slate-300 uppercase">
-                  <span>Note Color:</span>
-                  <span
-                    className="text-xs font-extrabold flex items-center gap-1.5"
-                    style={{
-                      color:
-                        activeColor === 'RED' ? '#DC2626' :
-                        activeColor === 'ORANGE' ? '#FF9800' :
-                        activeColor === 'BLUE' ? '#2563EB' :
-                        activeColor === 'GREEN' ? '#059669' : '#111827'
-                    }}
-                  >
-                    <span
-                      className="w-2 h-2 rounded-full inline-block"
-                      style={{
-                        backgroundColor:
-                          activeColor === 'RED' ? '#DC2626' :
-                          activeColor === 'ORANGE' ? '#FF9800' :
-                          activeColor === 'BLUE' ? '#2563EB' :
-                          activeColor === 'GREEN' ? '#059669' : '#111827'
-                      }}
-                    />
-                    {activeColor}
-                  </span>
+                <div className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase">
+                  Note Color:
                 </div>
                 <div className="grid grid-cols-5 gap-2 w-full">
                   {[
@@ -384,41 +381,163 @@ export const SaudaBillsPage: React.FC = () => {
                   className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 cursor-pointer"
                 />
               </label>
-
-              {/* Download & Print Action Buttons inside Settings if order is selected */}
-              {selectedOrder && (
-                <div className="pt-2 flex flex-wrap items-center gap-2 border-t border-[#DCE6F2]/60 dark:border-slate-800/60">
-                  <button
-                    type="button"
-                    onClick={handleDownloadPdf}
-                    disabled={isDownloading}
-                    className="btn-glass-primary flex items-center gap-1.5 px-4 py-2 text-xs font-black rounded-xl cursor-pointer shadow-md disabled:opacity-60"
-                  >
-                    {isDownloading ? (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    ) : (
-                      <Download className="w-3.5 h-3.5 stroke-[2.4]" />
-                    )}
-                    <span>{isDownloading ? 'Downloading PDF...' : 'Download PDF'}</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handlePrint}
-                    className="px-4 py-2 text-xs font-bold rounded-xl border border-slate-300 dark:border-slate-700 bg-white/80 dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-1.5 cursor-pointer shadow-2xs"
-                  >
-                    <Printer className="w-3.5 h-3.5" />
-                    <span>Print</span>
-                  </button>
-                </div>
-              )}
             </div>
           )}
         </div>
 
-        {/* 2-Column Responsive Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Orders List & Filter Tools (1 Col) */}
+        {/* Full-width Search & Filter Tools Bar */}
+        <div className="space-y-2.5">
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            <div className="relative flex-1 group">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                placeholder={t('sauda.searchPlaceholder', 'Search DO#, Item, Seller, Buyer, Location, City...')}
+                className="input-sauda !pl-11 !pr-10 text-xs sm:text-sm font-semibold"
+              />
+              <Search className="w-5 h-5 text-slate-400 dark:text-slate-400 group-focus-within:text-blue-600 dark:group-focus-within:text-blue-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none stroke-[2.2] transition-colors" />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer"
+                  title="Clear Search"
+                >
+                  <X className="w-4 h-4 stroke-[2.2]" />
+                </button>
+              )}
+            </div>
+
+            {/* Filter Popup Button */}
+            <button
+              type="button"
+              onClick={handleOpenFilterModal}
+              className={`relative h-11 px-3 sm:px-4 rounded-xl border flex items-center justify-center gap-1.5 transition-all shrink-0 active:scale-95 cursor-pointer ${
+                activeFiltersCount > 0
+                  ? 'btn-glass-primary text-white shadow-glass'
+                  : 'bg-white/90 dark:bg-slate-800/90 border-[#DCE6F2] dark:border-slate-700/80 text-blue-600 dark:text-blue-400 hover:bg-white dark:hover:bg-slate-800 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_2px_8px_rgba(37,99,235,0.06)] dark:shadow-none backdrop-blur-xl'
+              }`}
+              title={t('sauda.filterOrders', 'Filter Vyapar Orders')}
+              aria-label="Filter orders"
+            >
+              <SlidersHorizontal className="w-4 h-4 stroke-[2.3]" />
+              <span className="hidden sm:inline font-bold text-xs uppercase tracking-wider">
+                {t('common.filter', 'Filter')}
+              </span>
+              {activeFiltersCount > 0 && (
+                <span className="min-w-[18px] h-4 px-1 bg-red-500 text-white rounded-full text-[9px] font-black flex items-center justify-center shadow-md animate-in zoom-in-50">
+                  {activeFiltersCount}
+                </span>
+              )}
+            </button>
+
+            {/* Reset Button */}
+            <button
+              type="button"
+              onClick={handleResetAll}
+              className={`h-11 px-3 sm:px-4 rounded-xl border transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-1.5 shrink-0 font-bold text-xs ${
+                hasAnyFilterOrSearch
+                  ? 'bg-blue-50 dark:bg-blue-950/60 border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 shadow-sm'
+                  : 'bg-white/90 dark:bg-[#111827]/90 border-[#DCE6F2] dark:border-slate-700/60 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/80 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_1px_3px_rgba(37,99,235,0.04)] dark:shadow-none'
+              }`}
+              title="Reset Search & Filters"
+              aria-label="Reset Search and Filters"
+            >
+              <RotateCcw className="w-3.5 h-3.5 stroke-[2.3]" />
+              <span className="hidden sm:inline uppercase tracking-wider font-extrabold text-[11px]">
+                {t('common.reset', 'Reset')}
+              </span>
+            </button>
+          </div>
+
+          {/* Active Filter Chips */}
+          {activeFiltersCount > 0 && (
+            <div className="flex flex-wrap items-center gap-1.5 pt-0.5 animate-in fade-in duration-200">
+              <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                Filters:
+              </span>
+
+              {selectedDate && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 shadow-2xs">
+                  <Calendar className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                  <span>{formatDate(selectedDate)}</span>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedDate('')}
+                    className="hover:text-red-500 p-0.5 rounded-full cursor-pointer transition-colors ml-0.5"
+                    title="Remove Date filter"
+                  >
+                    <X className="w-2.5 h-2.5 stroke-[2.5]" />
+                  </button>
+                </span>
+              )}
+
+              {selectedItemId !== null && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 shadow-2xs">
+                  <Package className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                  <span className="uppercase">
+                    {items.find(i => i.id === selectedItemId)?.name || `Item #${selectedItemId}`}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedItemId(null)}
+                    className="hover:text-red-500 p-0.5 rounded-full cursor-pointer transition-colors ml-0.5"
+                    title="Remove Item filter"
+                  >
+                    <X className="w-2.5 h-2.5 stroke-[2.5]" />
+                  </button>
+                </span>
+              )}
+
+              {selectedPartyId !== null && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 shadow-2xs">
+                  <Users className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                  <span className="uppercase">
+                    {parties.find(p => p.id === selectedPartyId)?.name || `Party #${selectedPartyId}`}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedPartyId(null)}
+                    className="hover:text-red-500 p-0.5 rounded-full cursor-pointer transition-colors ml-0.5"
+                    title="Remove Party filter"
+                  >
+                    <X className="w-2.5 h-2.5 stroke-[2.5]" />
+                  </button>
+                </span>
+              )}
+
+              {orderIdParam && selectedOrder && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 shadow-2xs">
+                  <Package className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                  <span className="uppercase">
+                    {formatDoNo(selectedOrder.doNo, selectedOrder.id)} • {selectedOrder.itemName}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setSearchParams({})}
+                    className="hover:text-red-500 p-0.5 rounded-full cursor-pointer transition-colors ml-0.5"
+                    title="Clear Order filter"
+                  >
+                    <X className="w-2.5 h-2.5 stroke-[2.5]" />
+                  </button>
+                </span>
+              )}
+
+              <button
+                type="button"
+                onClick={handleResetAll}
+                className="text-[10px] font-extrabold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer ml-1 uppercase tracking-wider"
+              >
+                Clear All
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* 2-Column Responsive Layout: Left = Orders List, Right = Preview */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+          {/* Orders List (1 Col) */}
           <div className="space-y-3">
             <div className="flex justify-between items-center px-1">
               <div className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
@@ -426,136 +545,8 @@ export const SaudaBillsPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Search Bar, Filter Button & Reset Button */}
-            <div className="flex items-center gap-2">
-              <div className="relative flex-1 group">
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
-                  placeholder={t('sauda.searchPlaceholder', 'Search DO#, Item, Seller, Buyer, Location, City...')}
-                  className="input-sauda !pl-9 !pr-8 text-xs font-semibold"
-                />
-                <Search className="w-4 h-4 text-slate-400 dark:text-slate-400 group-focus-within:text-blue-600 dark:group-focus-within:text-blue-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none stroke-[2.2] transition-colors" />
-                {searchQuery && (
-                  <button
-                    type="button"
-                    onClick={() => setSearchQuery('')}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer"
-                    title="Clear Search"
-                  >
-                    <X className="w-3.5 h-3.5 stroke-[2.2]" />
-                  </button>
-                )}
-              </div>
-
-              {/* Filter Popup Button */}
-              <button
-                type="button"
-                onClick={handleOpenFilterModal}
-                className={`relative h-11 w-11 rounded-xl border flex items-center justify-center transition-all shrink-0 active:scale-95 cursor-pointer ${
-                  activeFiltersCount > 0
-                    ? 'btn-glass-primary text-white shadow-glass'
-                    : 'bg-white/90 dark:bg-slate-800/90 border-[#DCE6F2] dark:border-slate-700/80 text-blue-600 dark:text-blue-400 hover:bg-white dark:hover:bg-slate-800 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_2px_8px_rgba(37,99,235,0.06)] dark:shadow-none backdrop-blur-xl'
-                }`}
-                title={t('sauda.filterOrders', 'Filter Vyapar Orders')}
-                aria-label="Filter orders"
-              >
-                <SlidersHorizontal className="w-4 h-4" />
-                {activeFiltersCount > 0 && (
-                  <span className="absolute -top-1 -right-1 min-w-[18px] h-4 px-1 bg-red-500 text-white rounded-full text-[9px] font-black flex items-center justify-center shadow-md animate-in zoom-in-50">
-                    {activeFiltersCount}
-                  </span>
-                )}
-              </button>
-
-              {/* Reset Button: Icon on mobile, Label + Icon on desktop */}
-              <button
-                type="button"
-                onClick={handleResetAll}
-                className={`h-11 px-3 rounded-xl border transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-1.5 shrink-0 font-bold text-xs ${
-                  hasAnyFilterOrSearch
-                    ? 'bg-blue-50 dark:bg-blue-950/60 border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 shadow-sm'
-                    : 'bg-white/90 dark:bg-[#111827]/90 border-[#DCE6F2] dark:border-slate-700/60 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/80 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_1px_3px_rgba(37,99,235,0.04)] dark:shadow-none'
-                }`}
-                title="Reset Search & Filters"
-                aria-label="Reset Search and Filters"
-              >
-                <RotateCcw className="w-3.5 h-3.5 stroke-[2.3]" />
-                <span className="hidden sm:inline uppercase tracking-wider font-extrabold text-[11px]">
-                  {t('common.reset', 'Reset')}
-                </span>
-              </button>
-            </div>
-
-            {/* Active Filter Chips */}
-            {activeFiltersCount > 0 && (
-              <div className="flex flex-wrap items-center gap-1.5 pt-0.5 animate-in fade-in duration-200">
-                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                  Filters:
-                </span>
-
-                {selectedDate && (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[11px] font-bold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 shadow-2xs">
-                    <Calendar className="w-3 h-3 text-blue-600 dark:text-blue-400" />
-                    <span>{formatDate(selectedDate)}</span>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedDate('')}
-                      className="hover:text-red-500 p-0.5 rounded-full cursor-pointer transition-colors"
-                      title="Remove Date filter"
-                    >
-                      <X className="w-2.5 h-2.5 stroke-[2.5]" />
-                    </button>
-                  </span>
-                )}
-
-                {selectedItemId !== null && (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[11px] font-bold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 shadow-2xs">
-                    <Package className="w-3 h-3 text-blue-600 dark:text-blue-400" />
-                    <span className="uppercase">
-                      {items.find(i => i.id === selectedItemId)?.name || `Item #${selectedItemId}`}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedItemId(null)}
-                      className="hover:text-red-500 p-0.5 rounded-full cursor-pointer transition-colors"
-                      title="Remove Item filter"
-                    >
-                      <X className="w-2.5 h-2.5 stroke-[2.5]" />
-                    </button>
-                  </span>
-                )}
-
-                {selectedPartyId !== null && (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[11px] font-bold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 shadow-2xs">
-                    <Users className="w-3 h-3 text-blue-600 dark:text-blue-400" />
-                    <span className="uppercase">
-                      {parties.find(p => p.id === selectedPartyId)?.name || `Party #${selectedPartyId}`}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedPartyId(null)}
-                      className="hover:text-red-500 p-0.5 rounded-full cursor-pointer transition-colors"
-                      title="Remove Party filter"
-                    >
-                      <X className="w-2.5 h-2.5 stroke-[2.5]" />
-                    </button>
-                  </span>
-                )}
-
-                <button
-                  type="button"
-                  onClick={handleResetAll}
-                  className="text-[10px] font-extrabold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer ml-0.5 uppercase tracking-wider"
-                >
-                  Clear All
-                </button>
-              </div>
-            )}
-
             {/* Orders Cards List */}
-            <div className="space-y-2 max-h-[560px] overflow-y-auto pr-0.5">
+            <div className="space-y-2 max-h-[600px] overflow-y-auto pr-0.5">
               {orders.map(order => (
                 <div
                   key={order.id}
@@ -567,8 +558,11 @@ export const SaudaBillsPage: React.FC = () => {
                   }`}
                 >
                   <div className="flex justify-between items-center text-xs font-bold gap-2 min-w-0">
-                    <span className="text-slate-900 dark:text-slate-100 truncate flex-1" title={`#${order.id} • ${order.itemName}`}>
-                      #{order.id} • {order.itemName}
+                    <span 
+                      className="text-slate-900 dark:text-slate-100 truncate flex-1" 
+                      title={`${formatDoNo(order.doNo, order.id)} • ${order.itemName}`}
+                    >
+                      {formatDoNo(order.doNo, order.id)} • {order.itemName}
                     </span>
                     <span className="shrink-0 font-extrabold text-blue-600 dark:text-blue-400">
                       {formatCurrency(order.totalBillAmount)}
@@ -604,29 +598,34 @@ export const SaudaBillsPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Active Order Live PDF Preview Pane */}
+          {/* Active Order Live PDF Preview Pane (2 Cols) */}
           {selectedOrder ? (
-            <div ref={previewRef} className="lg:col-span-2 min-w-0 animate-in fade-in duration-300">
+            <div ref={previewRef} className="lg:col-span-2 min-w-0 animate-in fade-in duration-300 space-y-3">
+              <div className="flex justify-between items-center px-1">
+                <div className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                  Vyapar Note Preview
+                </div>
+              </div>
               <div className="glass-panel p-3.5 sm:p-4 md:p-6 rounded-3xl shadow-glass-card space-y-4">
                 {/* Preview Top Header & Controls */}
                 <div className="flex flex-wrap items-center justify-between gap-2.5 pb-3 border-b border-[#DCE6F2] dark:border-slate-800">
                   <div className="flex items-center gap-2 min-w-0">
-                    <span className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-100 uppercase tracking-wide truncate">
-                      #{selectedOrder.id} • {selectedOrder.itemName}
-                    </span>
-                    <span className="text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800 shrink-0">
-                      DO #{selectedOrder.doNo || selectedOrder.id}
+                    <span 
+                      className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-100 uppercase tracking-wide truncate"
+                      title={`${formatDoNo(selectedOrder.doNo, selectedOrder.id)} • ${selectedOrder.itemName}`}
+                    >
+                      {formatDoNo(selectedOrder.doNo, selectedOrder.id)} • {selectedOrder.itemName}
                     </span>
                   </div>
 
                   {/* Actions: Download PDF, Print, Close */}
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
                     {/* DOWNLOAD PDF */}
                     <button
                       type="button"
                       onClick={handleDownloadPdf}
                       disabled={isDownloading}
-                      className="btn-glass-primary flex items-center gap-1.5 px-3 sm:px-4 py-2 text-xs font-black rounded-xl cursor-pointer shadow-md disabled:opacity-60 active:scale-95 transition-all"
+                      className="btn-glass-primary flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2 text-xs font-black rounded-xl cursor-pointer shadow-md disabled:opacity-60 active:scale-95 transition-all h-10 sm:h-auto"
                       title="Download PDF"
                     >
                       {isDownloading ? (
@@ -641,19 +640,20 @@ export const SaudaBillsPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={handlePrint}
-                      className="px-3 sm:px-3.5 py-2 text-xs font-bold rounded-xl border border-slate-300 dark:border-slate-700 bg-white/80 dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-1.5 cursor-pointer shadow-2xs active:scale-95 transition-all"
+                      className="flex-1 sm:flex-none px-3 sm:px-3.5 py-2 text-xs font-bold rounded-xl border border-slate-300 dark:border-slate-700 bg-white/80 dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs active:scale-95 transition-all h-10 sm:h-auto"
                       title="Print"
                     >
                       <Printer className="w-3.5 h-3.5" />
-                      <span className="hidden sm:inline">Print</span>
+                      <span>Print</span>
                     </button>
 
                     {/* CLOSE PREVIEW BUTTON */}
                     <button
                       type="button"
                       onClick={() => setSelectedOrder(null)}
-                      className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
+                      className="h-10 w-10 sm:h-auto sm:w-auto p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer shrink-0 flex items-center justify-center"
                       title="Close Preview"
+                      aria-label="Close Preview"
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -674,14 +674,21 @@ export const SaudaBillsPage: React.FC = () => {
             </div>
           ) : (
             /* When no order is selected: Only shown on desktop (lg+), hidden on mobile so screen is clean! */
-            <div className="hidden lg:flex lg:col-span-2 flex-col items-center justify-center p-16 text-center glass-card rounded-3xl border border-dashed border-slate-300 dark:border-slate-700 min-h-[420px]">
-              <div className="w-16 h-16 rounded-2xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-3 shadow-inner">
-                <FileSpreadsheet className="w-8 h-8 stroke-[1.8]" />
+            <div className="hidden lg:block lg:col-span-2 space-y-3">
+              <div className="flex justify-between items-center px-1">
+                <div className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                  Vyapar Note Preview
+                </div>
               </div>
-              <h4 className="font-extrabold text-slate-800 dark:text-slate-200 text-sm">Select an Order to Preview</h4>
-              <p className="text-xs text-slate-400 max-w-xs mt-1">
-                Click on any Vyapar order card on the left to view, download as PDF, or print its confirmation note.
-              </p>
+              <div className="flex flex-col items-center justify-center p-16 text-center glass-card rounded-3xl border border-dashed border-slate-300 dark:border-slate-700 min-h-[420px]">
+                <div className="w-16 h-16 rounded-2xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-3 shadow-inner">
+                  <FileSpreadsheet className="w-8 h-8 stroke-[1.8]" />
+                </div>
+                <h4 className="font-extrabold text-slate-800 dark:text-slate-200 text-sm">Select an Order to Preview</h4>
+                <p className="text-xs text-slate-400 max-w-xs mt-1">
+                  Click on any Vyapar order card on the left to view, download as PDF, or print its confirmation note.
+                </p>
+              </div>
             </div>
           )}
         </div>

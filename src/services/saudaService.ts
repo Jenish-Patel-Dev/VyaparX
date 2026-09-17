@@ -73,6 +73,14 @@ export const saudaService = {
       );
     }
 
+    // Ensure all orders have a valid doNo (YYYYMMDD + minimum 3-digit sequence without truncation)
+    orders.forEach(o => {
+      if (!o.doNo && o.id) {
+        const dateClean = (o.date || '').replace(/-/g, '');
+        o.doNo = `${dateClean}${String(o.id).padStart(3, '0')}`;
+      }
+    });
+
     // Sort descending by ID / Date
     return orders.sort((a, b) => (b.id || 0) - (a.id || 0));
   },
