@@ -45,11 +45,11 @@ const INDIAN_STATES = [
 ];
 
 const COLOR_OPTIONS = [
-  { label: 'RED', hex: '#DC2626' },
-  { label: 'ORANGE', hex: '#FF9800' },
-  { label: 'BLUE', hex: '#2563EB' },
-  { label: 'GREEN', hex: '#059669' },
-  { label: 'BLACK', hex: '#111827' },
+  { label: 'RED', hex: '#DC2626', name: 'Red' },
+  { label: 'ORANGE', hex: '#FF9800', name: 'Orange' },
+  { label: 'BLUE', hex: '#2563EB', name: 'Blue' },
+  { label: 'GREEN', hex: '#059669', name: 'Green' },
+  { label: 'BLACK', hex: '#111827', name: 'Black' },
 ];
 
 export const AddEditCompanyPage: React.FC = () => {
@@ -185,7 +185,7 @@ export const AddEditCompanyPage: React.FC = () => {
 
     try {
       setIsSubmitting(true);
-      const userEmail = currentUser?.email || email.trim() || 'krishnafibers@gmail.com';
+      const userEmail = currentUser?.email || email.trim() || 'xyzdemotest@gmail.com';
       const companyData = {
         name: name.trim().toUpperCase(),
         username: trimmedUsername,
@@ -194,7 +194,7 @@ export const AddEditCompanyPage: React.FC = () => {
         email: email.trim() || userEmail,
         address: address.trim().toUpperCase(),
         state: state.trim().toUpperCase(),
-        city: city.trim().toUpperCase() || 'BOTAD',
+        city: city.trim().toUpperCase(),
         pinCode: pinCode.trim(),
         gstNumber: gstNumber.trim().toUpperCase(),
         panNumber: panNumber.trim().toUpperCase(),
@@ -255,9 +255,6 @@ export const AddEditCompanyPage: React.FC = () => {
       navigate('/companies');
     }
   };
-
-  const currentColorHex =
-    COLOR_OPTIONS.find(c => c.label === saudaNoteColor)?.hex || '#DC2626';
 
   return (
     <div className="min-h-screen pb-24 md:pb-12 transition-colors">
@@ -601,47 +598,55 @@ export const AddEditCompanyPage: React.FC = () => {
               Vyapar Note Customization
             </h2>
 
-            {/* Vyapar Note Color with Swatch */}
-            <div>
-              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-1.5">
-                VYAPAR NOTE COLOR
-              </label>
-              <div className="flex items-center gap-3">
-                <GlassSelect
-                  value={saudaNoteColor}
-                  onChange={v => setSaudaNoteColor(v as Company['saudaNoteColor'])}
-                  options={COLOR_OPTIONS.map(c => ({
-                    value: c.label,
-                    label: c.label,
-                    colorSwatch: c.hex,
-                  }))}
-                  className="flex-1"
-                />
-                <div
-                  className="w-12 h-12 rounded-2xl shadow-glass border border-slate-200 dark:border-slate-700 shrink-0"
-                  style={{ backgroundColor: currentColorHex }}
-                  title={`Color Preview: ${saudaNoteColor}`}
-                />
+            {/* PDF Template Layout */}
+            <div className="space-y-1.5 w-full">
+              <div className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase">
+                PDF Template Layout:
+              </div>
+              <div className="grid grid-cols-2 gap-2 w-full">
+                {[1, 2].map(num => (
+                  <button
+                    key={num}
+                    type="button"
+                    onClick={() => setPdfTemplate(num as 1 | 2)}
+                    className={`h-9 w-full rounded-xl font-black text-xs transition-all cursor-pointer flex items-center justify-center gap-1 ${
+                      pdfTemplate === num
+                        ? 'btn-glass-primary text-white shadow-glass scale-[1.02]'
+                        : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 border border-[#DCE6F2] dark:border-slate-700 shadow-2xs'
+                    }`}
+                  >
+                    Template {num}
+                  </button>
+                ))}
               </div>
             </div>
 
-            {/* Vyapar Note PDF Template Selector */}
-            <div>
-              <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-2">
-                VYAPAR NOTE PDF TEMPLATE
-              </label>
-              <div className="flex items-center gap-6 py-1">
-                {[1, 2, 3, 4].map(num => (
-                  <label key={num} className="flex items-center gap-2 cursor-pointer text-sm font-bold text-slate-800 dark:text-slate-200">
-                    <input
-                      type="radio"
-                      name="pdfTemplate"
-                      checked={pdfTemplate === num}
-                      onChange={() => setPdfTemplate(num as 1 | 2 | 3 | 4)}
-                      className="w-4 h-4 cursor-pointer text-blue-600 focus:ring-blue-500"
+            {/* Note Color */}
+            <div className="space-y-1.5 w-full">
+              <div className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase">
+                Note Color:
+              </div>
+              <div className="grid grid-cols-5 gap-2 w-full">
+                {COLOR_OPTIONS.map(col => (
+                  <button
+                    key={col.label}
+                    type="button"
+                    onClick={() => setSaudaNoteColor(col.label as Company['saudaNoteColor'])}
+                    className={`h-9 w-full rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer border ${
+                      saudaNoteColor === col.label
+                        ? 'ring-2 ring-blue-500 bg-blue-50/70 dark:bg-blue-950/50 border-blue-400 font-black shadow-xs scale-[1.02]'
+                        : 'bg-white dark:bg-slate-800 border-[#DCE6F2] dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 shadow-2xs'
+                    }`}
+                    title={col.name}
+                  >
+                    <span
+                      className="w-3.5 h-3.5 rounded-full shrink-0 shadow-2xs border border-white/40"
+                      style={{ backgroundColor: col.hex }}
                     />
-                    <span>{num}</span>
-                  </label>
+                    <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 hidden sm:inline">
+                      {col.name}
+                    </span>
+                  </button>
                 ))}
               </div>
             </div>
@@ -679,48 +684,52 @@ export const AddEditCompanyPage: React.FC = () => {
               <div className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
                 Live PDF Template Preview:
               </div>
-              <div className="overflow-x-auto">
-                <SaudaNoteTemplate
-                  order={{
-                    id: 1,
-                    doNo: '20260418001',
-                    date: '2026-04-18',
-                    itemName: 'COTTON',
-                    itemQuality: 'A-1',
-                    quantity: 100,
-                    unit: 'CANDY',
-                    billRate: 3723,
-                    totalBillAmount: 372300,
-                    sellerName: 'VIVEK',
-                    sellerLocation: 'Ahmedabad',
-                    sellerCity: 'Ahmedabad',
-                    sellerCommissionRate: 2.4,
-                    buyerName: 'JENISH',
-                    buyerLocation: 'Botad',
-                    buyerCity: 'Botad',
-                    buyerCommissionRate: 2.3,
-                    paymentTerms: '15',
-                    rdValue: 'A-1',
-                    stapleLength: '30',
-                    mic: '4-5',
-                    trashPercent: '3.5',
-                    moisturePercent: '5.3',
-                  }}
-                  company={{
-                    name: name || 'KRISHNA FIBERS',
-                    address: address || 'PALIYAD ROAD BOTAD',
-                    city: city || 'BOTAD',
-                    state: state || 'GUJARAT',
-                    pinCode: pinCode || '364710',
-                    panNumber: panNumber || 'ABCDE1234F',
-                    gstNumber: gstNumber || '24ABCDE1234F1Z5',
-                    contactNumber: contactNumber || '9574823170',
-                    email: email || 'krishnafibers@gmail.com',
-                  }}
-                  color={saudaNoteColor}
-                  template={pdfTemplate}
-                  showSignature={showSignature}
-                />
+              <div className="overflow-x-auto lg:overflow-x-visible pb-4">
+                <div className="rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden bg-white w-fit min-w-[640px] lg:min-w-0 lg:w-full max-w-2xl mx-auto">
+                  <SaudaNoteTemplate
+                    order={{
+                      id: 1,
+                      doNo: '20260418001',
+                      date: '2026-04-18',
+                      itemName: 'COMMODITY NAME',
+                      itemQuality: 'A-1',
+                      quantity: 100,
+                      unit: 'CANDY',
+                      billRate: 3723,
+                      totalBillAmount: 372300,
+                      sellerName: 'SELLER NAME',
+                      sellerContactPerson: '24XXXXXXXXXX1Z5',
+                      sellerLocation: 'Address',
+                      sellerCity: 'City',
+                      sellerCommissionRate: 2.5,
+                      buyerName: 'BUYER NAME',
+                      buyerContactPerson: '24XXXXXXXXXX1Z5',
+                      buyerLocation: 'Address',
+                      buyerCity: 'City',
+                      buyerCommissionRate: 2.5,
+                      paymentTerms: '15',
+                      rdValue: 'A-1',
+                      stapleLength: '30',
+                      mic: '4-5',
+                      trashPercent: '3.5',
+                      moisturePercent: '5.3',
+                    }}
+                    company={{
+                      name: name.trim() || 'COMPANY NAME',
+                      address: address.trim() || 'Address',
+                      city: city.trim() || 'City',
+                      state: state.trim() || 'State',
+                      pinCode: pinCode.trim() || '000000',
+                      panNumber: panNumber.trim() || 'ABCDE1234F',
+                      gstNumber: gstNumber.trim() || '24ABCDE1234F1Z5',
+                      contactNumber: contactNumber.trim() || '9876543210',
+                      email: email.trim() || 'xyzdemotest@gmail.com',
+                    }}
+                    color={saudaNoteColor}
+                    template={pdfTemplate}
+                    showSignature={showSignature}
+                  />
+                </div>
               </div>
             </div>
           </div>

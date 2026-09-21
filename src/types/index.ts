@@ -16,7 +16,7 @@ export interface Company {
   upiId?: string;
   logo?: string;
   saudaNoteColor: 'RED' | 'ORANGE' | 'BLUE' | 'GREEN' | 'BLACK';
-  pdfTemplate: 1 | 2 | 3 | 4;
+  pdfTemplate: 1 | 2;
   showSignature: boolean;
   isDefault: boolean;
   userEmail?: string;
