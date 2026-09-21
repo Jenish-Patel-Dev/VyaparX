@@ -149,7 +149,7 @@ const EN_GUIDES: Record<string, PageInfoGuide> = {
       'Filter Modal: Tap the filter button to filter orders by Date (calendar picker), Commodity Item, or Party (Seller/Buyer).',
       'Reset All: Tap the Reset button (icon on mobile, label+icon on desktop) to instantly clear search and all filters.',
       'Select Order: Tap on any order card from the list to preview its formal trade note.',
-      'Select Template & Color: Choose your preferred template (1-4) and brand note color.',
+      'Select Template & Color: Choose your preferred template (1-2) and brand note color.',
       'Print / Save PDF: Print formal paper copies or download PDF notes for buyers and sellers.',
     ],
     tips: 'Use the search and filter tools to instantly find specific trade notes for printing or sharing.',

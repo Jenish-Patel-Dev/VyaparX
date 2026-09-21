@@ -17,8 +17,12 @@ import {
   ChevronDown,
   Palette
 } from 'lucide-react';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+import { 
+  downloadSaudaNotePdf, 
+  printSaudaNote, 
+  formatOrderPdfFileName, 
+  formatOrderPdfBaseTitle 
+} from '../../utils/saudaPdfService';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { SaudaNoteTemplate } from '../../components/pdf/SaudaNoteTemplate';
 import { GlassDatePicker } from '../../components/common/GlassDatePicker';
@@ -50,7 +54,6 @@ export const SaudaBillsPage: React.FC = () => {
   // Collapsible customization panel (collapsed by default for mobile and clean UX)
   const [isSettingsExpanded, setIsSettingsExpanded] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
-
   const [searchParams, setSearchParams] = useSearchParams();
   const orderIdParam = searchParams.get('orderId');
 
@@ -66,8 +69,8 @@ export const SaudaBillsPage: React.FC = () => {
   const [tempItemId, setTempItemId] = useState<number | null>(null);
   const [tempPartyId, setTempPartyId] = useState<number | null>(null);
 
-  const [activeTemplate, setActiveTemplate] = useState<1 | 2 | 3 | 4>(
-    currentCompany?.pdfTemplate || 1
+  const [activeTemplate, setActiveTemplate] = useState<1 | 2>(
+    (currentCompany?.pdfTemplate === 2 ? 2 : 1)
   );
   const [activeColor, setActiveColor] = useState<string>(
     currentCompany?.saudaNoteColor || 'RED'
@@ -186,58 +189,30 @@ export const SaudaBillsPage: React.FC = () => {
   };
 
   const handlePrint = () => {
-    window.print();
+    if (selectedOrder) {
+      printSaudaNote(selectedOrder);
+    } else {
+      window.print();
+    }
   };
 
   const handleDownloadPdf = async () => {
     if (!selectedOrder) return;
-    const element = document.getElementById('printable-sauda-note');
-    if (!element) {
-      window.print();
-      return;
-    }
     setIsDownloading(true);
     try {
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#ffffff',
-        windowWidth: element.scrollWidth,
-      });
-
-      const imgData = canvas.toDataURL('image/jpeg', 0.95);
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4',
-      });
-
-      const pageWidth = 210;
-      const pageHeight = 297;
-      const imgWidth = pageWidth;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-      let heightLeft = imgHeight;
-      let position = 0;
-
-      pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, Math.min(imgHeight, pageHeight));
-      heightLeft -= pageHeight;
-
-      while (heightLeft > 5) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, Math.min(imgHeight, pageHeight));
-        heightLeft -= pageHeight;
+      const success = await downloadSaudaNotePdf(
+        selectedOrder,
+        currentCompany,
+        activeColor,
+        activeTemplate,
+        showSignature
+      );
+      if (success) {
+        toast.showToast('Vyapar Note PDF downloaded successfully!', 'success');
       }
-
-      const safeDoNo = String(selectedOrder.doNo || selectedOrder.id || 'Order').replace(/[^a-zA-Z0-9_-]/g, '_');
-      pdf.save(`VyaparNote_DO_${safeDoNo}.pdf`);
-      toast.showToast('Vyapar Note PDF downloaded successfully!', 'success');
     } catch (err) {
       console.error('PDF download error:', err);
-      toast.showToast('Could not download PDF directly, opening print dialog', 'info');
-      window.print();
+      toast.showToast('Failed to download PDF', 'error');
     } finally {
       setIsDownloading(false);
     }
@@ -261,7 +236,7 @@ export const SaudaBillsPage: React.FC = () => {
         title="VYAPAR BILLS & NOTES"
       />
 
-      <div className="p-4 md:p-6 max-w-5xl mx-auto space-y-5">
+      <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-5">
         {/* Collapsible Template & Color Selector Bar (Collapsed by default on mobile) */}
         <div className="glass-panel rounded-2xl md:rounded-3xl shadow-glass-card overflow-hidden border border-[#DCE6F2] dark:border-slate-800 transition-all duration-200">
           {/* Collapsible Header Button */}
@@ -314,12 +289,12 @@ export const SaudaBillsPage: React.FC = () => {
                 <div className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase">
                   PDF Template Layout:
                 </div>
-                <div className="grid grid-cols-4 gap-2 w-full">
-                  {[1, 2, 3, 4].map(num => (
+                <div className="grid grid-cols-2 gap-2 w-full">
+                  {[1, 2].map(num => (
                     <button
                       key={num}
                       type="button"
-                      onClick={() => setActiveTemplate(num as 1 | 2 | 3 | 4)}
+                      onClick={() => setActiveTemplate(num as 1 | 2)}
                       className={`h-9 w-full rounded-xl font-black text-xs transition-all cursor-pointer flex items-center justify-center gap-1 ${
                         activeTemplate === num
                           ? 'btn-glass-primary text-white shadow-glass scale-[1.02]'
@@ -625,7 +600,7 @@ export const SaudaBillsPage: React.FC = () => {
                       type="button"
                       onClick={handleDownloadPdf}
                       disabled={isDownloading}
-                      className="btn-glass-primary flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2 text-xs font-black rounded-xl cursor-pointer shadow-md disabled:opacity-60 active:scale-95 transition-all h-10 sm:h-auto"
+                      className="btn-glass-primary flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2 text-xs font-black rounded-xl cursor-pointer shadow-md active:scale-95 transition-all h-10 sm:h-auto disabled:opacity-60 disabled:cursor-not-allowed"
                       title="Download PDF"
                     >
                       {isDownloading ? (
@@ -633,7 +608,7 @@ export const SaudaBillsPage: React.FC = () => {
                       ) : (
                         <Download className="w-3.5 h-3.5 stroke-[2.4]" />
                       )}
-                      <span>{isDownloading ? 'Saving...' : 'Download PDF'}</span>
+                      <span>{isDownloading ? 'Downloading...' : 'Download PDF'}</span>
                     </button>
 
                     {/* PRINT */}
@@ -660,15 +635,17 @@ export const SaudaBillsPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* The Note Template */}
-                <div className="overflow-x-auto pb-2">
-                  <SaudaNoteTemplate
-                    order={selectedOrder}
-                    company={currentCompany || undefined}
-                    color={activeColor}
-                    template={activeTemplate}
-                    showSignature={showSignature}
-                  />
+                {/* The Note Template: Scroll on small screens, zero scroll and full bill fit on desktop */}
+                <div className="overflow-x-auto lg:overflow-x-visible pb-3 -mx-1 sm:mx-0">
+                  <div className="rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden bg-white w-fit min-w-[640px] lg:min-w-0 lg:w-full max-w-2xl mx-auto">
+                    <SaudaNoteTemplate
+                      order={selectedOrder}
+                      company={currentCompany || undefined}
+                      color={activeColor}
+                      template={activeTemplate}
+                      showSignature={showSignature}
+                    />
+                  </div>
                 </div>
               </div>
             </div>

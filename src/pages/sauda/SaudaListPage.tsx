@@ -7,14 +7,22 @@ import {
   Info, 
   X, 
   Printer, 
+  Download,
   Share2, 
   ReceiptText, 
   RotateCcw, 
   Calendar, 
   Package, 
   Users, 
-  Check 
+  Check,
+  Loader2 
 } from 'lucide-react';
+import { 
+  downloadSaudaNotePdf, 
+  printSaudaNote, 
+  formatOrderPdfFileName, 
+  formatOrderPdfBaseTitle 
+} from '../../utils/saudaPdfService';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { SaudaCard } from '../../components/sauda/SaudaCard';
 import { ConfirmDialog } from '../../components/common/ConfirmDialog';
@@ -48,6 +56,7 @@ export const SaudaListPage: React.FC = () => {
   // Modals
   const [orderToDelete, setOrderToDelete] = useState<SaudaOrder | null>(null);
   const [activeShareOrder, setActiveShareOrder] = useState<SaudaOrder | null>(null);
+  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
   const [showFilterModal, setShowFilterModal] = useState(false);
 
   // Filters
@@ -144,7 +153,33 @@ export const SaudaListPage: React.FC = () => {
   };
 
   const handlePrintPdf = () => {
-    window.print();
+    if (activeShareOrder) {
+      printSaudaNote(activeShareOrder);
+    } else {
+      window.print();
+    }
+  };
+
+  const handleDownloadPdf = async () => {
+    if (!activeShareOrder) return;
+    setIsDownloadingPdf(true);
+    try {
+      const success = await downloadSaudaNotePdf(
+        activeShareOrder,
+        currentCompany,
+        currentCompany?.saudaNoteColor || 'RED',
+        currentCompany?.pdfTemplate || 1,
+        currentCompany?.showSignature !== false
+      );
+      if (success) {
+        toast.success('Vyapar Note PDF downloaded successfully!');
+      }
+    } catch (err) {
+      console.error('PDF download error:', err);
+      toast.error('Failed to download PDF');
+    } finally {
+      setIsDownloadingPdf(false);
+    }
   };
 
   const handlePrintReport = () => {
@@ -367,19 +402,34 @@ export const SaudaListPage: React.FC = () => {
       {/* Share / PDF Preview Modal */}
       {activeShareOrder && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in">
-          <div className="w-full max-w-3xl bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
-            <div className="p-4 border-b border-[#DCE6F2] dark:border-slate-800 flex items-center justify-between bg-blue-50/50 dark:bg-slate-800/60">
+          <div className="w-full max-w-4xl bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+            <div className="p-4 border-b border-[#DCE6F2] dark:border-slate-800 flex items-center justify-between gap-3 bg-blue-50/50 dark:bg-slate-800/60">
               <div className="flex items-center gap-2">
                 <Share2 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 <h3 className="font-bold text-slate-900 dark:text-slate-100 text-base">
                   Vyapar Note {formatDoNo(activeShareOrder.doNo, activeShareOrder.id)} Preview
                 </h3>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={handleDownloadPdf}
+                  disabled={isDownloadingPdf}
+                  className="btn-glass-primary flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                  title="Download PDF"
+                >
+                  {isDownloadingPdf ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Download className="w-4 h-4" />
+                  )}
+                  <span>{isDownloadingPdf ? 'Downloading...' : 'Download PDF'}</span>
+                </button>
                 <button
                   type="button"
                   onClick={handlePrintPdf}
-                  className="btn-glass-primary flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold rounded-xl cursor-pointer"
+                  className="btn-glass-secondary flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl cursor-pointer"
+                  title="Print Note"
                 >
                   <Printer className="w-4 h-4" />
                   <span>Print Note</span>
@@ -394,14 +444,16 @@ export const SaudaListPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto overflow-x-auto p-3 sm:p-4 md:p-6 bg-slate-50 dark:bg-[#0B1220] min-w-0">
-              <SaudaNoteTemplate
-                order={activeShareOrder}
-                company={currentCompany || undefined}
-                color={currentCompany?.saudaNoteColor || 'RED'}
-                template={currentCompany?.pdfTemplate || 1}
-                showSignature={currentCompany?.showSignature !== false}
-              />
+            <div className="flex-1 overflow-y-auto overflow-x-auto lg:overflow-x-visible p-3 sm:p-4 md:p-6 bg-slate-50 dark:bg-[#0B1220] min-w-0">
+              <div className="rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden bg-white w-fit min-w-[640px] lg:min-w-0 lg:w-full max-w-2xl mx-auto">
+                <SaudaNoteTemplate
+                  order={activeShareOrder}
+                  company={currentCompany || undefined}
+                  color={currentCompany?.saudaNoteColor || 'RED'}
+                  template={currentCompany?.pdfTemplate || 1}
+                  showSignature={currentCompany?.showSignature !== false}
+                />
+              </div>
             </div>
           </div>
         </div>
