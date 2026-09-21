@@ -3,37 +3,78 @@ import type { SaudaOrder, Company, Party } from '../types';
 import { formatCurrency } from './formatters';
 
 /**
- * Format order details into the required file name:
- * DO_ITEM_BUYER_TO_SELLER_VyparX.pdf
+ * Converts a name (item, buyer, seller) into Title-Cased words joined by hyphens (-).
+ * - First letter of each word is capitalized.
+ * - Words are joined by a hyphen (-).
+ * Example: "Hanumant Fiber" -> "Hanumant-Fiber"
+ * Example: "KAPAS SHANKAR" -> "Kapas-Shankar"
+ * Example: "cotton bales" -> "Cotton-Bales"
  */
-export const formatOrderPdfFileName = (order?: Partial<SaudaOrder> | null): string => {
-  return `${formatOrderPdfBaseTitle(order)}.pdf`;
+export const formatNameToHyphenatedTitleCase = (val?: string | number, fallback = ''): string => {
+  if (!val) return fallback;
+  const str = String(val).trim();
+  if (!str) return fallback;
+
+  // Extract words made of alphanumeric characters
+  const words = str
+    .replace(/[^a-zA-Z0-9]+/g, ' ')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+
+  if (words.length === 0) return fallback;
+
+  return words
+    .map(word => {
+      const first = word.charAt(0).toUpperCase();
+      const rest = word.slice(1).toLowerCase();
+      return `${first}${rest}`;
+    })
+    .join('-');
+};
+
+/**
+ * Format order details into the required file name:
+ * DO_ITEM_SELLER_TO_BUYER_VyparX.pdf
+ * Words in item, seller, buyer are hyphen-joined and Title-Cased (e.g. Hanumant-Fiber)
+ */
+export const formatOrderPdfFileName = (
+  order?: Partial<SaudaOrder> | null,
+  sellerParty?: Partial<Party> | null,
+  buyerParty?: Partial<Party> | null
+): string => {
+  return `${formatOrderPdfBaseTitle(order, sellerParty, buyerParty)}.pdf`;
 };
 
 /**
  * Format order details into base title (without .pdf extension):
- * DO_ITEM_BUYER_TO_SELLER_VyparX
+ * DO_ITEM_SELLER_TO_BUYER_VyparX
+ * Example: 20260914002_Kapas-Shankar_Hanumant-Fiber_TO_Sky-Cotton_VyparX
  */
-export const formatOrderPdfBaseTitle = (order?: Partial<SaudaOrder> | null): string => {
-  if (!order) return 'DO_ITEM_BUYER_TO_SELLER_VyparX';
+export const formatOrderPdfBaseTitle = (
+  order?: Partial<SaudaOrder> | null,
+  sellerParty?: Partial<Party> | null,
+  buyerParty?: Partial<Party> | null
+): string => {
+  if (!order) return 'DO_Item_Seller_TO_Buyer_VyparX';
 
-  const clean = (val?: string | number, fallback = '') => {
+  const cleanDo = (val?: string | number, fallback = 'DO') => {
     if (!val) return fallback;
     const str = String(val)
       .trim()
       .toUpperCase()
-      .replace(/[^A-Z0-9_-]/g, '_')
-      .replace(/_+/g, '_')
-      .replace(/^_+|_+$/g, '');
+      .replace(/[^A-Z0-9_-]/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-+|-+$/g, '');
     return str || fallback;
   };
 
-  const doNo = clean(order.doNo || order.id, 'DO');
-  const item = clean(order.itemName, 'ITEM');
-  const buyer = clean(order.buyerName, 'BUYER');
-  const seller = clean(order.sellerName, 'SELLER');
+  const doNo = cleanDo(order.doNo || order.id, 'DO');
+  const item = formatNameToHyphenatedTitleCase(order.itemName, 'Item');
+  const seller = formatNameToHyphenatedTitleCase(order.sellerName || sellerParty?.name, 'Seller');
+  const buyer = formatNameToHyphenatedTitleCase(order.buyerName || buyerParty?.name, 'Buyer');
 
-  return `${doNo}_${item}_${buyer}_TO_${seller}_VyparX`;
+  return `${doNo}_${item}_${seller}_TO_${buyer}_VyparX`;
 };
 
 /**
@@ -666,7 +707,7 @@ export const generateSaudaVectorPdf = (
  * - Generates crisp vector shapes & fonts: never blurs or pixelates on zoom!
  * - Directly saves the PDF file into the browser download bar without opening any print popup or preview dialog.
  * - Always uses live updated timestamp at moment of download.
- * - Generates exact file name: DO_ITEM_BUYER_TO_SELLER_VyparX.pdf.
+ * - Generates exact file name: DO_ITEM_SELLER_TO_BUYER_VyparX.pdf.
  */
 export const downloadSaudaNotePdf = async (
   order: Partial<SaudaOrder>,
@@ -688,7 +729,7 @@ export const downloadSaudaNotePdf = async (
       seller,
       buyer
     );
-    const fileName = formatOrderPdfFileName(order);
+    const fileName = formatOrderPdfFileName(order, seller, buyer);
     doc.save(fileName);
     return true;
   } catch (err) {
@@ -703,11 +744,13 @@ export const downloadSaudaNotePdf = async (
  * - Suppresses browser default headers/footers via @page margin 0.
  * - Hides the entire React application (#root) during print to eliminate parent offsets & blank spaces.
  * - Pins the footer to the bottom of the 297mm A4 page.
- * - Sets the browser title to DO_ITEM_BUYER_TO_SELLER_VyparX so 'Save as PDF' uses this exact name.
+ * - Sets the browser title to DO_ITEM_SELLER_TO_BUYER_VyparX so 'Save as PDF' uses this exact name.
  */
 export const printSaudaNote = (
   order?: Partial<SaudaOrder> | null,
-  elementId = 'printable-sauda-note'
+  elementId = 'printable-sauda-note',
+  seller?: Partial<Party> | null,
+  buyer?: Partial<Party> | null
 ) => {
   const sourceEl = document.getElementById(elementId);
   if (!sourceEl) {
@@ -721,7 +764,7 @@ export const printSaudaNote = (
     el.textContent = liveTimeStr;
   });
 
-  const baseTitle = formatOrderPdfBaseTitle(order);
+  const baseTitle = formatOrderPdfBaseTitle(order, seller, buyer);
   const originalTitle = document.title;
   document.title = baseTitle;
 
