@@ -122,16 +122,16 @@ export const SplashPage: React.FC = () => {
 
   return (
     <div 
-      className="h-screen h-[100dvh] max-h-screen flex flex-col items-center justify-between p-3 sm:p-4 md:p-6 text-white transition-colors relative overflow-hidden select-none bg-gradient-to-br from-[#1E40AF] via-[#1D4ED8] to-[#2563EB] dark:from-[#0B1220] dark:via-[#111827] dark:to-[#172033]"
+      className="min-h-screen min-h-[100dvh] flex flex-col items-center justify-between p-3 sm:p-4 md:p-6 text-gray-900 dark:text-gray-100 transition-colors relative overflow-hidden select-none bg-[#E8EDF3] dark:bg-[#20242D]"
     >
-      {/* Ambient background refraction blobs */}
-      <div className="absolute -top-28 -left-28 w-80 h-80 rounded-full bg-[#00ADEF]/25 blur-3xl pointer-events-none animate-pulse" />
-      <div className="absolute -bottom-32 -right-28 w-96 h-96 rounded-full bg-[#272264]/40 blur-3xl pointer-events-none" />
+      {/* Ambient background lighting */}
+      <div className="absolute -top-28 -left-28 w-80 h-80 rounded-full bg-blue-500/5 dark:bg-blue-400/5 blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-32 -right-28 w-96 h-96 rounded-full bg-indigo-500/5 dark:bg-indigo-400/5 blur-3xl pointer-events-none" />
 
       {/* Top Bar with Logged In User, Download App and Logout */}
-      <div className="w-full flex justify-between items-center text-xs font-semibold text-white/90 relative z-10 shrink-0 gap-2">
-        <div className="inline-flex items-center gap-1.5 bg-white/15 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-white border border-white/30 shadow-2xs max-w-[160px] sm:max-w-[240px]">
-          <User className="w-3 h-3 shrink-0" />
+      <div className="w-full flex justify-between items-center text-xs font-semibold relative z-10 shrink-0 gap-2">
+        <div className="inline-flex items-center gap-1.5 neu-raised-sm bg-[#E8EDF3] dark:bg-[#262B36] px-3 py-1 rounded-full text-xs font-bold text-gray-700 dark:text-gray-200 border border-white/60 dark:border-white/5 max-w-[160px] sm:max-w-[240px]">
+          <User className="w-3 h-3 shrink-0 text-gray-500 dark:text-gray-400" />
           <span className="truncate" title={currentUser?.email || ''}>{currentUser?.email || ''}</span>
         </div>
         <div className="flex items-center gap-1.5 sm:gap-2">
@@ -139,18 +139,18 @@ export const SplashPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setDarkMode(!isDarkMode)}
-            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 backdrop-blur-md border border-white/30 text-white text-xs font-bold shadow-glass transition-all cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full neu-raised-sm bg-[#E8EDF3] dark:bg-[#262B36] border border-white/60 dark:border-white/5 text-gray-700 dark:text-gray-200 text-xs font-bold transition-all active:scale-95 cursor-pointer"
             title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
             aria-label="Toggle Theme"
           >
             {isDarkMode ? (
               <>
-                <Sun className="w-3.5 h-3.5 text-amber-300 stroke-[2.5]" />
+                <Sun className="w-3.5 h-3.5 text-amber-500 stroke-[2.5]" />
                 <span className="hidden sm:inline">Light</span>
               </>
             ) : (
               <>
-                <Moon className="w-3.5 h-3.5 text-white stroke-[2.5]" />
+                <Moon className="w-3.5 h-3.5 text-slate-700 stroke-[2.5]" />
                 <span className="hidden sm:inline">Dark</span>
               </>
             )}
@@ -159,7 +159,7 @@ export const SplashPage: React.FC = () => {
           <button
             type="button"
             onClick={promptInstall}
-            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 backdrop-blur-md border border-white/30 text-white text-xs font-bold shadow-glass transition-all cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full neu-raised-sm bg-[#E8EDF3] dark:bg-[#262B36] border border-white/60 dark:border-white/5 text-gray-700 dark:text-gray-200 text-xs font-bold transition-all active:scale-95 cursor-pointer"
             title={isInstalled ? t('nav.appInstalled', 'App Installed') : t('nav.downloadApp', 'Download App')}
           >
             <Download className="w-3.5 h-3.5 stroke-[2.5]" />
@@ -168,7 +168,7 @@ export const SplashPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setShowLogoutConfirm(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 hover:bg-rose-600/40 active:scale-95 backdrop-blur-md border border-white/30 text-white text-xs font-bold shadow-glass transition-all cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full neu-raised-sm bg-[#E8EDF3] dark:bg-[#262B36] hover:text-rose-600 active:scale-95 border border-white/60 dark:border-white/5 text-gray-700 dark:text-gray-200 text-xs font-bold transition-all cursor-pointer"
             title="Sign out"
           >
             <LogOut className="w-3.5 h-3.5" />
@@ -177,24 +177,26 @@ export const SplashPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Main Card with Glassmorphic LOVs */}
-      <div className="w-full max-w-sm flex flex-col items-center text-center p-5 sm:p-6 rounded-3xl bg-white/10 backdrop-blur-2xl border border-white/30 shadow-glass-hover space-y-3.5 sm:space-y-4 relative z-20 my-auto shrink-0">
+      {/* Main Card with Neumorphic LOVs */}
+      <div className="w-full max-w-sm flex flex-col items-center text-center p-6 sm:p-8 rounded-3xl neu-raised bg-[#E8EDF3] dark:bg-[#262B36] border border-white/60 dark:border-white/5 space-y-4 relative z-20 my-auto shrink-0">
         {/* App Logo Emblem */}
-        <img
-          src="/logo.png"
-          alt="VyaparX Logo"
-          className="w-16 h-16 sm:w-20 sm:h-20 object-contain drop-shadow-lg shrink-0"
-        />
+        <div className="w-20 h-20 rounded-2xl neu-raised-sm bg-[#E8EDF3] dark:bg-[#262B36] flex items-center justify-center p-3 shrink-0 border border-white/60 dark:border-white/5">
+          <img
+            src="/logo.png"
+            alt="VyaparX Logo"
+            className="w-full h-full object-contain"
+          />
+        </div>
 
         {/* Subtitle */}
         <div className="space-y-0.5">
-          <p className="text-[11px] font-bold uppercase tracking-widest text-white/90">
+          <p className="text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
             Select Company & Financial Year
           </p>
         </div>
 
         <div className="w-full space-y-3 pt-1">
-          {/* Custom Frosted Glass Company LOV Dropdown */}
+          {/* Custom Neumorphic Company LOV Dropdown */}
           <div className="relative w-full text-left" ref={companyDropdownRef}>
             <button
               type="button"
@@ -202,31 +204,30 @@ export const SplashPage: React.FC = () => {
                 setIsCompanyOpen(prev => !prev);
                 setIsFYOpen(false);
               }}
-              className={`w-full py-3 px-4 bg-white/15 hover:bg-white/20 active:scale-[0.99] border-2 ${
-                isCompanyOpen ? 'border-white bg-white/25 shadow-glass-hover' : 'border-white/40'
-              } rounded-2xl text-white font-bold text-xs sm:text-sm flex items-center justify-between shadow-glass transition-all cursor-pointer`}
+              className={`w-full py-3 px-4 neu-inset bg-[#E8EDF3] dark:bg-[#20242D] border border-black/5 dark:border-white/5 ${
+                isCompanyOpen ? 'ring-2 ring-blue-500/40' : ''
+              } rounded-2xl text-gray-800 dark:text-gray-100 font-bold text-xs sm:text-sm flex items-center justify-between transition-all cursor-pointer`}
             >
               <div className="flex items-center gap-2.5 min-w-0 pr-2">
-                <Building2 className="w-4 h-4 shrink-0 text-white/90" />
+                <Building2 className="w-4 h-4 shrink-0 text-blue-600 dark:text-blue-400" />
                 <span className="truncate">{selectedCompany?.name || 'Select Company'}</span>
                 {selectedCompany?.isDefault && (
-                  <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-white/20 text-white shrink-0 font-extrabold border border-white/30">
+                  <span className="text-[9px] px-1.5 py-0.5 rounded-md neu-inset-sm bg-blue-500/10 text-blue-700 dark:text-blue-300 shrink-0 font-extrabold border border-blue-500/20">
                     Default
                   </span>
                 )}
               </div>
-              <ChevronDown className={`w-4 h-4 text-white/80 shrink-0 transition-transform duration-200 ${isCompanyOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`w-4 h-4 text-gray-500 shrink-0 transition-transform duration-200 ${isCompanyOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {/* Dropdown Menu Popup */}
             {isCompanyOpen && (
               <div 
-                className="absolute left-0 right-0 mt-2 bg-slate-900/95 backdrop-blur-2xl rounded-2xl p-2 z-50 border border-white/25 shadow-2xl space-y-1 animate-in fade-in zoom-in-95 duration-150 max-h-56 overflow-y-auto"
-                style={{ backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
+                className="absolute left-0 right-0 mt-2 neu-raised-lg bg-[#E8EDF3] dark:bg-[#262B36] border border-white/60 dark:border-white/5 rounded-2xl p-2 z-50 space-y-1 animate-in fade-in zoom-in-95 duration-150 max-h-56 overflow-y-auto"
               >
-                <div className="text-[10px] font-bold text-white/60 uppercase tracking-wider px-2.5 py-1 flex items-center justify-between border-b border-white/10 mb-1">
+                <div className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-2.5 py-1 flex items-center justify-between border-b border-black/5 dark:border-white/5 mb-1">
                   <span>Available Companies</span>
-                  <span className="text-[9px] font-semibold text-white/40">({companies.length})</span>
+                  <span className="text-[9px] font-semibold text-gray-400">({companies.length})</span>
                 </div>
                 {companies.map(c => {
                   const isSelected = String(selectedCompanyId) === String(c.id);
@@ -242,26 +243,26 @@ export const SplashPage: React.FC = () => {
                       }}
                       className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all text-left cursor-pointer ${
                         isSelected
-                          ? 'bg-white/25 text-white shadow-xs'
-                          : 'hover:bg-white/10 text-white/80 hover:text-white'
+                          ? 'neu-inset-sm bg-blue-500/10 text-blue-600 dark:text-blue-400'
+                          : 'hover:bg-black/5 dark:hover:bg-white/5 text-gray-700 dark:text-gray-300'
                       }`}
                     >
                       <div className="flex items-center gap-2 min-w-0 flex-1">
-                        <Building2 className="w-3.5 h-3.5 shrink-0 text-white/80" />
+                        <Building2 className="w-3.5 h-3.5 shrink-0 text-blue-500/80" />
                         <div className="flex flex-col min-w-0">
                           <div className="truncate flex items-center gap-1.5">
                             <span>{c.name}</span>
-                            {c.username && <span className="text-white/60 text-[10px] font-normal">({c.username})</span>}
+                            {c.username && <span className="text-gray-400 text-[10px] font-normal">({c.username})</span>}
                           </div>
-                          {c.city && <span className="text-[10px] text-white/50 font-normal">{c.city} • {c.state}</span>}
+                          {c.city && <span className="text-[10px] text-gray-400 font-normal">{c.city} • {c.state}</span>}
                         </div>
                       </div>
                       {c.isDefault && (
-                        <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-amber-500/20 text-amber-200 font-extrabold border border-amber-400/30 mr-1 shrink-0">
+                        <span className="text-[9px] px-1.5 py-0.5 rounded-md neu-inset-sm bg-amber-500/10 text-amber-700 dark:text-amber-300 font-extrabold border border-amber-500/20 mr-1 shrink-0">
                           Default
                         </span>
                       )}
-                      {isSelected && <Check className="w-4 h-4 text-emerald-400 stroke-[3] shrink-0 ml-1" />}
+                      {isSelected && <Check className="w-4 h-4 text-emerald-500 stroke-[3] shrink-0 ml-1" />}
                     </button>
                   );
                 })}
@@ -269,7 +270,7 @@ export const SplashPage: React.FC = () => {
             )}
           </div>
 
-          {/* Custom Frosted Glass Financial Year LOV Dropdown */}
+          {/* Custom Neumorphic Financial Year LOV Dropdown */}
           <div className="relative w-full text-left" ref={fyDropdownRef}>
             <button
               type="button"
@@ -277,26 +278,25 @@ export const SplashPage: React.FC = () => {
                 setIsFYOpen(prev => !prev);
                 setIsCompanyOpen(false);
               }}
-              className={`w-full py-3 px-4 bg-white/15 hover:bg-white/20 active:scale-[0.99] border-2 ${
-                isFYOpen ? 'border-white bg-white/25 shadow-glass-hover' : 'border-white/40'
-              } rounded-2xl text-white font-bold text-xs sm:text-sm flex items-center justify-between shadow-glass transition-all cursor-pointer`}
+              className={`w-full py-3 px-4 neu-inset bg-[#E8EDF3] dark:bg-[#20242D] border border-black/5 dark:border-white/5 ${
+                isFYOpen ? 'ring-2 ring-blue-500/40' : ''
+              } rounded-2xl text-gray-800 dark:text-gray-100 font-bold text-xs sm:text-sm flex items-center justify-between transition-all cursor-pointer`}
             >
               <div className="flex items-center gap-2.5 min-w-0 pr-2">
-                <Calendar className="w-4 h-4 shrink-0 text-white/90" />
+                <Calendar className="w-4 h-4 shrink-0 text-blue-600 dark:text-blue-400" />
                 <span className="truncate">{selectedFY || 'Select Financial Year'}</span>
               </div>
-              <ChevronDown className={`w-4 h-4 text-white/80 shrink-0 transition-transform duration-200 ${isFYOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`w-4 h-4 text-gray-500 shrink-0 transition-transform duration-200 ${isFYOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {/* Dropdown Menu Popup */}
             {isFYOpen && (
               <div 
-                className="absolute left-0 right-0 mt-2 bg-slate-900/95 backdrop-blur-2xl rounded-2xl p-2 z-50 border border-white/25 shadow-2xl space-y-1 animate-in fade-in zoom-in-95 duration-150 max-h-56 overflow-y-auto"
-                style={{ backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
+                className="absolute left-0 right-0 mt-2 neu-raised-lg bg-[#E8EDF3] dark:bg-[#262B36] border border-white/60 dark:border-white/5 rounded-2xl p-2 z-50 space-y-1 animate-in fade-in zoom-in-95 duration-150 max-h-56 overflow-y-auto"
               >
-                <div className="text-[10px] font-bold text-white/60 uppercase tracking-wider px-2.5 py-1 flex items-center justify-between border-b border-white/10 mb-1">
+                <div className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-2.5 py-1 flex items-center justify-between border-b border-black/5 dark:border-white/5 mb-1">
                   <span>Financial Year</span>
-                  <span className="text-[9px] font-semibold text-white/40">({financialYears.length})</span>
+                  <span className="text-[9px] font-semibold text-gray-400">({financialYears.length})</span>
                 </div>
                 {financialYears.map(fy => {
                   const isSelected = selectedFY === fy.id;
@@ -310,20 +310,20 @@ export const SplashPage: React.FC = () => {
                       }}
                       className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all text-left cursor-pointer ${
                         isSelected
-                          ? 'bg-white/25 text-white shadow-xs'
-                          : 'hover:bg-white/10 text-white/80 hover:text-white'
+                          ? 'neu-inset-sm bg-blue-500/10 text-blue-600 dark:text-blue-400'
+                          : 'hover:bg-black/5 dark:hover:bg-white/5 text-gray-700 dark:text-gray-300'
                       }`}
                     >
                       <div className="flex items-center gap-2">
-                        <Calendar className="w-3.5 h-3.5 shrink-0 text-white/80" />
+                        <Calendar className="w-3.5 h-3.5 shrink-0 text-blue-500/80" />
                         <span>{fy.name}</span>
                         {fy.isCurrent && (
-                          <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-200 font-extrabold border border-emerald-400/30">
+                          <span className="text-[9px] px-1.5 py-0.5 rounded-md neu-inset-sm bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-extrabold border border-emerald-500/20">
                             Current
                           </span>
                         )}
                       </div>
-                      {isSelected && <Check className="w-4 h-4 text-emerald-400 stroke-[3] shrink-0 ml-2" />}
+                      {isSelected && <Check className="w-4 h-4 text-emerald-500 stroke-[3] shrink-0 ml-2" />}
                     </button>
                   );
                 })}
@@ -336,7 +336,7 @@ export const SplashPage: React.FC = () => {
             type="button"
             disabled={!selectedCompanyId || isSubmitting}
             onClick={handleContinue}
-            className="btn-glass-primary w-full py-3.5 px-6 font-bold text-xs sm:text-sm rounded-xl sm:rounded-2xl transition-all flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            className="neu-button-primary w-full py-3.5 px-6 font-bold text-xs sm:text-sm rounded-xl sm:rounded-2xl transition-all flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             {isSubmitting ? (
               <div className="flex items-center gap-2">
@@ -354,7 +354,7 @@ export const SplashPage: React.FC = () => {
       </div>
 
       {/* Footer */}
-      <div className="text-[10px] sm:text-[11px] text-white/75 font-medium tracking-wide uppercase relative z-10 shrink-0 py-1">
+      <div className="text-[10px] sm:text-[11px] text-gray-400 dark:text-gray-500 font-bold tracking-wider uppercase relative z-10 shrink-0 py-1">
         Commodity Brokerage Management System
       </div>
 

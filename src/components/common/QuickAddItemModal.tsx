@@ -101,21 +101,21 @@ export const QuickAddItemModal: React.FC<QuickAddItemModalProps> = ({
       style={{ backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
     >
       <div 
-        className="w-full max-w-md bg-white/95 dark:bg-[#111827]/95 backdrop-blur-3xl rounded-3xl shadow-glass-hover overflow-hidden flex flex-col max-h-[90vh] border border-[#DCE6F2] dark:border-white/15 animate-in zoom-in-95 duration-150"
+        className="w-full max-w-md bg-[#E8EDF3] dark:bg-[#262B36] rounded-3xl shadow-neu-raised-lg overflow-hidden flex flex-col max-h-[90vh] border border-white/60 dark:border-white/5 animate-in zoom-in-95 duration-150"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div 
-          className="px-6 py-4 text-white flex items-center justify-between shadow-glass bg-gradient-to-r from-blue-700 via-blue-600 to-sky-600"
-        >
+        <div className="px-6 py-4 border-b border-black/[0.06] dark:border-white/10 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <Package className="w-5 h-5 stroke-[2.5]" />
-            <h2 className="font-extrabold text-base tracking-wide uppercase">ADD NEW ITEM</h2>
+            <div className="w-8 h-8 rounded-xl shadow-neu-raised-sm flex items-center justify-center text-blue-600 dark:text-blue-400 border border-white/60 dark:border-white/5">
+              <Package className="w-4 h-4 stroke-[2.5]" />
+            </div>
+            <h2 className="font-extrabold text-base text-gray-900 dark:text-white tracking-wide uppercase">ADD NEW ITEM</h2>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1 rounded-xl hover:bg-black/20 text-white transition-colors"
+            className="p-1.5 rounded-xl text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:shadow-neu-inset-sm transition-all cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -138,7 +138,7 @@ export const QuickAddItemModal: React.FC<QuickAddItemModalProps> = ({
                 clearError('name');
               }}
               className={`input-vyapar uppercase font-bold text-sm ${
-                errors.name ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                errors.name ? '!border-red-500 !ring-2 !ring-red-200/50 !bg-red-50/20' : ''
               }`}
             />
             <FieldError error={errors.name} />
@@ -158,7 +158,7 @@ export const QuickAddItemModal: React.FC<QuickAddItemModalProps> = ({
                 clearError('unit');
               }}
               className={`input-vyapar font-semibold ${
-                errors.unit ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                errors.unit ? '!border-red-500 !ring-2 !ring-red-200/50 !bg-red-50/20' : ''
               }`}
             />
             <FieldError error={errors.unit} />
@@ -171,10 +171,10 @@ export const QuickAddItemModal: React.FC<QuickAddItemModalProps> = ({
                     setUnit(u);
                     clearError('unit');
                   }}
-                  className={`text-[10px] font-bold px-2.5 py-1 rounded-xl transition-all border ${
+                  className={`text-[10px] font-bold px-2.5 py-1 rounded-xl transition-all cursor-pointer ${
                     unit === u
-                      ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-600 text-blue-600 dark:text-blue-400 shadow-glass'
-                      : 'bg-white/40 dark:bg-white/5 text-gray-600 dark:text-gray-400 border-[#DCE6F2] dark:border-white/10 hover:bg-white/60 dark:hover:bg-white/10'
+                      ? 'shadow-neu-inset-sm text-blue-600 dark:text-blue-400 font-black border border-blue-400/40'
+                      : 'shadow-neu-raised-sm hover:shadow-neu-inset-sm text-gray-700 dark:text-gray-300 border border-white/60 dark:border-white/5'
                   }`}
                 >
                   {u}
@@ -199,7 +199,7 @@ export const QuickAddItemModal: React.FC<QuickAddItemModalProps> = ({
                   clearError('sellerRate');
                 }}
                 className={`input-vyapar font-semibold ${
-                  errors.sellerRate ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                  errors.sellerRate ? '!border-red-500 !ring-2 !ring-red-200/50 !bg-red-50/20' : ''
                 }`}
               />
               <FieldError error={errors.sellerRate} />
@@ -218,7 +218,7 @@ export const QuickAddItemModal: React.FC<QuickAddItemModalProps> = ({
                   clearError('buyerRate');
                 }}
                 className={`input-vyapar font-semibold ${
-                  errors.buyerRate ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                  errors.buyerRate ? '!border-red-500 !ring-2 !ring-red-200/50 !bg-red-50/20' : ''
                 }`}
               />
               <FieldError error={errors.buyerRate} />
@@ -230,7 +230,7 @@ export const QuickAddItemModal: React.FC<QuickAddItemModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="btn-glass-secondary flex-1 h-11 sm:h-12 px-4 text-xs font-bold rounded-xl sm:rounded-2xl flex items-center justify-center gap-1.5 cursor-pointer"
+              className="neu-button-secondary flex-1 h-11 sm:h-12 px-4 text-xs font-bold rounded-xl sm:rounded-2xl flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <X className="w-4 h-4" />
               <span>Cancel</span>
@@ -238,7 +238,7 @@ export const QuickAddItemModal: React.FC<QuickAddItemModalProps> = ({
             <button
               type="submit"
               disabled={!name.trim() || !unit.trim() || isSubmitting}
-              className="btn-glass-primary flex-2 h-11 sm:h-12 px-4 font-bold rounded-xl sm:rounded-2xl text-xs flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none hover:disabled:shadow-none transition-all"
+              className="neu-button-primary flex-2 h-11 sm:h-12 px-4 font-bold rounded-xl sm:rounded-2xl text-xs flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none hover:disabled:shadow-none transition-all"
             >
               <Check className="w-4 h-4 stroke-[3]" />
               <span>{isSubmitting ? 'Saving...' : 'Save Item'}</span>

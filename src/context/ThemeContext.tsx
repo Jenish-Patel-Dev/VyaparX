@@ -127,6 +127,10 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
     try {
       localStorage.setItem('vyaparx_dark_mode', String(isDarkMode));
+      const metaThemeColor = document.querySelector("meta[name='theme-color']");
+      if (metaThemeColor) {
+        metaThemeColor.setAttribute('content', isDarkMode ? '#20242D' : '#E8EDF3');
+      }
     } catch {
       // ignore
     }

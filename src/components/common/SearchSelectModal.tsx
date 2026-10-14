@@ -53,11 +53,11 @@ export const SearchSelectModal: React.FC<SearchSelectModalProps> = ({
       style={{ backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
     >
       <div 
-        className="w-full max-w-md bg-white/95 dark:bg-[#111827]/95 backdrop-blur-3xl rounded-3xl shadow-glass-hover overflow-hidden flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-150 border border-[#DCE6F2] dark:border-white/15"
+        className="w-full max-w-md bg-[#E8EDF3] dark:bg-[#262B36] rounded-3xl shadow-neu-raised-lg overflow-hidden flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-150 border border-white/60 dark:border-white/5"
         onClick={e => e.stopPropagation()}
       >
         {/* Search Input Box */}
-        <div className="p-4 border-b border-[#DCE6F2] dark:border-white/10 flex items-center gap-2 bg-white/60 dark:bg-white/5 backdrop-blur-xs">
+        <div className="p-4 border-b border-black/[0.06] dark:border-white/10 flex items-center gap-2">
           <div className="relative flex-1 flex items-center group">
             <input
               type="text"
@@ -72,7 +72,7 @@ export const SearchSelectModal: React.FC<SearchSelectModalProps> = ({
               <button
                 type="button"
                 onClick={() => setSearchTerm('')}
-                className="absolute right-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10"
+                className="absolute right-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1 rounded-lg hover:shadow-neu-inset-sm"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -82,14 +82,14 @@ export const SearchSelectModal: React.FC<SearchSelectModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-2 shrink-0 rounded-xl hover:bg-blue-50 dark:hover:bg-white/10 transition-colors"
+            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-2 shrink-0 rounded-xl hover:shadow-neu-inset-sm transition-all cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Options List */}
-        <div className="flex-1 overflow-y-auto divide-y divide-[#DCE6F2]/70 dark:divide-white/10">
+        <div className="flex-1 overflow-y-auto divide-y divide-black/[0.05] dark:divide-white/5 p-2 space-y-1">
           {filteredOptions.length > 0 ? (
             filteredOptions.map(option => (
               <button
@@ -99,7 +99,7 @@ export const SearchSelectModal: React.FC<SearchSelectModalProps> = ({
                   onSelect(option);
                   onClose();
                 }}
-                className="w-full text-left px-5 py-4 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 active:bg-blue-100/50 dark:active:bg-blue-900/20 transition-colors flex flex-col gap-1"
+                className="w-full text-left px-4 py-3 rounded-2xl hover:shadow-neu-raised-sm active:shadow-neu-inset-sm transition-all flex flex-col gap-1 cursor-pointer"
               >
                 <span className="font-bold text-gray-900 dark:text-gray-100 text-sm sm:text-base uppercase tracking-wide break-words">
                   {option.title}
@@ -128,11 +128,11 @@ export const SearchSelectModal: React.FC<SearchSelectModalProps> = ({
 
         {/* Bottom Bar "+ Add" Button with single big plus icon */}
         {onAddNew && (
-          <div className="p-3.5 border-t border-[#DCE6F2] dark:border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur-xs">
+          <div className="p-3.5 border-t border-black/[0.06] dark:border-white/10">
             <button
               type="button"
               onClick={onAddNew}
-              className="btn-glass-primary w-full py-3.5 px-4 font-bold rounded-2xl flex items-center justify-center gap-2 text-sm tracking-wider uppercase"
+              className="neu-button-primary w-full py-3.5 px-4 font-bold rounded-2xl flex items-center justify-center gap-2 text-sm tracking-wider uppercase cursor-pointer"
             >
               <Plus className="w-5 h-5 stroke-[2.5]" />
               <span>{cleanButtonText}</span>

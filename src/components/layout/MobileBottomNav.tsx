@@ -65,12 +65,10 @@ export const MobileBottomNav: React.FC = () => {
       className="md:hidden fixed bottom-3 left-3 right-3 max-w-md mx-auto z-40 h-[64px] select-none"
       aria-label="Mobile Navigation Dock"
     >
-      {/* Outer Floating Stadium Pill Container - Subtle Frosted Glass */}
+      {/* Outer Floating Stadium Pill Container - Neumorphic Raised Dock */}
       <div
-        className="w-full h-full rounded-full p-1.5 flex items-center justify-between bg-white/80 dark:bg-[#111827]/85 backdrop-blur-2xl border border-[#DCE6F2]/90 dark:border-slate-800 shadow-[0_8px_30px_rgba(37,99,235,0.08),0_2px_8px_rgba(0,0,0,0.03)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.5)] transition-all duration-300 relative overflow-hidden"
+        className="w-full h-full rounded-full p-1.5 flex items-center justify-between bg-[#E8EDF3] dark:bg-[#262B36] border border-[#D5DDE7] dark:border-[#303746] shadow-neu-raised-lg transition-all duration-300 relative overflow-hidden"
       >
-        {/* Top Rim Specular Glint */}
-        <div className="absolute inset-x-6 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/80 dark:via-white/20 to-transparent pointer-events-none opacity-80" />
         {navItems.map((item) => {
           const Icon = item.icon;
           const active = item.isActive;
@@ -83,27 +81,27 @@ export const MobileBottomNav: React.FC = () => {
             >
               {active ? (
                 <div
-                  className="w-full h-full rounded-full flex flex-col items-center justify-center bg-blue-50/95 dark:bg-blue-950/60 border border-blue-200/80 dark:border-blue-800/60 shadow-[0_2px_8px_-2px_rgba(37,99,235,0.12)] transition-all duration-300 px-1"
+                  className="w-full h-full rounded-full flex flex-col items-center justify-center bg-[#DEE4ED] dark:bg-[#1B1F27] border border-blue-200/50 dark:border-blue-900/40 shadow-neu-inset-sm transition-all duration-300 px-1"
                 >
                   <Icon className="w-5 h-5 text-[#2563EB] dark:text-[#38BDF8] stroke-[2.3]" />
-                  <span className="text-[10px] sm:text-[11px] font-bold text-[#1E3A8A] dark:text-[#F8FAFC] tracking-tight leading-none mt-0.5 truncate max-w-full">
+                  <span className="text-[10px] sm:text-[11px] font-black text-[#1E3A8A] dark:text-[#F0F3F8] tracking-tight leading-none mt-0.5 truncate max-w-full">
                     {item.label}
                   </span>
                 </div>
               ) : (
-                <div className="w-full h-full rounded-full flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors px-1">
+                <div className="w-full h-full rounded-full flex flex-col items-center justify-center text-[#68758A] dark:text-[#B3BDCD] hover:text-[#263244] dark:hover:text-[#F0F3F8] transition-colors px-1">
                   {item.isCreate ? (
-                    <div className="w-6 h-6 rounded-full bg-[#2563EB] text-white flex items-center justify-center shadow-xs">
+                    <div className="w-7 h-7 rounded-full bg-gradient-to-r from-[#1D4ED8] to-[#2563EB] text-white flex items-center justify-center shadow-neu-raised-sm">
                       <Icon className="w-4 h-4 stroke-[2.5]" />
                     </div>
                   ) : (
-                    <Icon className="w-5 h-5 text-slate-400 dark:text-slate-400 stroke-[2]" />
+                    <Icon className="w-5 h-5 text-[#8994A5] dark:text-[#8994A7] stroke-[2]" />
                   )}
                   <span
-                    className={`text-[10px] sm:text-[11px] font-medium tracking-tight leading-none truncate max-w-full ${
+                    className={`text-[10px] sm:text-[11px] font-semibold tracking-tight leading-none truncate max-w-full ${
                       item.isCreate
                         ? 'text-[#2563EB] dark:text-[#38BDF8] font-bold mt-0.5'
-                        : 'text-slate-500 dark:text-slate-400 mt-1'
+                        : 'text-[#68758A] dark:text-[#B3BDCD] mt-1'
                     }`}
                   >
                     {item.label}

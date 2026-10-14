@@ -244,10 +244,10 @@ export const SaudaListPage: React.FC = () => {
           <button
             type="button"
             onClick={handleOpenFilterModal}
-            className={`relative h-11 sm:h-12 w-11 sm:w-12 rounded-xl sm:rounded-2xl border flex items-center justify-center transition-all shrink-0 active:scale-95 cursor-pointer ${
+            className={`relative h-11 sm:h-12 w-11 sm:w-12 rounded-xl sm:rounded-2xl flex items-center justify-center transition-all shrink-0 cursor-pointer ${
               activeFiltersCount > 0
-                ? 'btn-glass-primary text-white shadow-glass'
-                : 'bg-white/90 dark:bg-slate-800/90 border-[#DCE6F2] dark:border-slate-700/80 text-blue-600 dark:text-blue-400 hover:bg-white dark:hover:bg-slate-800 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_2px_8px_rgba(37,99,235,0.06)] dark:shadow-none backdrop-blur-xl'
+                ? 'neu-button-primary text-white'
+                : 'neu-raised-sm bg-[#F0F3F8] dark:bg-[#2B3140] border border-white/80 dark:border-white/10 text-blue-600 dark:text-blue-400 hover:shadow-neu-raised active:shadow-neu-pressed'
             }`}
             title={t('sauda.filterOrders', 'Filter Vyapar Orders')}
             aria-label="Filter orders"
@@ -264,10 +264,10 @@ export const SaudaListPage: React.FC = () => {
           <button
             type="button"
             onClick={handleResetAll}
-            className={`h-11 sm:h-12 px-3 sm:px-4 rounded-xl sm:rounded-2xl border transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-1.5 shrink-0 font-bold text-xs sm:text-sm ${
+            className={`h-11 sm:h-12 px-3 sm:px-4 rounded-xl sm:rounded-2xl transition-all cursor-pointer flex items-center justify-center gap-1.5 shrink-0 font-bold text-xs sm:text-sm ${
               hasAnyFilterOrSearch
-                ? 'bg-blue-50 dark:bg-blue-950/60 border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 shadow-sm'
-                : 'bg-white/90 dark:bg-[#111827]/90 border-[#DCE6F2] dark:border-slate-700/60 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/80 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_1px_3px_rgba(37,99,235,0.04)] dark:shadow-none'
+                ? 'neu-inset-sm bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-400/30'
+                : 'neu-raised-sm bg-[#F0F3F8] dark:bg-[#2B3140] border border-white/80 dark:border-white/10 text-slate-700 dark:text-slate-200 hover:shadow-neu-raised active:shadow-neu-pressed'
             }`}
             title="Reset Search & Filters"
             aria-label="Reset Search and Filters"
@@ -287,7 +287,7 @@ export const SaudaListPage: React.FC = () => {
             </span>
 
             {selectedDate && (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 shadow-2xs">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold neu-inset-sm text-blue-700 dark:text-blue-300 border border-blue-400/30">
                 <Calendar className="w-3 h-3 text-blue-600 dark:text-blue-400" />
                 <span>{formatDate(selectedDate)}</span>
                 <button
@@ -302,7 +302,7 @@ export const SaudaListPage: React.FC = () => {
             )}
 
             {selectedItemId !== null && (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 shadow-2xs">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold neu-inset-sm text-blue-700 dark:text-blue-300 border border-blue-400/30">
                 <Package className="w-3 h-3 text-blue-600 dark:text-blue-400" />
                 <span className="uppercase">
                   {items.find(i => i.id === selectedItemId)?.name || `Item #${selectedItemId}`}
@@ -319,7 +319,7 @@ export const SaudaListPage: React.FC = () => {
             )}
 
             {selectedPartyId !== null && (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 shadow-2xs">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold neu-inset-sm text-blue-700 dark:text-blue-300 border border-blue-400/30">
                 <Users className="w-3 h-3 text-blue-600 dark:text-blue-400" />
                 <span className="uppercase">
                   {parties.find(p => p.id === selectedPartyId)?.name || `Party #${selectedPartyId}`}
@@ -364,8 +364,8 @@ export const SaudaListPage: React.FC = () => {
           )}
 
           {!isLoading && orders.length === 0 && (
-            <div className="text-center py-12 px-4 rounded-3xl bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/50 dark:border-slate-800/60 shadow-glass">
-              <div className="w-12 h-12 rounded-2xl bg-blue-500/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 mx-auto flex items-center justify-center mb-3">
+            <div className="text-center py-12 px-4 rounded-3xl neu-raised border border-white/60 dark:border-white/5">
+              <div className="w-12 h-12 rounded-2xl neu-inset-sm text-blue-600 dark:text-blue-400 mx-auto flex items-center justify-center mb-3">
                 <ReceiptText className="w-6 h-6 stroke-[2]" />
               </div>
               <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">No orders found</h3>
@@ -383,7 +383,7 @@ export const SaudaListPage: React.FC = () => {
       <button
         type="button"
         onClick={() => navigate('/vyapar/create')}
-        className="btn-glass-primary fixed bottom-20 md:bottom-8 right-6 z-40 w-14 h-14 rounded-2xl flex items-center justify-center transition-all active:scale-90"
+        className="neu-button-primary fixed bottom-20 md:bottom-8 right-6 z-40 w-14 h-14 rounded-2xl flex items-center justify-center transition-all cursor-pointer shadow-lg"
         aria-label="Create Vyapar"
         title="Create Vyapar"
       >
@@ -402,10 +402,12 @@ export const SaudaListPage: React.FC = () => {
       {/* Share / PDF Preview Modal */}
       {activeShareOrder && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in">
-          <div className="w-full max-w-4xl bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
-            <div className="p-4 border-b border-[#DCE6F2] dark:border-slate-800 flex items-center justify-between gap-3 bg-blue-50/50 dark:bg-slate-800/60">
+          <div className="w-full max-w-4xl bg-[#E8EDF3] dark:bg-[#262B36] border border-white/60 dark:border-white/5 rounded-2xl shadow-neu-raised-lg overflow-hidden flex flex-col max-h-[92vh]">
+            <div className="p-4 border-b border-black/[0.06] dark:border-white/10 flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
-                <Share2 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                <div className="w-8 h-8 rounded-xl neu-raised-sm flex items-center justify-center text-blue-600 dark:text-blue-400 border border-white/60 dark:border-white/5">
+                  <Share2 className="w-4 h-4" />
+                </div>
                 <h3 className="font-bold text-slate-900 dark:text-slate-100 text-base">
                   Vyapar Note {formatDoNo(activeShareOrder.doNo, activeShareOrder.id)} Preview
                 </h3>
@@ -415,7 +417,7 @@ export const SaudaListPage: React.FC = () => {
                   type="button"
                   onClick={handleDownloadPdf}
                   disabled={isDownloadingPdf}
-                  className="btn-glass-primary flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="neu-button-primary flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                   title="Download PDF"
                 >
                   {isDownloadingPdf ? (
@@ -428,7 +430,7 @@ export const SaudaListPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={handlePrintPdf}
-                  className="btn-glass-secondary flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl cursor-pointer"
+                  className="neu-button-secondary flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl cursor-pointer"
                   title="Print Note"
                 >
                   <Printer className="w-4 h-4" />
@@ -437,14 +439,14 @@ export const SaudaListPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setActiveShareOrder(null)}
-                  className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-lg hover:bg-white/60 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                  className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-lg hover:shadow-neu-inset-sm transition-all cursor-pointer"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto overflow-x-auto lg:overflow-x-visible p-3 sm:p-4 md:p-6 bg-slate-50 dark:bg-[#0B1220] min-w-0">
+            <div className="flex-1 overflow-y-auto overflow-x-auto lg:overflow-x-visible p-3 sm:p-4 md:p-6 bg-slate-100/50 dark:bg-[#1a1e27] min-w-0">
               <div className="rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden bg-white w-fit min-w-[640px] lg:min-w-0 lg:w-full max-w-2xl mx-auto">
                 <SaudaNoteTemplate
                   order={activeShareOrder}
@@ -466,21 +468,23 @@ export const SaudaListPage: React.FC = () => {
           onClick={() => setShowFilterModal(false)}
         >
           <div 
-            className="w-full max-w-md bg-white/95 dark:bg-[#111827]/95 backdrop-blur-3xl rounded-3xl shadow-2xl border border-[#DCE6F2] dark:border-white/15 overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-150"
+            className="w-full max-w-md bg-[#E8EDF3] dark:bg-[#262B36] rounded-3xl shadow-neu-raised-lg border border-white/60 dark:border-white/5 overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-150"
             onClick={e => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="px-5 py-4 text-white flex items-center justify-between shadow-glass bg-gradient-to-r from-blue-700 via-blue-600 to-sky-600">
+            <div className="px-5 py-4 border-b border-black/[0.06] dark:border-white/10 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <SlidersHorizontal className="w-5 h-5 stroke-[2.3]" />
-                <h3 className="font-extrabold text-base tracking-wide uppercase">
+                <div className="w-8 h-8 rounded-xl neu-raised-sm flex items-center justify-center text-blue-600 dark:text-blue-400 border border-white/60 dark:border-white/5">
+                  <SlidersHorizontal className="w-4 h-4 stroke-[2.3]" />
+                </div>
+                <h3 className="font-extrabold text-base text-gray-900 dark:text-white tracking-wide uppercase">
                   {t('sauda.filterOrders', 'Filter Vyapar Orders')}
                 </h3>
               </div>
               <button
                 type="button"
                 onClick={() => setShowFilterModal(false)}
-                className="p-1.5 rounded-xl hover:bg-black/20 text-white transition-colors cursor-pointer"
+                className="p-1.5 rounded-xl text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:shadow-neu-inset-sm transition-all cursor-pointer"
                 title="Close"
               >
                 <X className="w-5 h-5" />
@@ -535,11 +539,11 @@ export const SaudaListPage: React.FC = () => {
             </div>
 
             {/* Modal Footer Actions */}
-            <div className="p-4 border-t border-[#DCE6F2] dark:border-white/10 flex items-center justify-between gap-3 bg-slate-50/80 dark:bg-slate-900/60">
+            <div className="p-4 border-t border-black/[0.06] dark:border-white/10 flex items-center justify-between gap-3">
               <button
                 type="button"
                 onClick={handleClearModalFilters}
-                className="px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-200/50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer flex items-center gap-1.5"
+                className="neu-button-secondary px-4 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>{t('sauda.clearFilters', 'Clear Filters')}</span>
@@ -548,7 +552,7 @@ export const SaudaListPage: React.FC = () => {
               <button
                 type="button"
                 onClick={handleApplyModalFilters}
-                className="btn-glass-primary px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider shadow-md flex items-center gap-1.5 cursor-pointer"
+                className="neu-button-primary px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 cursor-pointer"
               >
                 <Check className="w-4 h-4 stroke-[2.5]" />
                 <span>{t('sauda.applyFilters', 'Apply Filters')}</span>

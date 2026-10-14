@@ -147,21 +147,21 @@ export const QuickAddPartyModal: React.FC<QuickAddPartyModalProps> = ({
       style={{ backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
     >
       <div 
-        className="w-full max-w-md bg-white/95 dark:bg-[#111827]/95 backdrop-blur-3xl rounded-3xl shadow-glass-hover overflow-hidden flex flex-col max-h-[90vh] border border-[#DCE6F2] dark:border-white/15 animate-in zoom-in-95 duration-150"
+        className="w-full max-w-md bg-[#E8EDF3] dark:bg-[#262B36] rounded-3xl shadow-neu-raised-lg overflow-hidden flex flex-col max-h-[90vh] border border-white/60 dark:border-white/5 animate-in zoom-in-95 duration-150"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div 
-          className="px-6 py-4 text-white flex items-center justify-between shadow-glass bg-gradient-to-r from-blue-700 via-blue-600 to-sky-600"
-        >
+        <div className="px-6 py-4 border-b border-black/[0.06] dark:border-white/10 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <Users className="w-5 h-5 stroke-[2.5]" />
-            <h2 className="font-extrabold text-base tracking-wide uppercase">ADD NEW PARTY</h2>
+            <div className="w-8 h-8 rounded-xl shadow-neu-raised-sm flex items-center justify-center text-blue-600 dark:text-blue-400 border border-white/60 dark:border-white/5">
+              <Users className="w-4 h-4 stroke-[2.5]" />
+            </div>
+            <h2 className="font-extrabold text-base text-gray-900 dark:text-white tracking-wide uppercase">ADD NEW PARTY</h2>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-xl hover:bg-black/20 text-white transition-colors"
+            className="p-1.5 rounded-xl text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:shadow-neu-inset-sm transition-all cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -292,7 +292,7 @@ export const QuickAddPartyModal: React.FC<QuickAddPartyModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="btn-glass-secondary flex-1 h-11 sm:h-12 px-4 text-xs font-bold rounded-xl sm:rounded-2xl flex items-center justify-center gap-1.5 cursor-pointer"
+              className="neu-button-secondary flex-1 h-11 sm:h-12 px-4 text-xs font-bold rounded-xl sm:rounded-2xl flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <X className="w-4 h-4" />
               <span>Cancel</span>
@@ -300,7 +300,7 @@ export const QuickAddPartyModal: React.FC<QuickAddPartyModalProps> = ({
             <button
               type="submit"
               disabled={!name.trim() || mobileNumber.trim().length !== 10 || !city.trim() || !state.trim() || isSubmitting}
-              className="btn-glass-primary flex-2 h-11 sm:h-12 px-4 font-bold rounded-xl sm:rounded-2xl text-xs flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none hover:disabled:shadow-none transition-all"
+              className="neu-button-primary flex-2 h-11 sm:h-12 px-4 font-bold rounded-xl sm:rounded-2xl text-xs flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none hover:disabled:shadow-none transition-all"
             >
               <Check className="w-4 h-4 stroke-[3]" />
               <span>{isSubmitting ? 'Saving...' : 'Save Party'}</span>

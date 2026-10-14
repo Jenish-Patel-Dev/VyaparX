@@ -282,12 +282,12 @@ export const GlassDatePicker: React.FC<GlassDatePickerProps> = ({
       {viewMode === 'days' && (
         <>
           {/* Header */}
-          <div className="flex items-center justify-between pb-3 mb-2 border-b border-[#DCE6F2]/80 dark:border-white/10">
+          <div className="flex items-center justify-between pb-3 mb-2 border-b border-black/[0.06] dark:border-white/10">
             <div className="flex items-center gap-1">
               <button
                 type="button"
                 onClick={() => setViewMode('months')}
-                className="px-2.5 py-1.5 rounded-xl font-black text-sm text-slate-900 dark:text-slate-100 hover:bg-blue-50 dark:hover:bg-blue-900/40 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-1.5 cursor-pointer"
+                className="px-2.5 py-1.5 rounded-xl font-black text-sm text-slate-900 dark:text-slate-100 hover:shadow-neu-inset-sm hover:text-blue-600 dark:hover:text-blue-400 transition-all flex items-center gap-1.5 cursor-pointer"
                 title="Select Month"
               >
                 <span>{MONTH_NAMES[viewMonth]}</span>
@@ -299,7 +299,7 @@ export const GlassDatePicker: React.FC<GlassDatePickerProps> = ({
                   setYearPageStart(Math.floor(viewYear / 12) * 12);
                   setViewMode('years');
                 }}
-                className="px-2 py-1.5 rounded-xl font-bold text-sm text-slate-600 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-900/40 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-1 cursor-pointer"
+                className="px-2 py-1.5 rounded-xl font-bold text-sm text-slate-700 dark:text-slate-300 hover:shadow-neu-inset-sm hover:text-blue-600 dark:hover:text-blue-400 transition-all flex items-center gap-1 cursor-pointer"
                 title="Select Year"
               >
                 <span>{viewYear}</span>
@@ -311,7 +311,7 @@ export const GlassDatePicker: React.FC<GlassDatePickerProps> = ({
               <button
                 type="button"
                 onClick={handlePrevMonth}
-                className="p-1.5 rounded-xl text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-white/10 transition-colors cursor-pointer"
+                className="p-1.5 rounded-xl text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:shadow-neu-inset-sm transition-all cursor-pointer"
                 title="Previous Month"
               >
                 <ChevronLeft className="w-4 h-4 stroke-[2.2]" />
@@ -319,7 +319,7 @@ export const GlassDatePicker: React.FC<GlassDatePickerProps> = ({
               <button
                 type="button"
                 onClick={handleNextMonth}
-                className="p-1.5 rounded-xl text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-white/10 transition-colors cursor-pointer"
+                className="p-1.5 rounded-xl text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:shadow-neu-inset-sm transition-all cursor-pointer"
                 title="Next Month"
               >
                 <ChevronRight className="w-4 h-4 stroke-[2.2]" />
@@ -354,12 +354,11 @@ export const GlassDatePicker: React.FC<GlassDatePickerProps> = ({
                   ? 'bg-blue-600 text-white font-black shadow-md shadow-blue-500/30 ring-2 ring-blue-300 dark:ring-blue-400 ring-offset-1 dark:ring-offset-slate-900'
                   : 'bg-blue-600 text-white font-black shadow-md shadow-blue-500/30';
               } else if (currentDay) {
-                // Today's date (when not selected): same rounded square, lighter blue tint relative to selected date
-                dateClasses = 'bg-blue-100/90 text-blue-700 dark:bg-blue-600/25 dark:text-blue-300 border-2 border-blue-400/70 dark:border-blue-400/50 font-black';
+                dateClasses = 'shadow-neu-inset-sm text-blue-600 dark:text-blue-400 border border-blue-400/50 font-black';
               } else if (item.isCurrentMonth) {
-                dateClasses = 'text-slate-800 dark:text-slate-200 font-semibold hover:bg-blue-50 dark:hover:bg-white/10 hover:text-blue-600 dark:hover:text-blue-400';
+                dateClasses = 'text-slate-800 dark:text-slate-200 font-semibold hover:shadow-neu-inset-sm hover:text-blue-600 dark:hover:text-blue-400';
               } else {
-                dateClasses = 'text-slate-300 dark:text-slate-600 font-normal hover:bg-slate-100/50 dark:hover:bg-slate-800/50';
+                dateClasses = 'text-slate-400/50 dark:text-slate-600/50 font-normal hover:shadow-neu-inset-sm';
               }
 
               return (
@@ -381,7 +380,7 @@ export const GlassDatePicker: React.FC<GlassDatePickerProps> = ({
       {/* 2. MONTHS PICKER VIEW */}
       {viewMode === 'months' && (
         <div className="space-y-3">
-          <div className="flex items-center justify-between pb-2 border-b border-[#DCE6F2]/80 dark:border-white/10">
+          <div className="flex items-center justify-between pb-2 border-b border-black/[0.06] dark:border-white/10">
             <span className="font-extrabold text-sm text-slate-800 dark:text-slate-100">
               Select Month ({viewYear})
             </span>
@@ -406,8 +405,8 @@ export const GlassDatePicker: React.FC<GlassDatePickerProps> = ({
                   }}
                   className={`py-2.5 px-3 rounded-2xl text-xs font-extrabold transition-all cursor-pointer text-center ${
                     isCurrMonth
-                      ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/30'
-                      : 'text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-white/10 hover:text-blue-600 dark:hover:text-blue-400 bg-slate-50/70 dark:bg-white/5 border border-slate-200/50 dark:border-white/5'
+                      ? 'bg-blue-600 text-white shadow-md shadow-blue-500/30'
+                      : 'text-slate-700 dark:text-slate-300 shadow-neu-raised-sm hover:shadow-neu-inset-sm hover:text-blue-600 dark:hover:text-blue-400 border border-white/60 dark:border-white/5'
                   }`}
                 >
                   {mName}
@@ -421,12 +420,12 @@ export const GlassDatePicker: React.FC<GlassDatePickerProps> = ({
       {/* 3. YEARS PICKER VIEW */}
       {viewMode === 'years' && (
         <div className="space-y-3">
-          <div className="flex items-center justify-between pb-2 border-b border-[#DCE6F2]/80 dark:border-white/10">
+          <div className="flex items-center justify-between pb-2 border-b border-black/[0.06] dark:border-white/10">
             <div className="flex items-center gap-1.5">
               <button
                 type="button"
                 onClick={() => setYearPageStart(prev => prev - 12)}
-                className="p-1 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10 cursor-pointer"
+                className="p-1 rounded-lg text-slate-500 dark:text-slate-400 hover:shadow-neu-inset-sm cursor-pointer"
                 title="Previous Years"
               >
                 <ChevronLeft className="w-4 h-4" />
@@ -437,7 +436,7 @@ export const GlassDatePicker: React.FC<GlassDatePickerProps> = ({
               <button
                 type="button"
                 onClick={() => setYearPageStart(prev => prev + 12)}
-                className="p-1 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10 cursor-pointer"
+                className="p-1 rounded-lg text-slate-500 dark:text-slate-400 hover:shadow-neu-inset-sm cursor-pointer"
                 title="Next Years"
               >
                 <ChevronRight className="w-4 h-4" />
@@ -464,8 +463,8 @@ export const GlassDatePicker: React.FC<GlassDatePickerProps> = ({
                   }}
                   className={`py-2.5 px-3 rounded-2xl text-xs font-extrabold transition-all cursor-pointer text-center ${
                     isCurrYear
-                      ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/30'
-                      : 'text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-white/10 hover:text-blue-600 dark:hover:text-blue-400 bg-slate-50/70 dark:bg-white/5 border border-slate-200/50 dark:border-white/5'
+                      ? 'bg-blue-600 text-white shadow-md shadow-blue-500/30'
+                      : 'text-slate-700 dark:text-slate-300 shadow-neu-raised-sm hover:shadow-neu-inset-sm hover:text-blue-600 dark:hover:text-blue-400 border border-white/60 dark:border-white/5'
                   }`}
                 >
                   {y}
@@ -477,12 +476,12 @@ export const GlassDatePicker: React.FC<GlassDatePickerProps> = ({
       )}
 
       {/* Footer Actions */}
-      <div className="flex items-center justify-between pt-3 mt-3 border-t border-[#DCE6F2]/80 dark:border-white/10">
+      <div className="flex items-center justify-between pt-3 mt-3 border-t border-black/[0.06] dark:border-white/10">
         {!required ? (
           <button
             type="button"
             onClick={handleClear}
-            className="text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 px-2 py-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-white/10 transition-colors cursor-pointer"
+            className="text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 px-2 py-1.5 rounded-xl hover:shadow-neu-inset-sm transition-all cursor-pointer"
           >
             Clear
           </button>
@@ -495,14 +494,14 @@ export const GlassDatePicker: React.FC<GlassDatePickerProps> = ({
           <button
             type="button"
             onClick={handleSelectToday}
-            className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/40 px-3 py-1.5 rounded-xl border border-blue-200/60 dark:border-blue-700/40 transition-colors cursor-pointer"
+            className="neu-button-secondary text-xs px-3 py-1.5 rounded-xl cursor-pointer"
           >
             Today
           </button>
           <button
             type="button"
             onClick={() => setIsOpen(false)}
-            className="text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 px-3.5 py-1.5 rounded-xl shadow-xs transition-colors cursor-pointer"
+            className="neu-button-primary text-xs px-3.5 py-1.5 rounded-xl cursor-pointer"
           >
             Done
           </button>
@@ -574,14 +573,14 @@ export const GlassDatePicker: React.FC<GlassDatePickerProps> = ({
         typeof document !== 'undefined' &&
         createPortal(
           isMobile ? (
-            /* Mobile: Centered Glass Modal */
+            /* Mobile: Centered Neumorphic Modal */
             <div
               className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/60 dark:bg-black/75 backdrop-blur-md animate-in fade-in duration-150"
               style={{ backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}
               onClick={() => setIsOpen(false)}
             >
               <div
-                className="w-full max-w-[330px] bg-white/95 dark:bg-[#111827]/95 backdrop-blur-2xl rounded-3xl p-4 shadow-2xl border border-[#DCE6F2] dark:border-white/15 animate-in zoom-in-95 duration-150"
+                className="w-full max-w-[330px] bg-[#E8EDF3] dark:bg-[#262B36] rounded-3xl p-4 shadow-neu-raised-lg border border-white/60 dark:border-white/5 animate-in zoom-in-95 duration-150"
                 onClick={e => e.stopPropagation()}
               >
                 {calendarContent}
@@ -595,7 +594,7 @@ export const GlassDatePicker: React.FC<GlassDatePickerProps> = ({
             >
               <div
                 style={{ top: `${popoverPos.top}px`, left: `${popoverPos.left}px` }}
-                className="fixed z-[101] w-[330px] bg-white/95 dark:bg-[#111827]/95 backdrop-blur-2xl rounded-3xl p-4 shadow-[0_20px_50px_rgba(37,99,235,0.18),0_10px_30px_rgba(0,0,0,0.15)] border border-[#DCE6F2] dark:border-white/15 animate-in zoom-in-95 duration-150"
+                className="fixed z-[101] w-[330px] bg-[#E8EDF3] dark:bg-[#262B36] rounded-3xl p-4 shadow-neu-raised-lg border border-white/60 dark:border-white/5 animate-in zoom-in-95 duration-150"
                 onClick={e => e.stopPropagation()}
               >
                 {calendarContent}

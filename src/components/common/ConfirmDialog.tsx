@@ -38,27 +38,26 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 dark:bg-black/70 backdrop-blur-xl animate-in fade-in"
-      style={{ backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/45 dark:bg-black/70 backdrop-blur-md animate-in fade-in"
     >
       <div 
-        className="w-full max-w-sm bg-white/95 dark:bg-[#111827]/95 backdrop-blur-3xl rounded-3xl shadow-glass-hover p-6 animate-in zoom-in-95 duration-150 border border-[#DCE6F2] dark:border-white/15"
+        className="w-full max-w-sm bg-[#E8EDF3] dark:bg-[#262B36] rounded-3xl shadow-neu-raised-lg p-6 animate-in zoom-in-95 duration-150 border border-[#D5DDE7] dark:border-[#303746]"
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center gap-3.5 mb-3">
           {isLogout ? (
-            <div className="w-11 h-11 rounded-2xl bg-rose-500/15 border border-rose-500/25 flex items-center justify-center text-rose-600 dark:text-rose-400 shrink-0 shadow-inner">
+            <div className="w-11 h-11 rounded-2xl bg-[#DEE4ED] dark:bg-[#1B1F27] border border-rose-500/30 dark:border-rose-500/40 flex items-center justify-center text-rose-600 dark:text-rose-400 shrink-0 shadow-neu-inset-sm">
               <LogOut className="w-5 h-5 stroke-[2.2]" />
             </div>
           ) : isDestructive ? (
-            <div className="w-11 h-11 rounded-2xl bg-rose-500/15 border border-rose-500/25 flex items-center justify-center text-rose-600 dark:text-rose-400 shrink-0 shadow-inner">
+            <div className="w-11 h-11 rounded-2xl bg-[#DEE4ED] dark:bg-[#1B1F27] border border-rose-500/30 dark:border-rose-500/40 flex items-center justify-center text-rose-600 dark:text-rose-400 shrink-0 shadow-neu-inset-sm">
               <AlertTriangle className="w-5 h-5 stroke-[2.5]" />
             </div>
           ) : null}
-          <h3 className="text-lg font-black text-gray-900 dark:text-gray-100 tracking-tight break-words min-w-0 flex-1">{title}</h3>
+          <h3 className="text-lg font-black text-[#263244] dark:text-[#F0F3F8] tracking-tight break-words min-w-0 flex-1">{title}</h3>
         </div>
 
-        <p className="text-xs text-gray-600 dark:text-gray-400 mb-6 leading-relaxed font-medium break-words">
+        <p className="text-xs text-[#68758A] dark:text-[#B3BDCD] mb-6 leading-relaxed font-medium break-words">
           {message}
         </p>
 
@@ -66,7 +65,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           <button
             type="button"
             onClick={onCancel}
-            className="btn-glass-secondary flex-1 py-3 px-4 font-bold rounded-2xl text-xs flex items-center justify-center gap-1.5"
+            className="neu-button-secondary flex-1 py-3 px-4 font-bold rounded-2xl text-xs flex items-center justify-center gap-1.5 cursor-pointer"
           >
             <X className="w-4 h-4" />
             <span>{cancelText}</span>
@@ -74,10 +73,10 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           <button
             type="button"
             onClick={onConfirm}
-            className={`flex-1 py-3 px-4 font-bold rounded-2xl text-xs active:scale-[0.98] flex items-center justify-center gap-1.5 ${
+            className={`flex-1 py-3 px-4 font-bold rounded-2xl text-xs active:scale-[0.98] flex items-center justify-center gap-1.5 cursor-pointer ${
               isDestructive
-                ? 'bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-red-500/20'
-                : 'btn-glass-primary text-white'
+                ? 'bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-md shadow-red-500/25 border border-red-400/40'
+                : 'neu-button-primary text-white'
             }`}
           >
             {confirmIcon ? (

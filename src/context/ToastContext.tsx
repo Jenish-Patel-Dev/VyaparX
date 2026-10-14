@@ -44,19 +44,19 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         {toasts.map(t => (
           <div
             key={t.id}
-            className={`pointer-events-auto flex items-center justify-between gap-3 p-3.5 rounded-xl shadow-lg border text-sm font-medium animate-in fade-in slide-in-from-bottom-5 transition-all ${
+            className={`pointer-events-auto flex items-center justify-between gap-3 p-3.5 rounded-2xl neu-raised-lg border text-sm font-medium animate-in fade-in slide-in-from-bottom-5 transition-all ${
               t.type === 'success'
-                ? 'bg-emerald-50 dark:bg-emerald-950 text-emerald-900 dark:text-emerald-100 border-emerald-200 dark:border-emerald-800'
+                ? 'bg-[#E8EDF3] dark:bg-[#262B36] text-emerald-900 dark:text-emerald-100 border-emerald-500/30'
                 : t.type === 'error'
-                ? 'bg-red-50 dark:bg-red-950 text-red-900 dark:text-red-100 border-red-200 dark:border-red-800'
-                : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-700'
+                ? 'bg-[#E8EDF3] dark:bg-[#262B36] text-red-900 dark:text-red-100 border-red-500/30'
+                : 'bg-[#E8EDF3] dark:bg-[#262B36] text-gray-900 dark:text-gray-100 border-white/60 dark:border-white/5'
             }`}
           >
             <div className="flex items-center gap-2.5">
-              {t.type === 'success' && <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />}
-              {t.type === 'error' && <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />}
-              {t.type === 'info' && <Info className="w-5 h-5 text-[var(--primary)] shrink-0" />}
-              <span>{t.message}</span>
+              {t.type === 'success' && <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />}
+              {t.type === 'error' && <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0" />}
+              {t.type === 'info' && <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" />}
+              <span className="font-semibold text-xs sm:text-sm">{t.message}</span>
             </div>
             <button
               onClick={() => removeToast(t.id)}

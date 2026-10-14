@@ -10,10 +10,14 @@ export const apiApp = express();
 apiApp.use(cors());
 apiApp.use(express.json());
 
-// Handle Netlify functions path rewriting
+// Handle Netlify and Vercel functions path rewriting
 apiApp.use((req: Request, _res: Response, next: NextFunction) => {
   if (req.url.startsWith('/.netlify/functions/api')) {
     req.url = req.url.replace('/.netlify/functions/api', '') || '/';
+  }
+  const matchedPath = req.headers['x-matched-path'];
+  if (typeof matchedPath === 'string' && matchedPath.startsWith('/api')) {
+    req.url = matchedPath;
   }
   next();
 });
@@ -25,7 +29,7 @@ const DATA_DIR = path.join(process.cwd(), 'server', 'data');
 const REGISTRY_FILE = path.join(DATA_DIR, 'companyRegistry.json');
 
 function getRegistryFilePath(): string {
-  if (process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME) {
+  if (process.env.NETLIFY || process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
     return path.join('/tmp', 'companyRegistry.json');
   }
   return REGISTRY_FILE;
@@ -230,11 +234,23 @@ async function handleSendOtp(req: Request, res: Response): Promise<void> {
   if (!isSmtpConfigured()) {
     console.warn(
       `\n⚠️  [SMTP CONFIGURATION REQUIRED] Cannot send real email to ${normalizedEmail}.\n` +
-      `   Please open your .env file and set EMAIL_USER & EMAIL_PASSWORD (e.g., Gmail + 16-character App Password).\n`
+      `   Please set EMAIL_USER & EMAIL_PASSWORD (Gmail App Password) in your Vercel Project Settings / .env.\n`
     );
-    res.status(503).json({
-      success: false,
-      message: 'Email service is not configured. Please add EMAIL_USER and EMAIL_PASSWORD (Gmail App Password) in your .env file to receive OTP in your inbox.',
+    // Allow demo OTP 1234 for instant testing when SMTP credentials are not yet added
+    const demoOtp = '1234';
+    otpStore.set(normalizedEmail, {
+      email: normalizedEmail,
+      code: demoOtp,
+      expiresAt,
+      attempts: 0,
+      lastSentAt: Date.now(),
+    });
+    const otpToken = signOtpToken(normalizedEmail, demoOtp, expiresAt);
+    res.json({
+      success: true,
+      message: `[DEMO MODE] Verification code is 1234. (To send real OTPs to your Gmail inbox, add EMAIL_USER & EMAIL_PASSWORD in Vercel Environment Variables).`,
+      otpToken,
+      expiresAt,
     });
     return;
   }

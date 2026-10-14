@@ -325,7 +325,7 @@ export const CreateSaudaPage: React.FC = () => {
 
         {/* STEP 1: ITEM, MATERIAL & QUALITY, TECHNICAL PARAMETERS */}
         {step === 1 && (
-          <div className="liquid-glass-card p-5 md:p-6 rounded-3xl space-y-5 shadow-glass-card">
+          <div className="neu-raised p-5 md:p-6 rounded-3xl space-y-5 border border-white/60 dark:border-white/5">
             {/* DATE */}
             <div>
               <GlassDatePicker
@@ -352,7 +352,7 @@ export const CreateSaudaPage: React.FC = () => {
                   clearError('itemName');
                 }}
                 className={`input-sauda flex items-center justify-between cursor-pointer font-bold uppercase text-slate-900 dark:text-slate-100 ${
-                  errors.itemName ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                  errors.itemName ? '!border-red-500 !ring-2 !ring-red-200/50 bg-red-50/20' : ''
                 }`}
               >
                 <span>{itemName || 'SELECT ITEM NAME'}</span>
@@ -362,9 +362,11 @@ export const CreateSaudaPage: React.FC = () => {
             </div>
 
             {/* SECTION: MATERIAL & QUALITY */}
-            <div className="pt-3 border-t border-slate-200/80 dark:border-slate-800/80 space-y-4">
+            <div className="pt-3 border-t border-black/[0.06] dark:border-white/10 space-y-4">
               <div className="flex items-center gap-2">
-                <Package className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                <div className="w-8 h-8 rounded-xl neu-raised-sm flex items-center justify-center text-blue-600 dark:text-blue-400 border border-white/60 dark:border-white/5">
+                  <Package className="w-4 h-4 stroke-[2.2]" />
+                </div>
                 <h3 className="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider">
                   Material & Quality
                 </h3>
@@ -384,7 +386,7 @@ export const CreateSaudaPage: React.FC = () => {
                     clearError('itemQuality');
                   }}
                   className={`input-sauda font-semibold uppercase ${
-                    errors.itemQuality ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                    errors.itemQuality ? '!border-red-500 !ring-2 !ring-red-200/50 bg-red-50/20' : ''
                   }`}
                 />
                 <FieldError error={errors.itemQuality} />
@@ -398,7 +400,7 @@ export const CreateSaudaPage: React.FC = () => {
                           setItemQuality(val);
                           clearError('itemQuality');
                         }}
-                        className="text-[10px] px-2.5 py-1 rounded-lg bg-white/80 dark:bg-slate-800 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/50 border border-blue-200/70 dark:border-blue-800/40 font-bold transition-colors cursor-pointer"
+                        className="text-[10px] px-2.5 py-1 rounded-lg neu-inset-sm text-blue-700 dark:text-blue-300 hover:shadow-neu-raised-sm border border-blue-400/30 font-bold transition-all cursor-pointer"
                       >
                         + {val}
                       </button>
@@ -424,7 +426,7 @@ export const CreateSaudaPage: React.FC = () => {
                       clearError('quantity');
                     }}
                     className={`input-sauda font-extrabold text-slate-900 dark:text-slate-100 ${
-                      errors.quantity ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                      errors.quantity ? '!border-red-500 !ring-2 !ring-red-200/50 bg-red-50/20' : ''
                     }`}
                   />
                   <FieldError error={errors.quantity} />
@@ -443,7 +445,7 @@ export const CreateSaudaPage: React.FC = () => {
                       clearError('unit');
                     }}
                     className={`input-sauda font-bold uppercase text-slate-900 dark:text-slate-100 ${
-                      errors.unit ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                      errors.unit ? '!border-red-500 !ring-2 !ring-red-200/50 bg-red-50/20' : ''
                     }`}
                   />
                   <FieldError error={errors.unit} />
@@ -466,7 +468,7 @@ export const CreateSaudaPage: React.FC = () => {
                     clearError('billRate');
                   }}
                   className={`input-sauda font-extrabold text-slate-900 dark:text-slate-100 ${
-                    errors.billRate ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                    errors.billRate ? '!border-red-500 !ring-2 !ring-red-200/50 bg-red-50/20' : ''
                   }`}
                 />
                 <FieldError error={errors.billRate} />
@@ -486,7 +488,7 @@ export const CreateSaudaPage: React.FC = () => {
                     clearError('paymentTerms');
                   }}
                   className={`input-sauda font-semibold ${
-                    errors.paymentTerms ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                    errors.paymentTerms ? '!border-red-500 !ring-2 !ring-red-200/50 bg-red-50/20' : ''
                   }`}
                 />
                 <FieldError error={errors.paymentTerms} />
@@ -500,7 +502,7 @@ export const CreateSaudaPage: React.FC = () => {
                           setPaymentTerms(val);
                           clearError('paymentTerms');
                         }}
-                        className="text-[10px] px-2.5 py-1 rounded-lg bg-white/80 dark:bg-slate-800 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/50 border border-blue-200/70 dark:border-blue-800/40 font-bold transition-colors cursor-pointer"
+                        className="text-[10px] px-2.5 py-1 rounded-lg neu-inset-sm text-blue-700 dark:text-blue-300 hover:shadow-neu-raised-sm border border-blue-400/30 font-bold transition-all cursor-pointer"
                       >
                         + {val} Days
                       </button>
@@ -511,7 +513,7 @@ export const CreateSaudaPage: React.FC = () => {
 
               {/* Total Bill Amount Calculated Box */}
               {quantity && billRate && (
-                <div className="p-3.5 sm:p-4 bg-emerald-500/10 dark:bg-emerald-950/30 border border-emerald-500/25 dark:border-emerald-800/40 rounded-2xl flex flex-wrap items-center justify-between gap-2 text-sm font-bold text-emerald-800 dark:text-emerald-300 shadow-glass-card backdrop-blur-md animate-in fade-in">
+                <div className="p-3.5 sm:p-4 neu-inset-sm border border-emerald-500/25 rounded-2xl flex flex-wrap items-center justify-between gap-2 text-sm font-bold text-emerald-800 dark:text-emerald-300 animate-in fade-in">
                   <span className="text-[11px] sm:text-xs uppercase tracking-wider font-extrabold text-emerald-700 dark:text-emerald-400">Total Bill Amount:</span>
                   <span className="text-base sm:text-xl font-black text-emerald-600 dark:text-emerald-400 break-all">{formatCurrency(totalBillAmount)}</span>
                 </div>
@@ -519,9 +521,11 @@ export const CreateSaudaPage: React.FC = () => {
             </div>
 
             {/* SECTION: TECHNICAL PARAMETERS */}
-            <div className="pt-3 border-t border-slate-200/80 dark:border-slate-800/80 space-y-4">
+            <div className="pt-3 border-t border-black/[0.06] dark:border-white/10 space-y-4">
               <div className="flex items-center gap-2">
-                <Sliders className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                <div className="w-8 h-8 rounded-xl neu-raised-sm flex items-center justify-center text-blue-600 dark:text-blue-400 border border-white/60 dark:border-white/5">
+                  <Sliders className="w-4 h-4 stroke-[2.2]" />
+                </div>
                 <h3 className="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider">
                   Technical Parameters
                 </h3>
@@ -541,7 +545,7 @@ export const CreateSaudaPage: React.FC = () => {
                     clearError('rdValue');
                   }}
                   className={`input-sauda font-semibold uppercase ${
-                    errors.rdValue ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                    errors.rdValue ? '!border-red-500 !ring-2 !ring-red-200/50 bg-red-50/20' : ''
                   }`}
                 />
                 <FieldError error={errors.rdValue} />
@@ -555,7 +559,7 @@ export const CreateSaudaPage: React.FC = () => {
                           setRdValue(val);
                           clearError('rdValue');
                         }}
-                        className="text-[10px] px-2.5 py-1 rounded-lg bg-white/80 dark:bg-slate-800 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/50 border border-blue-200/70 dark:border-blue-800/40 font-bold transition-colors cursor-pointer"
+                        className="text-[10px] px-2.5 py-1 rounded-lg neu-inset-sm text-blue-700 dark:text-blue-300 hover:shadow-neu-raised-sm border border-blue-400/30 font-bold transition-all cursor-pointer"
                       >
                         + {val}
                       </button>
@@ -581,7 +585,7 @@ export const CreateSaudaPage: React.FC = () => {
                       clearError('stapleLength');
                     }}
                     className={`input-sauda font-semibold ${
-                      errors.stapleLength ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                      errors.stapleLength ? '!border-red-500 !ring-2 !ring-red-200/50 bg-red-50/20' : ''
                     }`}
                   />
                   <FieldError error={errors.stapleLength} />
@@ -600,7 +604,7 @@ export const CreateSaudaPage: React.FC = () => {
                       clearError('mic');
                     }}
                     className={`input-sauda font-semibold ${
-                      errors.mic ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                      errors.mic ? '!border-red-500 !ring-2 !ring-red-200/50 bg-red-50/20' : ''
                     }`}
                   />
                   <FieldError error={errors.mic} />
@@ -625,7 +629,7 @@ export const CreateSaudaPage: React.FC = () => {
                       clearError('trashPercent');
                     }}
                     className={`input-sauda font-semibold ${
-                      errors.trashPercent ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                      errors.trashPercent ? '!border-red-500 !ring-2 !ring-red-200/50 bg-red-50/20' : ''
                     }`}
                   />
                   <FieldError error={errors.trashPercent} />
@@ -647,7 +651,7 @@ export const CreateSaudaPage: React.FC = () => {
                       clearError('moisturePercent');
                     }}
                     className={`input-sauda font-semibold ${
-                      errors.moisturePercent ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
+                      errors.moisturePercent ? '!border-red-500 !ring-2 !ring-red-200/50 bg-red-50/20' : ''
                     }`}
                   />
                   <FieldError error={errors.moisturePercent} />
@@ -656,7 +660,7 @@ export const CreateSaudaPage: React.FC = () => {
             </div>
 
             {/* Step 1 Footer */}
-            <div className="flex items-center justify-between pt-4 mt-6 border-t border-slate-200/60 dark:border-slate-800 gap-2">
+            <div className="flex items-center justify-between pt-4 mt-6 border-t border-black/[0.06] dark:border-white/10 gap-2">
               <span className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400 shrink-0">
                 Step 1 of 3
               </span>
@@ -664,7 +668,7 @@ export const CreateSaudaPage: React.FC = () => {
                 type="button"
                 onClick={handleNextFromItem}
                 disabled={!isStep1Valid}
-                className="btn-glass-primary px-5 sm:px-7 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 shrink-0 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none hover:disabled:shadow-none transition-all"
+                className="neu-button-primary px-5 sm:px-7 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 shrink-0 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none hover:disabled:shadow-none transition-all"
               >
                 <span>Next</span>
                 <ArrowRight className="w-4 h-4" />
@@ -675,7 +679,7 @@ export const CreateSaudaPage: React.FC = () => {
 
         {/* STEP 2: SELLER FORM */}
         {step === 2 && (
-          <div className="liquid-glass-card p-5 md:p-6 rounded-3xl space-y-4 shadow-glass-card animate-in fade-in">
+          <div className="neu-raised p-5 md:p-6 rounded-3xl space-y-4 border border-white/60 dark:border-white/5 animate-in fade-in">
             {/* SELLER NAME * */}
             <div>
               <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-1.5">
@@ -758,7 +762,7 @@ export const CreateSaudaPage: React.FC = () => {
             </div>
 
             {/* Commission Amount Banner */}
-            <div className="p-3.5 sm:p-4 bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-800/50 rounded-2xl flex flex-wrap items-center justify-between gap-2 text-sm font-bold text-blue-800 dark:text-blue-300 shadow-glass-card backdrop-blur-md">
+            <div className="p-3.5 sm:p-4 neu-inset-sm border border-blue-500/25 rounded-2xl flex flex-wrap items-center justify-between gap-2 text-sm font-bold text-blue-800 dark:text-blue-300">
               <span className="text-[11px] sm:text-xs uppercase tracking-wider font-extrabold text-blue-700 dark:text-blue-300">Seller Commission Amount:</span>
               <span className="text-base sm:text-xl font-black text-blue-600 dark:text-blue-400 break-all">{formatCurrency(sellerCommissionAmount)}</span>
             </div>
@@ -778,7 +782,7 @@ export const CreateSaudaPage: React.FC = () => {
             </div>
 
             {/* Step 2 Footer */}
-            <div className="flex items-center justify-between pt-4 mt-6 border-t border-slate-200/60 dark:border-slate-800 gap-2">
+            <div className="flex items-center justify-between pt-4 mt-6 border-t border-black/[0.06] dark:border-white/10 gap-2">
               <span className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400 shrink-0">
                 Step 2 of 3
               </span>
@@ -786,7 +790,7 @@ export const CreateSaudaPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="btn-glass-secondary px-3 sm:px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-1.5 shrink-0 cursor-pointer"
+                  className="neu-button-secondary px-3 sm:px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-1.5 shrink-0 cursor-pointer"
                   title="Previous Step"
                   aria-label="Previous Step"
                 >
@@ -797,7 +801,7 @@ export const CreateSaudaPage: React.FC = () => {
                   type="button"
                   onClick={handleNextFromSeller}
                   disabled={!isStep2Valid}
-                  className="btn-glass-primary px-5 sm:px-7 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 shrink-0 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none hover:disabled:shadow-none transition-all"
+                  className="neu-button-primary px-5 sm:px-7 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 shrink-0 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none hover:disabled:shadow-none transition-all"
                 >
                   <span>Next</span>
                   <ArrowRight className="w-4 h-4" />
@@ -809,7 +813,7 @@ export const CreateSaudaPage: React.FC = () => {
 
         {/* STEP 3: BUYER FORM */}
         {step === 3 && (
-          <div className="liquid-glass-card p-5 md:p-6 rounded-3xl space-y-4 shadow-glass-card animate-in fade-in">
+          <div className="neu-raised p-5 md:p-6 rounded-3xl space-y-4 border border-white/60 dark:border-white/5 animate-in fade-in">
             {/* BUYER NAME * */}
             <div>
               <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-1.5">
@@ -892,7 +896,7 @@ export const CreateSaudaPage: React.FC = () => {
             </div>
 
             {/* Commission Amount Banner */}
-            <div className="p-3.5 sm:p-4 bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-800/50 rounded-2xl flex flex-wrap items-center justify-between gap-2 text-sm font-bold text-blue-800 dark:text-blue-300 shadow-glass-card backdrop-blur-md">
+            <div className="p-3.5 sm:p-4 neu-inset-sm border border-blue-500/25 rounded-2xl flex flex-wrap items-center justify-between gap-2 text-sm font-bold text-blue-800 dark:text-blue-300">
               <span className="text-[11px] sm:text-xs uppercase tracking-wider font-extrabold text-blue-700 dark:text-blue-300">Buyer Commission Amount:</span>
               <span className="text-base sm:text-xl font-black text-blue-600 dark:text-blue-400 break-all">{formatCurrency(buyerCommissionAmount)}</span>
             </div>
@@ -912,7 +916,7 @@ export const CreateSaudaPage: React.FC = () => {
             </div>
 
             {/* Step 3 Footer */}
-            <div className="flex items-center justify-between pt-4 mt-6 border-t border-slate-200/60 dark:border-slate-800 gap-2">
+            <div className="flex items-center justify-between pt-4 mt-6 border-t border-black/[0.06] dark:border-white/10 gap-2">
               <span className="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400 shrink-0">
                 Step 3 of 3
               </span>
@@ -920,7 +924,7 @@ export const CreateSaudaPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setStep(2)}
-                  className="btn-glass-secondary px-3 sm:px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-1.5 shrink-0 cursor-pointer"
+                  className="neu-button-secondary px-3 sm:px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-1.5 shrink-0 cursor-pointer"
                   title="Previous Step"
                   aria-label="Previous Step"
                 >
@@ -931,7 +935,7 @@ export const CreateSaudaPage: React.FC = () => {
                   type="button"
                   onClick={handleSaveOrder}
                   disabled={!isStep3Valid}
-                  className="btn-glass-primary px-5 sm:px-7 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 shrink-0 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none hover:disabled:shadow-none transition-all"
+                  className="neu-button-primary px-5 sm:px-7 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 shrink-0 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none hover:disabled:shadow-none transition-all"
                 >
                   {isSubmitting ? (
                     <>

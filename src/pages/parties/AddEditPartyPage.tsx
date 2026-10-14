@@ -181,7 +181,7 @@ export const AddEditPartyPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setShowDeleteConfirm(true)}
-              className="p-2 text-red-500 hover:bg-red-500/10 rounded-xl transition-colors"
+              className="w-10 h-10 rounded-2xl neu-raised-sm bg-[#F0F3F8] dark:bg-[#2B3140] flex items-center justify-center text-red-500 hover:text-red-600 hover:shadow-neu-raised active:shadow-neu-pressed border border-red-500/25 transition-all cursor-pointer"
               title="Delete Party"
             >
               <Trash2 className="w-5 h-5" />
@@ -193,7 +193,7 @@ export const AddEditPartyPage: React.FC = () => {
       <div className="p-4 md:p-6 max-w-xl mx-auto space-y-6">
         {/* Info Banner */}
         <div 
-          className="p-4 rounded-2xl flex items-start gap-3 text-xs font-medium leading-relaxed glass-card-subtle border border-blue-200/60 dark:border-blue-800/40 bg-blue-50/50 dark:bg-blue-950/30 text-slate-700 dark:text-slate-300"
+          className="p-4 rounded-2xl flex items-start gap-3 text-xs font-medium leading-relaxed neu-inset-sm border border-blue-500/25 text-slate-700 dark:text-slate-300"
         >
           <Info className="w-5 h-5 shrink-0 mt-0.5 text-blue-600 dark:text-blue-400" />
           <span>
@@ -203,7 +203,7 @@ export const AddEditPartyPage: React.FC = () => {
 
         <form noValidate onSubmit={handleSubmit} className="space-y-6">
           {/* 1. Basic Information */}
-          <div className="glass-card p-5 md:p-6 rounded-3xl space-y-4">
+          <div className="neu-raised p-5 md:p-6 rounded-3xl space-y-4 border border-white/60 dark:border-white/5">
             <h2 className="text-lg font-black text-slate-900 dark:text-slate-100 tracking-tight flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400"></span>
               Basic Information
@@ -244,7 +244,7 @@ export const AddEditPartyPage: React.FC = () => {
                   className={`input-sauda pr-12 font-medium ${errors.mobileNumber ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''}`}
                 />
                 <div 
-                  className="w-8 h-8 rounded-lg flex items-center justify-center absolute right-2.5 top-1/2 -translate-y-1/2 bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-200/80 dark:border-blue-800/60 shadow-xs pointer-events-none"
+                  className="w-8 h-8 rounded-lg flex items-center justify-center absolute right-2.5 top-1/2 -translate-y-1/2 neu-raised-sm bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 pointer-events-none"
                 >
                   <Contact className="w-5 h-5" />
                 </div>
@@ -319,7 +319,7 @@ export const AddEditPartyPage: React.FC = () => {
           </div>
 
           {/* 2. Business Details */}
-          <div className="glass-card p-5 md:p-6 rounded-3xl space-y-4">
+          <div className="neu-raised p-5 md:p-6 rounded-3xl space-y-4 border border-white/60 dark:border-white/5">
             <h2 className="text-lg font-black text-slate-900 dark:text-slate-100 tracking-tight flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400"></span>
               Business Details
@@ -376,7 +376,7 @@ export const AddEditPartyPage: React.FC = () => {
           </div>
 
           {/* 3. Banking Details */}
-          <div className="glass-card p-5 md:p-6 rounded-3xl space-y-4">
+          <div className="neu-raised p-5 md:p-6 rounded-3xl space-y-4 border border-white/60 dark:border-white/5">
             <h2 className="text-lg font-black text-slate-900 dark:text-slate-100 tracking-tight flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400"></span>
               Banking Details
@@ -446,7 +446,7 @@ export const AddEditPartyPage: React.FC = () => {
           <button
             type="submit"
             disabled={!name.trim() || mobileNumber.trim().length !== 10 || !city.trim() || !state.trim() || isSubmitting}
-            className="btn-glass-primary w-full py-4 px-4 font-extrabold text-sm uppercase tracking-wider rounded-2xl mt-6 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none hover:disabled:shadow-none transition-all"
+            className="neu-button-primary w-full py-4 px-4 font-extrabold text-sm uppercase tracking-wider rounded-2xl mt-6 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none hover:disabled:shadow-none transition-all"
           >
             {isSubmitting ? (
               <>

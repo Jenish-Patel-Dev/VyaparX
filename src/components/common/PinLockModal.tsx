@@ -40,9 +40,9 @@ export const PinLockModal: React.FC = () => {
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-2xl"
       style={{ backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
     >
-      <div className="w-full max-w-sm bg-white/95 dark:bg-[#111827]/95 backdrop-blur-3xl rounded-3xl p-8 shadow-glass-hover flex flex-col items-center text-center animate-in zoom-in-95 border border-[#DCE6F2] dark:border-white/15">
+      <div className="w-full max-w-sm bg-[#E8EDF3] dark:bg-[#262B36] rounded-3xl p-8 shadow-neu-raised-lg flex flex-col items-center text-center animate-in zoom-in-95 border border-white/60 dark:border-white/5">
         <div 
-          className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 shadow-md border border-blue-200/60 dark:border-blue-500/20 bg-[#EFF6FF] dark:bg-blue-900/30 text-blue-600 dark:text-blue-400"
+          className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 shadow-neu-raised-sm border border-white/60 dark:border-white/5 text-blue-600 dark:text-blue-400"
         >
           <Lock className="w-8 h-8 stroke-[2.2]" />
         </div>
@@ -63,12 +63,12 @@ export const PinLockModal: React.FC = () => {
                 setPin(e.target.value);
                 setErrorMessage('');
               }}
-              placeholder="Enter 4 or 6 digit PIN"
+              placeholder="Enter PIN"
               autoFocus
-              className={`w-full py-3 px-4 text-center tracking-[0.5em] text-2xl font-bold bg-gray-50 dark:bg-gray-900 border-2 rounded-2xl focus:outline-none transition-all ${
+              className={`w-full py-3 px-4 text-center tracking-[0.5em] text-2xl font-bold neu-input transition-all ${
                 errorMessage
-                  ? 'border-red-500 bg-red-50 dark:bg-red-950/30 text-red-900 dark:text-red-300'
-                  : 'border-[#DCE6F2] dark:border-gray-700 focus:border-blue-600 text-gray-900 dark:text-gray-100'
+                  ? '!border-red-500 !ring-2 !ring-red-200/50 bg-red-50/20'
+                  : ''
               }`}
             />
             <FieldError error={errorMessage} className="justify-center mt-2 text-xs" />
@@ -76,7 +76,7 @@ export const PinLockModal: React.FC = () => {
 
           <button
             type="submit"
-            className="btn-glass-primary w-full py-3.5 px-4 font-bold rounded-2xl flex items-center justify-center gap-2"
+            className="neu-button-primary w-full py-3.5 px-4 font-bold rounded-2xl flex items-center justify-center gap-2 cursor-pointer"
           >
             <Unlock className="w-5 h-5" />
             <span>Unlock Application</span>

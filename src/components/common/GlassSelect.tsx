@@ -100,7 +100,7 @@ export const GlassSelect: React.FC<GlassSelectProps> = ({
           error
             ? '!border-red-500 !ring-2 !ring-red-200/50 !bg-red-50/20'
             : isOpen
-              ? '!border-blue-600 !ring-2 !ring-blue-100 dark:!ring-blue-900/40 bg-white/95 dark:bg-[#111827]/90'
+              ? '!border-blue-600 dark:!border-blue-400 !ring-2 !ring-blue-100 dark:!ring-blue-900/40'
               : 'hover:border-blue-500'
         } ${triggerClassName}`}
       >
@@ -133,12 +133,11 @@ export const GlassSelect: React.FC<GlassSelectProps> = ({
       {/* Dropdown Menu Popup */}
       {isOpen && (
         <div
-          className="absolute left-0 right-0 mt-2 bg-white/95 dark:bg-[#111827]/95 backdrop-blur-2xl rounded-2xl shadow-glass-hover border border-[#DCE6F2] dark:border-white/15 p-2 z-50 animate-in fade-in zoom-in-95 duration-150 space-y-1"
-          style={{ backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}
+          className="absolute left-0 right-0 mt-2 bg-[#E8EDF3] dark:bg-[#262B36] rounded-2xl shadow-neu-raised-lg border border-white/60 dark:border-white/5 p-2 z-50 animate-in fade-in zoom-in-95 duration-150 space-y-1"
         >
           {/* Quick Search for large lists (e.g. 36 states) */}
           {isSearchEnabled && (
-            <div className="p-1 border-b border-[#DCE6F2]/70 dark:border-gray-800 mb-1">
+            <div className="p-1 border-b border-black/[0.06] dark:border-white/10 mb-1">
               <div className="relative group">
                 <input
                   ref={searchInputRef}
@@ -146,7 +145,7 @@ export const GlassSelect: React.FC<GlassSelectProps> = ({
                   placeholder="Search..."
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
-                  className="w-full !pl-8 !pr-3 py-1.5 text-xs bg-gray-50 dark:bg-gray-800/80 border border-[#DCE6F2] dark:border-gray-700 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:border-blue-600"
+                  className="w-full !pl-8 !pr-3 py-1.5 text-xs neu-input text-gray-900 dark:text-white placeholder-gray-400"
                 />
                 <Search className="w-3.5 h-3.5 text-slate-400 dark:text-slate-400 group-focus-within:text-blue-600 dark:group-focus-within:text-blue-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none stroke-[2.2] transition-colors" />
               </div>
@@ -165,8 +164,8 @@ export const GlassSelect: React.FC<GlassSelectProps> = ({
                     onClick={() => handleSelect(opt.value)}
                     className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all text-left cursor-pointer ${
                       isSelected
-                        ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 shadow-2xs'
-                        : 'hover:bg-blue-50/50 dark:hover:bg-gray-800/60 text-gray-700 dark:text-gray-300'
+                        ? 'shadow-neu-inset-sm text-blue-600 dark:text-blue-400 font-black'
+                        : 'hover:shadow-neu-inset-sm text-gray-700 dark:text-gray-300'
                     }`}
                   >
                     <div className="flex items-center gap-2.5 min-w-0 flex-1 pr-2">
