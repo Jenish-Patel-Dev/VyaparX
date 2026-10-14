@@ -9,6 +9,7 @@ import { PwaProvider } from './context/PwaContext';
 import { AppShell } from './components/layout/AppShell';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { InstallAppModal } from './components/common/InstallAppModal';
+import { UpdateAppModal } from './components/common/UpdateAppModal';
 
 // Auth Pages
 import { EmailLoginPage } from './pages/auth/EmailLoginPage';
@@ -44,6 +45,7 @@ export function App() {
               <AppProvider>
                 <ToastProvider>
                   <InstallAppModal />
+                  <UpdateAppModal />
                   <Routes>
                   {/* Public Auth Routes */}
                   <Route element={<AppShell />}>

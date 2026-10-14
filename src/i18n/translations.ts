@@ -49,6 +49,12 @@ export const translations: Record<Language, Record<string, string>> = {
     'pwa.readyToInstallDesc': 'Click below to install immediately onto your device',
     'pwa.installNow': 'Install Now',
     'pwa.howToInstallTitle': 'Choose your device for instructions',
+    'pwa.updateAvailableTitle': 'New Update Available!',
+    'pwa.updateAvailableDesc': 'A new version of VyaparX is ready. Click below to update now and get the latest features instantly without reinstalling.',
+    'pwa.updateNow': 'Update Now',
+    'pwa.updating': 'Updating Application...',
+    'pwa.remindLater': 'Remind Later',
+    'pwa.updateBadge': 'Update Ready',
 
     // Header & Common
     'common.search': 'Search...',
@@ -163,6 +169,12 @@ export const translations: Record<Language, Record<string, string>> = {
     'pwa.readyToInstallDesc': 'अपने डिवाइस पर तुरंत इंस्टॉल करने के लिए नीचे क्लिक करें',
     'pwa.installNow': 'अभी इंस्टॉल करें',
     'pwa.howToInstallTitle': 'निर्देशों के लिए अपना डिवाइस चुनें',
+    'pwa.updateAvailableTitle': 'नया अपडेट उपलब्ध है!',
+    'pwa.updateAvailableDesc': 'VyaparX का नया वर्शन तैयार है। बिना ऐप अनइंस्टॉल किए नए फीचर्स तुरंत पाने के लिए नीचे क्लिक करके अपडेट करें।',
+    'pwa.updateNow': 'अभी अपडेट करें',
+    'pwa.updating': 'एप्लिकेशन अपडेट हो रही है...',
+    'pwa.remindLater': 'बाद में याद दिलाएं',
+    'pwa.updateBadge': 'नया अपडेट',
 
     // Header & Common
     'common.search': 'खोजें...',
@@ -277,6 +289,12 @@ export const translations: Record<Language, Record<string, string>> = {
     'pwa.readyToInstallDesc': 'તમારા ઉપકરણ પર તરત જ ઇન્સ્ટોલ કરવા માટે નીચે ક્લિક કરો',
     'pwa.installNow': 'હમણાં ઇન્સ્ટોલ કરો',
     'pwa.howToInstallTitle': 'સૂચનાઓ માટે તમારું ડિવાઇસ પસંદ કરો',
+    'pwa.updateAvailableTitle': 'નવું અપડેટ ઉપલબ્ધ છે!',
+    'pwa.updateAvailableDesc': 'VyaparX નું નવું વર્ઝન તૈયાર છે. એપ ડિલીટ કર્યા વગર નવા ફિચર્સ તરત જ મેળવવા માટે નીચે ક્લિક કરીને અપડેટ કરો.',
+    'pwa.updateNow': 'અત્યારે જ અપડેટ કરો',
+    'pwa.updating': 'એપ્લિકેશન અપડેટ થઈ રહી છે...',
+    'pwa.remindLater': 'પછીથી યાદ અપાવો',
+    'pwa.updateBadge': 'નવું અપડેટ',
 
     // Header & Common
     'common.search': 'શોધો...',

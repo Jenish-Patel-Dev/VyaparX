@@ -13,6 +13,7 @@ import {
   ChevronDown,
   Sun,
   Moon,
+  Sparkles,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -34,7 +35,7 @@ export const TopHeader: React.FC = () => {
   } = useApp();
   const { palette, isDarkMode, setDarkMode } = useTheme();
   const { language, setLanguage, languages, currentLanguageConfig, t } = useLanguage();
-  const { isInstalled, promptInstall } = usePwa();
+  const { isInstalled, promptInstall, isUpdateAvailable, setIsUpdateModalOpen } = usePwa();
   const navigate = useNavigate();
 
   const [showLangPicker, setShowLangPicker] = useState(false);
@@ -155,6 +156,19 @@ export const TopHeader: React.FC = () => {
           >
             {isDarkMode ? <Sun className="w-3.5 h-3.5 stroke-[2.5]" /> : <Moon className="w-3.5 h-3.5 stroke-[2.5]" />}
           </button>
+
+          {/* Mobile Update Available Button */}
+          {isUpdateAvailable && (
+            <button
+              type="button"
+              onClick={() => setIsUpdateModalOpen(true)}
+              className="p-2 rounded-full border border-amber-400/80 dark:border-amber-400/40 bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-neu-raised-sm hover:shadow-neu-raised active:shadow-neu-pressed flex items-center justify-center transition-all cursor-pointer animate-pulse"
+              title={t('pwa.updateAvailableTitle', 'New Update Available!')}
+              aria-label="New Update Available"
+            >
+              <Sparkles className="w-3.5 h-3.5 fill-amber-200 text-amber-200 animate-spin" />
+            </button>
+          )}
 
           {/* Mobile Download Web App Button */}
           <button
@@ -385,6 +399,19 @@ export const TopHeader: React.FC = () => {
               </>
             )}
           </button>
+
+          {/* Update Available Pill */}
+          {isUpdateAvailable && (
+            <button
+              type="button"
+              onClick={() => setIsUpdateModalOpen(true)}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-amber-400/80 dark:border-amber-400/40 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white shadow-neu-raised-sm hover:shadow-neu-raised active:shadow-neu-pressed transition-all text-xs font-black animate-pulse cursor-pointer shrink-0"
+              title={t('pwa.updateAvailableTitle', 'New Update Available!')}
+            >
+              <Sparkles className="w-3.5 h-3.5 fill-amber-200 text-amber-200 animate-spin" />
+              <span>{t('pwa.updateBadge', 'Update Ready')}</span>
+            </button>
+          )}
 
           {/* Download Web App Pill */}
           <button
