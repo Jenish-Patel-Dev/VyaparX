@@ -46,16 +46,16 @@ export const InstallAppModal: React.FC = () => {
       style={{ backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
     >
       <div
-        className="glass-card border border-[#DCE6F2] dark:border-white/15 rounded-3xl max-w-lg w-full overflow-hidden shadow-glass-hover animate-in zoom-in-95 duration-200"
+        className="bg-[#E8EDF3] dark:bg-[#262B36] border border-white/60 dark:border-white/10 rounded-3xl max-w-lg w-full overflow-hidden shadow-neu-raised-lg animate-in zoom-in-95 duration-200"
         role="dialog"
         aria-modal="true"
       >
         {/* Header */}
-        <div className="relative p-5 border-b border-[#DCE6F2] dark:border-white/10 bg-gradient-to-r from-blue-50/50 dark:from-white/5 to-transparent">
+        <div className="relative p-5 border-b border-black/[0.06] dark:border-white/10">
           <button
             type="button"
             onClick={() => setIsInstallModalOpen(false)}
-            className="absolute top-4 right-4 p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-xl hover:bg-white/50 dark:hover:bg-gray-800 transition-colors"
+            className="absolute top-4 right-4 p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-xl hover:shadow-neu-inset-sm transition-all cursor-pointer"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
@@ -82,7 +82,7 @@ export const InstallAppModal: React.FC = () => {
         <div className="p-5 space-y-5">
           {/* Status banner if already installed */}
           {isInstalled ? (
-            <div className="flex items-center gap-3 p-3.5 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 rounded-xl text-emerald-800 dark:text-emerald-300 text-xs">
+            <div className="flex items-center gap-3 p-3.5 neu-inset-sm rounded-xl text-emerald-800 dark:text-emerald-300 text-xs border border-emerald-500/20">
               <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-600 dark:text-emerald-400" />
               <div>
                 <p className="font-bold">{t('pwa.alreadyInstalledTitle', 'VyaparX is already installed!')}</p>
@@ -95,7 +95,7 @@ export const InstallAppModal: React.FC = () => {
 
           {/* Direct Install Button (if browser triggered beforeinstallprompt) */}
           {canPromptDirectly && !isInstalled && (
-            <div className="p-4 rounded-xl bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800/50 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="p-4 rounded-2xl neu-inset-sm border border-blue-400/20 flex flex-col sm:flex-row items-center justify-between gap-3">
               <div>
                 <p className="text-xs font-bold text-blue-900 dark:text-blue-200">
                   {t('pwa.readyToInstall', 'Quick 1-Click Install Available')}
@@ -107,7 +107,7 @@ export const InstallAppModal: React.FC = () => {
               <button
                 type="button"
                 onClick={promptInstall}
-                className="btn-glass-primary w-full sm:w-auto px-4 py-2 text-white font-bold text-xs rounded-xl shadow-glass flex items-center justify-center gap-2 transition-all shrink-0 active:scale-95 cursor-pointer"
+                className="neu-button-primary w-full sm:w-auto px-4 py-2 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-all shrink-0 cursor-pointer"
               >
                 <Download className="w-4 h-4 stroke-[2.5]" />
                 <span>{t('pwa.installNow', 'Install Now')}</span>
@@ -120,13 +120,13 @@ export const InstallAppModal: React.FC = () => {
             <div className="text-xs font-bold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">
               {t('pwa.howToInstallTitle', 'Choose your device for instructions')}:
             </div>
-            <div className="grid grid-cols-3 gap-2 bg-gray-100 dark:bg-gray-800 p-1 rounded-xl">
+            <div className="grid grid-cols-3 gap-2 neu-inset-sm p-1 rounded-xl">
               <button
                 type="button"
                 onClick={() => setSelectedPlatform('desktop')}
-                className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg text-xs font-bold transition-all ${
+                className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   selectedPlatform === 'desktop'
-                    ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-xs'
+                    ? 'shadow-neu-raised-sm bg-[#E8EDF3] dark:bg-[#262B36] text-blue-600 dark:text-blue-400'
                     : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
                 }`}
               >
@@ -137,9 +137,9 @@ export const InstallAppModal: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setSelectedPlatform('android')}
-                className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg text-xs font-bold transition-all ${
+                className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   selectedPlatform === 'android'
-                    ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-xs'
+                    ? 'shadow-neu-raised-sm bg-[#E8EDF3] dark:bg-[#262B36] text-blue-600 dark:text-blue-400'
                     : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
                 }`}
               >
@@ -150,9 +150,9 @@ export const InstallAppModal: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setSelectedPlatform('ios')}
-                className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg text-xs font-bold transition-all ${
+                className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   selectedPlatform === 'ios'
-                    ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-xs'
+                    ? 'shadow-neu-raised-sm bg-[#E8EDF3] dark:bg-[#262B36] text-blue-600 dark:text-blue-400'
                     : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
                 }`}
               >
@@ -163,7 +163,7 @@ export const InstallAppModal: React.FC = () => {
           </div>
 
           {/* Platform Specific Instruction Cards */}
-          <div className="bg-gray-50 dark:bg-gray-800/60 rounded-xl p-4 border border-gray-100 dark:border-gray-800 space-y-3">
+          <div className="neu-inset-sm rounded-2xl p-4 border border-black/[0.04] dark:border-white/5 space-y-3">
             {selectedPlatform === 'desktop' && (
               <div className="space-y-2.5 text-xs text-gray-700 dark:text-gray-300">
                 <div className="flex items-start gap-2.5">
@@ -285,17 +285,17 @@ export const InstallAppModal: React.FC = () => {
 
           {/* App Advantages */}
           <div className="grid grid-cols-3 gap-2 text-center pt-1">
-            <div className="p-2 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-gray-100 dark:border-gray-800">
+            <div className="p-2 neu-inset-sm rounded-xl">
               <Sparkles className="w-4 h-4 mx-auto mb-1 text-amber-500" />
               <div className="text-[11px] font-bold text-gray-900 dark:text-white">Fast Access</div>
               <div className="text-[9px] text-gray-400">Desktop / Mobile</div>
             </div>
-            <div className="p-2 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-gray-100 dark:border-gray-800">
+            <div className="p-2 neu-inset-sm rounded-xl">
               <ShieldCheck className="w-4 h-4 mx-auto mb-1 text-emerald-500" />
               <div className="text-[11px] font-bold text-gray-900 dark:text-white">Offline Ready</div>
               <div className="text-[9px] text-gray-400">Dexie local DB</div>
             </div>
-            <div className="p-2 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-gray-100 dark:border-gray-800">
+            <div className="p-2 neu-inset-sm rounded-xl">
               <Laptop className="w-4 h-4 mx-auto mb-1 text-blue-500" />
               <div className="text-[11px] font-bold text-gray-900 dark:text-white">Full Screen</div>
               <div className="text-[9px] text-gray-400">No browser bars</div>
@@ -304,11 +304,11 @@ export const InstallAppModal: React.FC = () => {
         </div>
 
         {/* Footer */}
-        <div className="p-4 bg-gray-50/60 dark:bg-gray-850 border-t border-[#DCE6F2] dark:border-gray-800 flex items-center justify-end">
+        <div className="p-4 border-t border-black/[0.06] dark:border-white/10 flex items-center justify-end">
           <button
             type="button"
             onClick={() => setIsInstallModalOpen(false)}
-            className="btn-glass-secondary px-5 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer"
+            className="neu-button-secondary px-5 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer"
           >
             {t('common.cancel', 'Close')}
           </button>

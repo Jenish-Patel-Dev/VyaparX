@@ -14,6 +14,20 @@ export interface SendOtpResponse {
   message?: string;
 }
 
+function handleNonJsonResponse(res: Response, text: string): never {
+  if (text.includes('NOT_FOUND') || text.includes('could not be found') || res.status === 404) {
+    throw new Error(
+      'Backend API endpoint not found (404). Please ensure vercel.json and api/ directory are committed to GitHub and deployed.'
+    );
+  }
+  if (text.includes('<!DOCTYPE html>') || text.includes('<html')) {
+    throw new Error(
+      'API server returned an HTML page. Please verify your Vercel or Netlify serverless deployment and environment variables.'
+    );
+  }
+  throw new Error(`Server returned unexpected response: ${text.slice(0, 100)}`);
+}
+
 export const authService = {
   getToken(): string | null {
     return sessionStorage.getItem('sauda_auth_token');
@@ -37,12 +51,7 @@ export const authService = {
     const contentType = res.headers.get('content-type') || '';
     if (!contentType.includes('application/json')) {
       const text = await res.text();
-      if (text.includes('<!DOCTYPE html>') || text.includes('<html')) {
-        throw new Error(
-          'API server is not reachable on Netlify. Please ensure your Netlify environment variables (EMAIL_USER and EMAIL_PASSWORD) are set in Site configuration.'
-        );
-      }
-      throw new Error(`Server returned unexpected response: ${text.slice(0, 100)}`);
+      handleNonJsonResponse(res, text);
     }
 
     const data = await res.json();
@@ -73,10 +82,7 @@ export const authService = {
     const contentType = res.headers.get('content-type') || '';
     if (!contentType.includes('application/json')) {
       const text = await res.text();
-      if (text.includes('<!DOCTYPE html>') || text.includes('<html')) {
-        throw new Error('API server is not reachable on Netlify. Please check Netlify Functions configuration.');
-      }
-      throw new Error(`Server returned unexpected response: ${text.slice(0, 100)}`);
+      handleNonJsonResponse(res, text);
     }
 
     const data = await res.json();
@@ -101,12 +107,7 @@ export const authService = {
     const contentType = res.headers.get('content-type') || '';
     if (!contentType.includes('application/json')) {
       const text = await res.text();
-      if (text.includes('<!DOCTYPE html>') || text.includes('<html')) {
-        throw new Error(
-          'API server is not reachable on Netlify. Please ensure your Netlify environment variables are set.'
-        );
-      }
-      throw new Error(`Server returned unexpected response: ${text.slice(0, 100)}`);
+      handleNonJsonResponse(res, text);
     }
 
     const data = await res.json();

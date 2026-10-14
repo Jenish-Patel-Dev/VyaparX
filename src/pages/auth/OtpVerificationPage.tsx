@@ -168,11 +168,11 @@ export const OtpVerificationPage: React.FC = () => {
 
   return (
     <div 
-      className="h-screen h-[100dvh] max-h-screen flex flex-col items-center justify-between p-3 sm:p-4 md:p-6 text-white transition-colors relative overflow-hidden select-none bg-gradient-to-br from-[#1E40AF] via-[#1D4ED8] to-[#2563EB] dark:from-[#0B1220] dark:via-[#111827] dark:to-[#172033]"
+      className="min-h-screen min-h-[100dvh] flex flex-col items-center justify-between p-3 sm:p-4 md:p-6 text-gray-900 dark:text-gray-100 transition-colors relative overflow-hidden select-none bg-[#E8EDF3] dark:bg-[#20242D]"
     >
-      {/* Ambient background refraction blobs */}
-      <div className="absolute -top-28 -left-28 w-80 h-80 rounded-full bg-[#00ADEF]/25 blur-3xl pointer-events-none animate-pulse" />
-      <div className="absolute -bottom-32 -right-28 w-96 h-96 rounded-full bg-[#272264]/40 blur-3xl pointer-events-none" />
+      {/* Ambient background lighting */}
+      <div className="absolute -top-28 -left-28 w-80 h-80 rounded-full bg-blue-500/5 dark:bg-blue-400/5 blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-32 -right-28 w-96 h-96 rounded-full bg-indigo-500/5 dark:bg-indigo-400/5 blur-3xl pointer-events-none" />
 
       {/* Top Header / Action Buttons */}
       <div className="w-full flex items-center justify-end gap-2 relative z-10 shrink-0">
@@ -180,18 +180,18 @@ export const OtpVerificationPage: React.FC = () => {
         <button
           type="button"
           onClick={() => setDarkMode(!isDarkMode)}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 backdrop-blur-md border border-white/30 text-white text-xs font-bold shadow-glass transition-all cursor-pointer"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full neu-raised-sm bg-[#E8EDF3] dark:bg-[#262B36] text-gray-700 dark:text-gray-200 text-xs font-bold transition-all active:scale-95 cursor-pointer border border-white/60 dark:border-white/5"
           title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
           aria-label="Toggle Theme"
         >
           {isDarkMode ? (
             <>
-              <Sun className="w-3.5 h-3.5 text-amber-300 stroke-[2.5]" />
+              <Sun className="w-3.5 h-3.5 text-amber-500 stroke-[2.5]" />
               <span>Light</span>
             </>
           ) : (
             <>
-              <Moon className="w-3.5 h-3.5 text-white stroke-[2.5]" />
+              <Moon className="w-3.5 h-3.5 text-slate-700 stroke-[2.5]" />
               <span>Dark</span>
             </>
           )}
@@ -200,7 +200,7 @@ export const OtpVerificationPage: React.FC = () => {
         <button
           type="button"
           onClick={promptInstall}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 backdrop-blur-md border border-white/30 text-white text-xs font-bold shadow-glass transition-all cursor-pointer"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full neu-raised-sm bg-[#E8EDF3] dark:bg-[#262B36] text-gray-700 dark:text-gray-200 text-xs font-bold transition-all active:scale-95 cursor-pointer border border-white/60 dark:border-white/5"
           title={isInstalled ? t('nav.appInstalled', 'App Installed') : t('nav.downloadApp', 'Download App')}
         >
           <Download className="w-3.5 h-3.5 stroke-[2.5]" />
@@ -209,36 +209,38 @@ export const OtpVerificationPage: React.FC = () => {
       </div>
 
       {/* Main Card */}
-      <div className="w-full max-w-sm flex flex-col items-center text-center p-5 sm:p-6 rounded-3xl bg-white/10 backdrop-blur-2xl border border-white/30 shadow-glass-hover space-y-3.5 sm:space-y-4 relative z-10 my-auto shrink-0">
+      <div className="w-full max-w-sm flex flex-col items-center text-center p-6 sm:p-8 rounded-3xl neu-raised bg-[#E8EDF3] dark:bg-[#262B36] border border-white/60 dark:border-white/5 space-y-4 relative z-10 my-auto shrink-0">
         {/* App Logo Emblem with Shield badge */}
         <div className="relative shrink-0">
-          <img
-            src="/logo.png"
-            alt="VyaparX Logo"
-            className="w-16 h-16 sm:w-20 sm:h-20 object-contain drop-shadow-lg"
-          />
-          <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center border-2 border-white shadow-md">
+          <div className="w-20 h-20 rounded-2xl neu-raised-sm bg-[#E8EDF3] dark:bg-[#262B36] flex items-center justify-center p-3 border border-white/60 dark:border-white/5">
+            <img
+              src="/logo.png"
+              alt="VyaparX Logo"
+              className="w-full h-full object-contain"
+            />
+          </div>
+          <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center border-2 border-[#E8EDF3] dark:border-[#262B36] shadow-md">
             <ShieldCheck className="w-4 h-4 stroke-[2.5]" />
           </div>
         </div>
 
         {/* Title & Masked Email */}
         <div className="space-y-1 w-full">
-          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white drop-shadow-sm">
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-gray-900 dark:text-white">
             Verify OTP
           </h1>
-          <p className="text-xs font-semibold text-white/90">
+          <p className="text-xs font-semibold text-gray-700 dark:text-gray-300">
             Enter Verification Code
           </p>
-          <p className="text-[11px] text-white/80 pt-0.5">
+          <p className="text-[11px] text-gray-500 dark:text-gray-400 pt-0.5">
             We sent a 4-digit code to
           </p>
-          <div className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-sm px-3 py-0.5 rounded-full text-xs font-bold text-white tracking-wide border border-white/30 shadow-2xs max-w-full">
+          <div className="inline-flex items-center gap-1.5 neu-inset-sm bg-black/5 dark:bg-white/5 px-3 py-1 rounded-full text-xs font-bold text-gray-800 dark:text-gray-200 tracking-wide border border-black/5 dark:border-white/5 max-w-full">
             <span className="truncate">{maskEmail(email)}</span>
             <button
               type="button"
               onClick={() => navigate('/login')}
-              className="p-0.5 hover:text-black transition-colors shrink-0"
+              className="p-0.5 text-blue-600 dark:text-blue-400 hover:text-blue-700 transition-colors shrink-0"
               title="Change email address"
             >
               <Edit3 className="w-3 h-3" />
@@ -263,10 +265,10 @@ export const OtpVerificationPage: React.FC = () => {
                 onKeyDown={e => handleKeyDown(index, e)}
                 onPaste={handlePaste}
                 onFocus={e => e.target.select()}
-                className={`w-11 h-12 sm:w-12 sm:h-14 text-center text-xl sm:text-2xl font-black rounded-xl sm:rounded-2xl text-white focus:bg-white focus:text-[#111827] focus:border-white focus:outline-none shadow-glass transition-all shrink-0 select-all ${
+                className={`w-11 h-12 sm:w-12 sm:h-14 text-center text-xl sm:text-2xl font-black rounded-xl sm:rounded-2xl text-gray-900 dark:text-white neu-inset bg-[#E8EDF3] dark:bg-[#20242D] focus:outline-none focus:ring-2 focus:ring-blue-500/40 transition-all shrink-0 select-all ${
                   errorMessage
-                    ? 'border-2 border-rose-400 bg-rose-500/20 ring-2 ring-rose-400/40'
-                    : 'border-2 border-white/40 bg-white/15'
+                    ? 'border-2 border-red-500/60 bg-red-500/10'
+                    : 'border border-black/5 dark:border-white/5'
                 }`}
               />
             ))}
@@ -274,7 +276,7 @@ export const OtpVerificationPage: React.FC = () => {
 
           {/* Error Message */}
           {errorMessage && (
-            <div className="p-2.5 bg-rose-600/90 backdrop-blur-sm text-white rounded-xl text-xs font-bold tracking-wide shadow-glass border border-white/20 animate-in fade-in">
+            <div className="p-2.5 neu-inset-sm bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 rounded-xl text-xs font-bold tracking-wide animate-in fade-in">
               {errorMessage}
             </div>
           )}
@@ -283,7 +285,7 @@ export const OtpVerificationPage: React.FC = () => {
           <button
             type="submit"
             disabled={digits.join('').length !== 4 || isVerifying}
-            className="btn-glass-primary w-full py-2.5 sm:py-3 px-5 font-bold text-xs sm:text-sm rounded-xl sm:rounded-2xl flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none hover:disabled:shadow-none transition-all"
+            className="neu-button-primary w-full py-2.5 sm:py-3 px-5 font-bold text-xs sm:text-sm rounded-xl sm:rounded-2xl flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed transition-all"
           >
             {isVerifying ? (
               <div className="flex items-center gap-2">
@@ -299,17 +301,17 @@ export const OtpVerificationPage: React.FC = () => {
           </button>
 
           {/* Resend OTP & Countdown */}
-          <div className="pt-0.5 flex flex-col items-center gap-1.5">
+          <div className="pt-1 flex flex-col items-center gap-2">
             {countdown > 0 ? (
-              <div className="text-xs font-semibold text-white/80">
-                Resend OTP in <span className="font-mono font-bold text-white">00:{countdown.toString().padStart(2, '0')}</span>
+              <div className="text-xs font-semibold text-gray-500 dark:text-gray-400">
+                Resend OTP in <span className="font-mono font-bold text-gray-800 dark:text-gray-200">00:{countdown.toString().padStart(2, '0')}</span>
               </div>
             ) : (
               <button
                 type="button"
                 onClick={handleResend}
                 disabled={isResending}
-                className="text-xs font-bold text-white hover:text-black transition-colors flex items-center gap-1.5 underline underline-offset-4"
+                className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline transition-colors flex items-center gap-1.5 cursor-pointer"
               >
                 <RotateCw className={`w-3.5 h-3.5 ${isResending ? 'animate-spin' : ''}`} />
                 <span>{isResending ? 'Resending code...' : 'Resend OTP'}</span>
@@ -319,16 +321,16 @@ export const OtpVerificationPage: React.FC = () => {
             <button
               type="button"
               onClick={() => navigate('/login')}
-              className="text-xs font-medium text-white/75 hover:text-white transition-colors"
+              className="text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
             >
-              Entered wrong email? <span className="underline font-bold">Change Email</span>
+              Entered wrong email? <span className="underline font-bold text-blue-600 dark:text-blue-400">Change Email</span>
             </button>
           </div>
         </form>
       </div>
 
       {/* Footer */}
-      <div className="text-[10px] sm:text-[11px] text-white/75 font-medium tracking-wide uppercase relative z-10 shrink-0 py-1">
+      <div className="text-[10px] sm:text-[11px] text-gray-400 dark:text-gray-500 font-bold tracking-wider uppercase relative z-10 shrink-0 py-1">
         Commodity Brokerage Management System
       </div>
     </div>

@@ -62,7 +62,7 @@ export const QuickValuesPage: React.FC = () => {
 
       <div className="p-4 md:p-6 max-w-xl mx-auto space-y-5">
         {/* Category Tabs */}
-        <div className="flex overflow-x-auto gap-2 pb-2 scrollbar-none p-1 glass-panel rounded-2xl">
+        <div className="flex overflow-x-auto gap-2 pb-1 scrollbar-none p-1.5 neu-inset-sm rounded-2xl border border-black/[0.04] dark:border-white/5">
           {tabs.map(tab => (
             <button
               key={tab.key}
@@ -73,8 +73,8 @@ export const QuickValuesPage: React.FC = () => {
               }}
               className={`py-2 px-3.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                 activeTab === tab.key
-                  ? 'btn-glass-primary text-white shadow-glass'
-                  : 'bg-white/40 dark:bg-white/5 border border-[#DCE6F2] dark:border-white/10 text-gray-700 dark:text-gray-300 hover:bg-white/60 dark:hover:bg-white/10'
+                  ? 'neu-button-primary text-white'
+                  : 'neu-button-secondary text-slate-700 dark:text-slate-300'
               }`}
             >
               {tab.label}
@@ -100,7 +100,7 @@ export const QuickValuesPage: React.FC = () => {
             <button
               type="submit"
               disabled={!newValue.trim()}
-              className="btn-glass-primary px-5 py-3 font-bold rounded-2xl text-xs flex items-center gap-1 shrink-0 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none hover:disabled:shadow-none transition-all"
+              className="neu-button-primary px-5 py-3 font-bold rounded-2xl text-xs flex items-center gap-1 shrink-0 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none hover:disabled:shadow-none transition-all"
             >
               <Plus className="w-4 h-4" />
               <span>Add</span>
@@ -110,21 +110,21 @@ export const QuickValuesPage: React.FC = () => {
         </div>
 
         {/* List of shortcuts */}
-        <div className="glass-card rounded-3xl divide-y divide-[#DCE6F2]/70 dark:divide-white/10 overflow-hidden shadow-glass-card">
+        <div className="neu-raised rounded-3xl divide-y divide-black/[0.04] dark:divide-white/5 overflow-hidden border border-white/60 dark:border-white/5">
           {items.map(item => (
-            <div key={item.id} className="p-4 flex items-center justify-between hover:bg-white/40 dark:hover:bg-white/5 transition-colors gap-2">
+            <div key={item.id} className="p-4 flex items-center justify-between hover:bg-blue-500/5 transition-colors gap-2">
               <div className="flex items-center gap-2.5 min-w-0 flex-1">
                 <div 
-                  className="w-7 h-7 rounded-lg flex items-center justify-center backdrop-blur-xs shrink-0 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-200/50 dark:border-blue-700/50"
+                  className="w-7 h-7 rounded-lg neu-raised-sm flex items-center justify-center shrink-0 bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20"
                 >
                   <Zap className="w-4 h-4" />
                 </div>
-                <span className="text-xs font-bold text-gray-800 dark:text-gray-200 uppercase truncate">{item.value}</span>
+                <span className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase truncate">{item.value}</span>
               </div>
               <button
                 type="button"
                 onClick={() => handleDelete(item.id!)}
-                className="text-gray-400 hover:text-red-600 dark:hover:text-red-400 p-1.5 rounded-xl hover:bg-red-500/10 transition-colors shrink-0"
+                className="text-slate-400 hover:text-red-500 p-1.5 rounded-xl hover:bg-red-500/10 active:shadow-neu-pressed transition-all shrink-0 cursor-pointer"
                 title="Delete"
               >
                 <Trash2 className="w-4 h-4" />
@@ -133,7 +133,7 @@ export const QuickValuesPage: React.FC = () => {
           ))}
 
           {items.length === 0 && (
-            <div className="p-8 text-center text-xs text-gray-400 dark:text-gray-500">
+            <div className="p-8 text-center text-xs text-slate-400 dark:text-slate-500">
               No quick values in this category yet.
             </div>
           )}

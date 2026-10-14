@@ -167,17 +167,16 @@ export const GoogleAutocompleteInput: React.FC<GoogleAutocompleteInputProps> = (
       {/* Google-like Matching Suggestions List Dropdown */}
       {isOpen && (
         <div 
-          className="absolute left-0 right-0 top-full mt-1.5 bg-white/95 dark:bg-[#111827]/95 backdrop-blur-2xl rounded-2xl shadow-[0_12px_36px_rgba(0,0,0,0.18)] border border-[#DCE6F2] dark:border-white/15 overflow-hidden z-[70] animate-in fade-in zoom-in-95 duration-150 max-h-56 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800/60"
-          style={{ backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
+          className="absolute left-0 right-0 top-full mt-1.5 bg-[#E8EDF3] dark:bg-[#262B36] rounded-2xl shadow-neu-raised-lg border border-white/60 dark:border-white/5 overflow-hidden z-[70] animate-in fade-in zoom-in-95 duration-150 max-h-56 overflow-y-auto divide-y divide-black/[0.05] dark:divide-white/5 p-1.5 space-y-0.5"
         >
           {/* 'All' Option */}
           <button
             type="button"
             onClick={() => handleSelectOption(null)}
-            className={`w-full text-left px-3.5 py-2.5 text-xs font-bold transition-all flex items-center justify-between cursor-pointer ${
+            className={`w-full text-left px-3.5 py-2.5 text-xs font-bold transition-all rounded-xl flex items-center justify-between cursor-pointer ${
               selectedId === null
-                ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300'
-                : 'hover:bg-slate-50 dark:hover:bg-slate-800/80 text-slate-600 dark:text-slate-300'
+                ? 'shadow-neu-inset-sm text-blue-600 dark:text-blue-400 font-black'
+                : 'hover:shadow-neu-raised-sm text-slate-700 dark:text-slate-300'
             }`}
           >
             <span className="uppercase tracking-wider">{allOptionLabel}</span>
@@ -193,10 +192,10 @@ export const GoogleAutocompleteInput: React.FC<GoogleAutocompleteInputProps> = (
                   key={opt.id}
                   type="button"
                   onClick={() => handleSelectOption(opt)}
-                  className={`w-full text-left px-3.5 py-2.5 text-xs transition-all flex items-center justify-between gap-2 cursor-pointer ${
+                  className={`w-full text-left px-3.5 py-2.5 text-xs transition-all rounded-xl flex items-center justify-between gap-2 cursor-pointer ${
                     isSelected
-                      ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 font-extrabold'
-                      : 'hover:bg-slate-50 dark:hover:bg-slate-800/80 text-slate-800 dark:text-slate-200 font-semibold'
+                      ? 'shadow-neu-inset-sm text-blue-600 dark:text-blue-400 font-extrabold'
+                      : 'hover:shadow-neu-raised-sm text-slate-800 dark:text-slate-200 font-semibold'
                   }`}
                 >
                   <div className="min-w-0 flex-1">
@@ -208,7 +207,7 @@ export const GoogleAutocompleteInput: React.FC<GoogleAutocompleteInputProps> = (
                     )}
                   </div>
                   {opt.badge && (
-                    <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-medium shrink-0">
+                    <span className="text-[10px] px-1.5 py-0.5 rounded-md neu-inset-sm text-slate-600 dark:text-slate-400 font-medium shrink-0">
                       {opt.badge}
                     </span>
                   )}

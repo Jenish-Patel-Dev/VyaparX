@@ -71,20 +71,20 @@ export const PinSecurityPage: React.FC = () => {
       <PageHeader title="SECURITY & PIN" />
 
       <div className="p-4 md:p-6 max-w-md mx-auto space-y-5">
-        <div className="glass-card rounded-3xl p-6 space-y-5 shadow-glass-card">
+        <div className="neu-raised rounded-3xl p-6 space-y-5 border border-white/60 dark:border-white/5">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-200/50 dark:border-blue-700/50 flex items-center justify-center shadow-glass backdrop-blur-xs">
+            <div className="w-12 h-12 rounded-2xl neu-raised-sm bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 flex items-center justify-center">
               <Lock className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="font-bold text-gray-900 dark:text-white text-base">App Passcode Lock</h2>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Protect access to your trade records</p>
+              <h2 className="font-bold text-slate-900 dark:text-white text-base">App Passcode Lock</h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Protect access to your trade records</p>
             </div>
           </div>
 
           <form onSubmit={handleSavePin} noValidate className="space-y-4 pt-2">
-            <div className="flex items-center justify-between p-3.5 glass-card-subtle rounded-2xl">
-              <span className="text-xs font-bold text-gray-800 dark:text-gray-200">Enable PIN Lock</span>
+            <div className="flex items-center justify-between p-3.5 neu-inset-sm rounded-2xl border border-black/[0.04] dark:border-white/5">
+              <span className="text-xs font-bold text-slate-800 dark:text-slate-200">Enable PIN Lock</span>
               <input
                 type="checkbox"
                 checked={pinEnabled}
@@ -99,7 +99,7 @@ export const PinSecurityPage: React.FC = () => {
             {pinEnabled && (
               <div className="space-y-3 animate-in fade-in">
                 <div>
-                  <label className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-1.5">
+                  <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-1.5">
                     NEW PIN (4 DIGITS) <span className="text-red-500 font-bold">*</span>
                   </label>
                   <input
@@ -119,7 +119,7 @@ export const PinSecurityPage: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-gray-800 dark:text-gray-200 uppercase tracking-wide mb-1.5">
+                  <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wide mb-1.5">
                     CONFIRM PIN <span className="text-red-500 font-bold">*</span>
                   </label>
                   <input
@@ -143,7 +143,7 @@ export const PinSecurityPage: React.FC = () => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="btn-glass-primary w-full py-3.5 px-4 font-bold rounded-2xl text-sm flex items-center justify-center gap-2"
+              className="neu-button-primary w-full py-3.5 px-4 font-bold rounded-2xl text-sm flex items-center justify-center gap-2 cursor-pointer"
             >
               <Save className={`w-4 h-4 stroke-[2.5] ${isSubmitting ? 'animate-spin' : ''}`} />
               <span>{isSubmitting ? 'Saving...' : 'Save PIN Settings'}</span>
@@ -154,7 +154,7 @@ export const PinSecurityPage: React.FC = () => {
             <button
               type="button"
               onClick={lockApp}
-              className="btn-glass-secondary w-full py-2.5 px-4 font-bold rounded-2xl text-xs flex items-center justify-center gap-2"
+              className="neu-button-secondary w-full py-2.5 px-4 font-bold rounded-2xl text-xs flex items-center justify-center gap-2 cursor-pointer"
             >
               <Lock className="w-4 h-4 stroke-[2.5]" />
               <span>Lock App Now</span>

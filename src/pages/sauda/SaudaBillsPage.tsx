@@ -238,22 +238,22 @@ export const SaudaBillsPage: React.FC = () => {
 
       <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-5">
         {/* Collapsible Template & Color Selector Bar (Collapsed by default on mobile) */}
-        <div className="glass-panel rounded-2xl md:rounded-3xl shadow-glass-card overflow-hidden border border-[#DCE6F2] dark:border-slate-800 transition-all duration-200">
+        <div className="neu-raised rounded-2xl md:rounded-3xl border border-white/60 dark:border-white/5 overflow-hidden transition-all duration-200">
           {/* Collapsible Header Button */}
           <button
             type="button"
             onClick={() => setIsSettingsExpanded(prev => !prev)}
-            className="w-full p-3.5 sm:p-4 flex items-center justify-between gap-3 text-left transition-colors hover:bg-slate-50/60 dark:hover:bg-slate-800/40 cursor-pointer"
+            className="w-full p-3.5 sm:p-4 flex items-center justify-between gap-3 text-left transition-all hover:shadow-neu-inset-sm cursor-pointer"
             aria-expanded={isSettingsExpanded}
           >
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 border border-blue-200/60 dark:border-blue-800/60">
+              <div className="w-8 h-8 rounded-xl neu-inset-sm text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 border border-black/[0.04] dark:border-white/5">
                 <Palette className="w-4 h-4 stroke-[2.3]" />
               </div>
               <div className="min-w-0">
                 <div className="text-xs font-black text-slate-900 dark:text-slate-100 uppercase tracking-wide flex items-center gap-2">
                   <span>PDF Template & Styling</span>
-                  <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-blue-100/90 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300">
+                  <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full neu-inset-sm text-blue-700 dark:text-blue-300">
                     T{activeTemplate}
                   </span>
                   <span
@@ -283,7 +283,7 @@ export const SaudaBillsPage: React.FC = () => {
 
           {/* Expanded Customizer Content */}
           {isSettingsExpanded && (
-            <div className="p-4 sm:p-5 border-t border-[#DCE6F2] dark:border-slate-800/80 space-y-4 bg-slate-50/40 dark:bg-slate-900/20 animate-in fade-in duration-200">
+            <div className="p-4 sm:p-5 border-t border-black/[0.06] dark:border-white/10 space-y-4 animate-in fade-in duration-200">
               {/* PDF Template: Full Width Row (No empty right space) */}
               <div className="space-y-1.5 w-full">
                 <div className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase">
@@ -297,8 +297,8 @@ export const SaudaBillsPage: React.FC = () => {
                       onClick={() => setActiveTemplate(num as 1 | 2)}
                       className={`h-9 w-full rounded-xl font-black text-xs transition-all cursor-pointer flex items-center justify-center gap-1 ${
                         activeTemplate === num
-                          ? 'btn-glass-primary text-white shadow-glass scale-[1.02]'
-                          : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 border border-[#DCE6F2] dark:border-slate-700 shadow-2xs'
+                          ? 'neu-button-primary text-white scale-[1.02]'
+                          : 'neu-raised-sm hover:shadow-neu-inset-sm text-slate-700 dark:text-slate-300 border border-white/60 dark:border-white/5'
                       }`}
                     >
                       Template {num}
@@ -326,8 +326,8 @@ export const SaudaBillsPage: React.FC = () => {
                       onClick={() => setActiveColor(col.label)}
                       className={`h-9 w-full rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer border ${
                         activeColor === col.label
-                          ? 'ring-2 ring-blue-500 bg-blue-50/70 dark:bg-blue-950/50 border-blue-400 font-black shadow-xs scale-[1.02]'
-                          : 'bg-white dark:bg-slate-800 border-[#DCE6F2] dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 shadow-2xs'
+                          ? 'ring-2 ring-blue-500 neu-inset-sm border-blue-400 font-black scale-[1.02]'
+                          : 'neu-raised-sm hover:shadow-neu-inset-sm text-slate-700 dark:text-slate-300 border border-white/60 dark:border-white/5'
                       }`}
                       title={col.name}
                     >
@@ -344,7 +344,7 @@ export const SaudaBillsPage: React.FC = () => {
               </div>
 
               {/* Show Signature in Vyapar Note PDF Toggle */}
-              <label className="flex items-center justify-between p-3 rounded-xl bg-white/80 dark:bg-slate-800/80 border border-[#DCE6F2] dark:border-slate-700 cursor-pointer select-none">
+              <label className="flex items-center justify-between p-3 rounded-xl neu-inset-sm border border-black/[0.04] dark:border-white/5 cursor-pointer select-none">
                 <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
                   Show signature in Vyapar Note PDF
                 </span>
@@ -376,7 +376,7 @@ export const SaudaBillsPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-full hover:shadow-neu-inset-sm transition-all cursor-pointer"
                   title="Clear Search"
                 >
                   <X className="w-4 h-4 stroke-[2.2]" />
@@ -388,10 +388,10 @@ export const SaudaBillsPage: React.FC = () => {
             <button
               type="button"
               onClick={handleOpenFilterModal}
-              className={`relative h-11 px-3 sm:px-4 rounded-xl border flex items-center justify-center gap-1.5 transition-all shrink-0 active:scale-95 cursor-pointer ${
+              className={`relative h-11 px-3 sm:px-4 rounded-xl flex items-center justify-center gap-1.5 transition-all shrink-0 cursor-pointer ${
                 activeFiltersCount > 0
-                  ? 'btn-glass-primary text-white shadow-glass'
-                  : 'bg-white/90 dark:bg-slate-800/90 border-[#DCE6F2] dark:border-slate-700/80 text-blue-600 dark:text-blue-400 hover:bg-white dark:hover:bg-slate-800 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_2px_8px_rgba(37,99,235,0.06)] dark:shadow-none backdrop-blur-xl'
+                  ? 'neu-button-primary text-white'
+                  : 'neu-raised border border-white/60 dark:border-white/5 text-blue-600 dark:text-blue-400 hover:shadow-neu-inset-sm'
               }`}
               title={t('sauda.filterOrders', 'Filter Vyapar Orders')}
               aria-label="Filter orders"
@@ -411,10 +411,10 @@ export const SaudaBillsPage: React.FC = () => {
             <button
               type="button"
               onClick={handleResetAll}
-              className={`h-11 px-3 sm:px-4 rounded-xl border transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-1.5 shrink-0 font-bold text-xs ${
+              className={`h-11 px-3 sm:px-4 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 shrink-0 font-bold text-xs ${
                 hasAnyFilterOrSearch
-                  ? 'bg-blue-50 dark:bg-blue-950/60 border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 shadow-sm'
-                  : 'bg-white/90 dark:bg-[#111827]/90 border-[#DCE6F2] dark:border-slate-700/60 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/80 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_1px_3px_rgba(37,99,235,0.04)] dark:shadow-none'
+                  ? 'neu-inset-sm text-blue-600 dark:text-blue-400 border border-blue-400/30'
+                  : 'neu-raised border border-white/60 dark:border-white/5 text-slate-600 dark:text-slate-300 hover:shadow-neu-inset-sm'
               }`}
               title="Reset Search & Filters"
               aria-label="Reset Search and Filters"
@@ -528,8 +528,8 @@ export const SaudaBillsPage: React.FC = () => {
                   onClick={() => handleSelectOrder(order)}
                   className={`p-3 sm:p-3.5 rounded-2xl cursor-pointer transition-all min-w-0 overflow-hidden ${
                     selectedOrder?.id === order.id
-                      ? 'border-2 border-blue-600 dark:border-blue-400 shadow-glass-hover bg-blue-50/70 dark:bg-blue-950/40 backdrop-blur-md'
-                      : 'glass-card-interactive'
+                      ? 'shadow-neu-inset-sm border-2 border-blue-600 dark:border-blue-400 bg-blue-50/30 dark:bg-blue-950/20'
+                      : 'neu-raised-sm hover:shadow-neu-inset-sm border border-white/60 dark:border-white/5'
                   }`}
                 >
                   <div className="flex justify-between items-center text-xs font-bold gap-2 min-w-0">
@@ -560,7 +560,7 @@ export const SaudaBillsPage: React.FC = () => {
               )}
 
               {orders.length === 0 && (
-                <div className="p-8 text-center glass-card rounded-2xl border border-slate-200/80 dark:border-slate-800">
+                <div className="p-8 text-center neu-raised rounded-2xl border border-white/60 dark:border-white/5">
                   <FileSpreadsheet className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-2" />
                   <div className="font-bold text-slate-700 dark:text-slate-200 text-xs">No Vyapar orders found</div>
                   <p className="text-[11px] text-slate-400 mt-1">
@@ -581,9 +581,9 @@ export const SaudaBillsPage: React.FC = () => {
                   Vyapar Note Preview
                 </div>
               </div>
-              <div className="glass-panel p-3.5 sm:p-4 md:p-6 rounded-3xl shadow-glass-card space-y-4">
+              <div className="neu-raised p-3.5 sm:p-4 md:p-6 rounded-3xl border border-white/60 dark:border-white/5 space-y-4">
                 {/* Preview Top Header & Controls */}
-                <div className="flex flex-wrap items-center justify-between gap-2.5 pb-3 border-b border-[#DCE6F2] dark:border-slate-800">
+                <div className="flex flex-wrap items-center justify-between gap-2.5 pb-3 border-b border-black/[0.06] dark:border-white/10">
                   <div className="flex items-center gap-2 min-w-0">
                     <span 
                       className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-100 uppercase tracking-wide truncate"
@@ -600,7 +600,7 @@ export const SaudaBillsPage: React.FC = () => {
                       type="button"
                       onClick={handleDownloadPdf}
                       disabled={isDownloading}
-                      className="btn-glass-primary flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2 text-xs font-black rounded-xl cursor-pointer shadow-md active:scale-95 transition-all h-10 sm:h-auto disabled:opacity-60 disabled:cursor-not-allowed"
+                      className="neu-button-primary flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2 text-xs font-black rounded-xl cursor-pointer transition-all h-10 sm:h-auto disabled:opacity-60 disabled:cursor-not-allowed"
                       title="Download PDF"
                     >
                       {isDownloading ? (
@@ -615,7 +615,7 @@ export const SaudaBillsPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={handlePrint}
-                      className="flex-1 sm:flex-none px-3 sm:px-3.5 py-2 text-xs font-bold rounded-xl border border-slate-300 dark:border-slate-700 bg-white/80 dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs active:scale-95 transition-all h-10 sm:h-auto"
+                      className="neu-button-secondary flex-1 sm:flex-none px-3 sm:px-3.5 py-2 text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 cursor-pointer transition-all h-10 sm:h-auto"
                       title="Print"
                     >
                       <Printer className="w-3.5 h-3.5" />
@@ -626,7 +626,7 @@ export const SaudaBillsPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setSelectedOrder(null)}
-                      className="h-10 w-10 sm:h-auto sm:w-auto p-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer shrink-0 flex items-center justify-center"
+                      className="h-10 w-10 sm:h-auto sm:w-auto p-2 rounded-xl text-slate-500 hover:text-red-500 hover:shadow-neu-inset-sm transition-colors cursor-pointer shrink-0 flex items-center justify-center"
                       title="Close Preview"
                       aria-label="Close Preview"
                     >
@@ -657,8 +657,8 @@ export const SaudaBillsPage: React.FC = () => {
                   Vyapar Note Preview
                 </div>
               </div>
-              <div className="flex flex-col items-center justify-center p-16 text-center glass-card rounded-3xl border border-dashed border-slate-300 dark:border-slate-700 min-h-[420px]">
-                <div className="w-16 h-16 rounded-2xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-3 shadow-inner">
+              <div className="flex flex-col items-center justify-center p-16 text-center neu-raised rounded-3xl border border-white/60 dark:border-white/5 min-h-[420px]">
+                <div className="w-16 h-16 rounded-2xl neu-inset-sm text-blue-600 dark:text-blue-400 flex items-center justify-center mb-3">
                   <FileSpreadsheet className="w-8 h-8 stroke-[1.8]" />
                 </div>
                 <h4 className="font-extrabold text-slate-800 dark:text-slate-200 text-sm">Select an Order to Preview</h4>
@@ -678,21 +678,23 @@ export const SaudaBillsPage: React.FC = () => {
           onClick={() => setShowFilterModal(false)}
         >
           <div 
-            className="w-full max-w-md bg-white/95 dark:bg-[#111827]/95 backdrop-blur-3xl rounded-3xl shadow-2xl border border-[#DCE6F2] dark:border-white/15 overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-150"
+            className="w-full max-w-md bg-[#E8EDF3] dark:bg-[#262B36] rounded-3xl shadow-neu-raised-lg border border-white/60 dark:border-white/5 overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-150"
             onClick={e => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="px-5 py-4 text-white flex items-center justify-between shadow-glass bg-gradient-to-r from-blue-700 via-blue-600 to-sky-600">
+            <div className="px-5 py-4 border-b border-black/[0.06] dark:border-white/10 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <SlidersHorizontal className="w-5 h-5 stroke-[2.3]" />
-                <h3 className="font-extrabold text-base tracking-wide uppercase">
+                <div className="w-8 h-8 rounded-xl neu-raised-sm flex items-center justify-center text-blue-600 dark:text-blue-400 border border-white/60 dark:border-white/5">
+                  <SlidersHorizontal className="w-4 h-4 stroke-[2.3]" />
+                </div>
+                <h3 className="font-extrabold text-base text-gray-900 dark:text-white tracking-wide uppercase">
                   {t('sauda.filterOrders', 'Filter Vyapar Orders')}
                 </h3>
               </div>
               <button
                 type="button"
                 onClick={() => setShowFilterModal(false)}
-                className="p-1.5 rounded-xl hover:bg-black/20 text-white transition-colors cursor-pointer"
+                className="p-1.5 rounded-xl text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:shadow-neu-inset-sm transition-all cursor-pointer"
                 title="Close"
               >
                 <X className="w-5 h-5" />
@@ -747,11 +749,11 @@ export const SaudaBillsPage: React.FC = () => {
             </div>
 
             {/* Modal Footer Actions */}
-            <div className="p-4 border-t border-[#DCE6F2] dark:border-white/10 flex items-center justify-between gap-3 bg-slate-50/80 dark:bg-slate-900/60">
+            <div className="p-4 border-t border-black/[0.06] dark:border-white/10 flex items-center justify-between gap-3">
               <button
                 type="button"
                 onClick={handleClearModalFilters}
-                className="px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-200/50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer flex items-center gap-1.5"
+                className="neu-button-secondary px-4 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>{t('sauda.clearFilters', 'Clear Filters')}</span>
@@ -760,7 +762,7 @@ export const SaudaBillsPage: React.FC = () => {
               <button
                 type="button"
                 onClick={handleApplyModalFilters}
-                className="btn-glass-primary px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider shadow-md flex items-center gap-1.5 cursor-pointer"
+                className="neu-button-primary px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 cursor-pointer"
               >
                 <Check className="w-4 h-4 stroke-[2.5]" />
                 <span>{t('sauda.applyFilters', 'Apply Filters')}</span>

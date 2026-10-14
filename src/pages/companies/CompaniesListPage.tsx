@@ -88,10 +88,10 @@ export const CompaniesListPage: React.FC = () => {
           <button
             type="button"
             onClick={handleReset}
-            className={`h-11 sm:h-12 px-3 sm:px-4 rounded-xl sm:rounded-2xl border transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-1.5 shrink-0 font-bold text-xs sm:text-sm ${
+            className={`h-11 sm:h-12 px-3 sm:px-4 rounded-xl sm:rounded-2xl transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-1.5 shrink-0 font-bold text-xs sm:text-sm ${
               searchQuery
-                ? 'bg-blue-50 dark:bg-blue-950/60 border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 shadow-sm'
-                : 'bg-white/90 dark:bg-[#111827]/90 border-[#DCE6F2] dark:border-slate-700/60 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/80 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_1px_3px_rgba(37,99,235,0.04)] dark:shadow-none'
+                ? 'neu-inset-sm text-blue-600 dark:text-blue-400 border border-blue-400/30'
+                : 'neu-button-secondary text-slate-600 dark:text-slate-300'
             }`}
             title="Reset Search"
             aria-label="Reset Search"
@@ -109,11 +109,11 @@ export const CompaniesListPage: React.FC = () => {
             <div
               key={comp.id}
               onClick={() => navigate(`/companies/edit/${comp.id}`)}
-              className="glass-card-interactive p-4 flex items-start gap-3.5 cursor-pointer group"
+              className="neu-card-interactive p-4 flex items-start gap-3.5 cursor-pointer group border border-white/60 dark:border-white/5"
             >
               {/* Building Icon in Soft Circle */}
               <div 
-                className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 mt-0.5 bg-teal-50 dark:bg-teal-950/50 text-teal-600 dark:text-teal-400 border border-teal-200/80 dark:border-teal-800/60 shadow-xs"
+                className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 mt-0.5 neu-raised-sm bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20"
               >
                 <Building2 className="w-6 h-6 stroke-[2.2]" />
               </div>
@@ -154,8 +154,8 @@ export const CompaniesListPage: React.FC = () => {
           )}
 
           {!isLoading && companies.length === 0 && (
-            <div className="text-center py-12 px-4 rounded-3xl bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/50 dark:border-slate-800/60 shadow-glass">
-              <div className="w-12 h-12 rounded-2xl bg-teal-500/10 dark:bg-teal-500/20 text-teal-600 dark:text-teal-400 mx-auto flex items-center justify-center mb-3">
+            <div className="text-center py-12 px-4 rounded-3xl neu-raised border border-white/60 dark:border-white/5">
+              <div className="w-12 h-12 rounded-2xl neu-inset bg-teal-500/10 text-teal-600 dark:text-teal-400 mx-auto flex items-center justify-center mb-3">
                 <Building2 className="w-6 h-6 stroke-[2]" />
               </div>
               <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">No companies found</h3>
@@ -171,7 +171,7 @@ export const CompaniesListPage: React.FC = () => {
       <button
         type="button"
         onClick={() => navigate('/companies/new')}
-        className="btn-glass-primary fixed bottom-20 md:bottom-8 right-6 z-40 w-14 h-14 rounded-2xl flex items-center justify-center transition-all active:scale-90"
+        className="neu-button-primary fixed bottom-20 md:bottom-8 right-6 z-40 w-14 h-14 rounded-2xl flex items-center justify-center transition-all active:scale-90 shadow-neu-raised"
         aria-label="Add Company"
       >
         <Plus className="w-7 h-7 stroke-[2.5]" />

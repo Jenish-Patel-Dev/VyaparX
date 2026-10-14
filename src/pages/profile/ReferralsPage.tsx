@@ -29,8 +29,8 @@ export const ReferralsPage: React.FC = () => {
       <PageHeader title="REFERRALS & REWARDS" />
 
       <div className="p-4 md:p-6 max-w-lg mx-auto space-y-5">
-        <div className="glass-card rounded-3xl p-6 text-center space-y-4 shadow-glass-card">
-          <div className="w-16 h-16 rounded-3xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto shadow-glass backdrop-blur-xs">
+        <div className="neu-raised rounded-3xl p-6 text-center space-y-4">
+          <div className="w-16 h-16 rounded-3xl neu-raised-sm bg-[#E8EDF3] dark:bg-[#262B36] text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto border border-emerald-500/20">
             <Award className="w-8 h-8" />
           </div>
 
@@ -41,7 +41,7 @@ export const ReferralsPage: React.FC = () => {
             </p>
           </div>
 
-          <div className="p-4 bg-emerald-500/10 dark:bg-emerald-500/15 border-2 border-dashed border-emerald-500/40 rounded-2xl flex items-center justify-between backdrop-blur-md">
+          <div className="p-4 neu-inset-sm bg-emerald-500/5 dark:bg-emerald-950/20 border-2 border-dashed border-emerald-500/40 rounded-2xl flex items-center justify-between">
             <div className="text-left">
               <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider">Your Referral Code</span>
               <div className="text-2xl font-black text-emerald-950 dark:text-emerald-200 tracking-widest">{code}</div>
@@ -49,7 +49,7 @@ export const ReferralsPage: React.FC = () => {
             <button
               type="button"
               onClick={handleCopy}
-              className="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-glass flex items-center gap-1.5 transition-all"
+              className="py-2.5 px-4 neu-button-primary bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 transition-all active:scale-95"
             >
               {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
               <span>{copied ? 'Copied' : 'Copy'}</span>
@@ -58,20 +58,20 @@ export const ReferralsPage: React.FC = () => {
         </div>
 
         {/* Referred Users List */}
-        <div className="glass-card rounded-3xl p-6 space-y-3 shadow-glass-card">
+        <div className="neu-raised rounded-3xl p-6 space-y-3">
           <div className="flex items-center gap-2 text-sm font-bold text-gray-900 dark:text-white">
             <Users2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             <span>My Referral Users ({dummyReferredUsers.length})</span>
           </div>
 
-          <div className="divide-y divide-[#DCE6F2]/70 dark:divide-white/10">
+          <div className="divide-y divide-black/5 dark:divide-white/5">
             {dummyReferredUsers.map((user, i) => (
               <div key={i} className="py-3 flex justify-between items-center text-xs">
                 <div>
                   <div className="font-extrabold text-gray-800 dark:text-gray-200 uppercase">{user.name}</div>
                   <div className="text-[10px] text-gray-400 dark:text-gray-500">Joined on {user.date}</div>
                 </div>
-                <span className="px-2.5 py-1 rounded-full font-bold bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 text-[10px] border border-emerald-500/30 backdrop-blur-xs">
+                <span className="px-2.5 py-1 rounded-full font-bold neu-inset-sm bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 text-[10px] border border-emerald-500/20">
                   {user.bonus}
                 </span>
               </div>

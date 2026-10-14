@@ -56,20 +56,20 @@ export const ReportsPage: React.FC = () => {
       <div className="p-4 md:p-6 max-w-4xl mx-auto space-y-5">
         {/* Top Summary Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div className="glass-card p-4 md:p-5 rounded-3xl text-center shadow-glass-card min-w-0 overflow-hidden">
-            <div className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total Brokerage</div>
+          <div className="neu-raised p-4 md:p-5 rounded-3xl text-center min-w-0 overflow-hidden border border-white/60 dark:border-white/5">
+            <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Brokerage</div>
             <div className="text-base sm:text-lg md:text-xl font-black text-emerald-600 dark:text-emerald-400 mt-1 truncate" title={formatCurrency(totalBrokerageSum)}>
               {formatCurrency(totalBrokerageSum)}
             </div>
           </div>
-          <div className="glass-card p-4 md:p-5 rounded-3xl text-center shadow-glass-card min-w-0 overflow-hidden">
-            <div className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total Volume</div>
-            <div className="text-base sm:text-lg md:text-xl font-black text-gray-900 dark:text-white mt-1 truncate" title={totalVolumeSum.toLocaleString()}>
+          <div className="neu-raised p-4 md:p-5 rounded-3xl text-center min-w-0 overflow-hidden border border-white/60 dark:border-white/5">
+            <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Volume</div>
+            <div className="text-base sm:text-lg md:text-xl font-black text-slate-900 dark:text-white mt-1 truncate" title={totalVolumeSum.toLocaleString()}>
               {totalVolumeSum.toLocaleString()}
             </div>
           </div>
-          <div className="glass-card p-4 md:p-5 rounded-3xl text-center shadow-glass-card min-w-0 overflow-hidden">
-            <div className="text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Turnover Amount</div>
+          <div className="neu-raised p-4 md:p-5 rounded-3xl text-center min-w-0 overflow-hidden border border-white/60 dark:border-white/5">
+            <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Turnover Amount</div>
             <div className="text-base sm:text-lg md:text-xl font-black text-blue-600 dark:text-blue-400 mt-1 truncate" title={formatCurrency(totalBillSum, 0)}>
               {formatCurrency(totalBillSum, 0)}
             </div>
@@ -83,7 +83,7 @@ export const ReportsPage: React.FC = () => {
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             placeholder="Search party in report..."
-            className="w-full !pl-11 !pr-10 py-3.5 bg-white/80 dark:bg-[#111827]/80 backdrop-blur-xl border border-[#DCE6F2] dark:border-slate-800 rounded-2xl text-sm font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:bg-white dark:focus:bg-[#172033] focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-300/30 transition-all placeholder-slate-400 dark:placeholder-slate-500 shadow-[inset_0_1px_1.5px_rgba(255,255,255,0.98),0_2px_8px_rgba(37,99,235,0.06)] dark:shadow-none"
+            className="input-sauda !pl-11 !pr-10 text-xs sm:text-sm font-semibold"
           />
           <Search className="w-5 h-5 text-slate-400 dark:text-slate-400 group-focus-within:text-blue-600 dark:group-focus-within:text-blue-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none stroke-[2.2] transition-colors" />
           {searchQuery && (
@@ -99,11 +99,11 @@ export const ReportsPage: React.FC = () => {
         </div>
 
         {/* Report Table / Cards */}
-        <div className="glass-panel rounded-3xl overflow-hidden shadow-glass-card border border-[#DCE6F2] dark:border-white/10">
+        <div className="neu-raised rounded-3xl overflow-hidden border border-white/60 dark:border-white/5">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse min-w-[500px]">
               <thead>
-                <tr className="bg-blue-50/40 dark:bg-white/5 border-b border-[#DCE6F2] dark:border-white/10 text-gray-700 dark:text-gray-300 font-bold uppercase tracking-wider whitespace-nowrap">
+                <tr className="bg-black/[0.02] dark:bg-white/[0.02] border-b border-black/[0.06] dark:border-white/10 text-slate-700 dark:text-slate-300 font-bold uppercase tracking-wider whitespace-nowrap">
                   <th className="p-4">Party Name</th>
                   <th className="p-4 text-center">Orders</th>
                   <th className="p-4 text-right">Volume</th>
@@ -111,22 +111,22 @@ export const ReportsPage: React.FC = () => {
                   <th className="p-4 text-right">Brokerage</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#DCE6F2]/60 dark:divide-white/5 whitespace-nowrap">
+              <tbody className="divide-y divide-black/[0.04] dark:divide-white/5 whitespace-nowrap">
                 {filteredData.map(row => (
-                  <tr key={row.partyId} className="hover:bg-blue-50/40 dark:hover:bg-blue-900/10 transition-colors">
-                    <td className="p-4 font-extrabold text-gray-900 dark:text-white uppercase">
+                  <tr key={row.partyId} className="hover:bg-blue-500/5 transition-colors">
+                    <td className="p-4 font-extrabold text-slate-900 dark:text-white uppercase">
                       <div className="truncate max-w-[180px] sm:max-w-xs" title={row.partyName}>{row.partyName}</div>
-                      <div className="text-[10px] text-gray-400 dark:text-gray-500 font-normal">
+                      <div className="text-[10px] text-slate-400 dark:text-slate-500 font-normal">
                         Seller: {row.asSellerCount} | Buyer: {row.asBuyerCount}
                       </div>
                     </td>
-                    <td className="p-4 text-center font-bold text-gray-700 dark:text-gray-300">
+                    <td className="p-4 text-center font-bold text-slate-700 dark:text-slate-300">
                       {row.totalOrders}
                     </td>
-                    <td className="p-4 text-right font-bold text-gray-900 dark:text-white">
+                    <td className="p-4 text-right font-bold text-slate-900 dark:text-white">
                       {row.totalQuantity.toLocaleString()}
                     </td>
-                    <td className="p-4 text-right font-semibold text-gray-600 dark:text-gray-400">
+                    <td className="p-4 text-right font-semibold text-slate-600 dark:text-slate-400">
                       {formatCurrency(row.totalBillAmount, 0)}
                     </td>
                     <td className="p-4 text-right font-black text-emerald-600 dark:text-emerald-400 text-sm">
@@ -137,10 +137,10 @@ export const ReportsPage: React.FC = () => {
 
                 {filteredData.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="p-12 text-center text-gray-400 dark:text-gray-500">
-                      <BarChart2 className="w-10 h-10 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
-                      <div className="font-bold text-gray-700 dark:text-gray-200 text-sm">No brokerage records found</div>
-                      <p className="text-xs text-gray-400 mt-1">
+                    <td colSpan={5} className="p-12 text-center text-slate-400 dark:text-slate-500">
+                      <BarChart2 className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto mb-2" />
+                      <div className="font-bold text-slate-700 dark:text-slate-200 text-sm">No brokerage records found</div>
+                      <p className="text-xs text-slate-400 mt-1">
                         {searchQuery ? 'No records match your search filter' : 'No records found for the selected company & financial year.'}
                       </p>
                     </td>

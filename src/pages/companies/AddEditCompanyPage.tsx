@@ -269,7 +269,7 @@ export const AddEditCompanyPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setDarkMode(!isDarkMode)}
-                className="p-1.5 rounded-xl border border-[#DCE6F2] dark:border-slate-700/60 bg-white/80 dark:bg-slate-800/70 text-slate-700 dark:text-amber-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all shadow-2xs text-xs font-bold active:scale-95 cursor-pointer flex items-center justify-center"
+                className="w-10 h-10 rounded-2xl neu-raised-sm bg-[#F0F3F8] dark:bg-[#2B3140] text-slate-700 dark:text-amber-400 hover:shadow-neu-raised transition-all text-xs font-bold active:shadow-neu-pressed cursor-pointer flex items-center justify-center border border-white/80 dark:border-white/10"
                 title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
                 aria-label="Toggle Theme"
               >
@@ -278,7 +278,7 @@ export const AddEditCompanyPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setShowLogoutConfirm(true)}
-                className="btn-glass-secondary flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                className="neu-button-secondary flex items-center gap-1.5 px-3.5 py-2 rounded-2xl text-xs font-bold transition-all cursor-pointer"
                 title="Sign out"
               >
                 <LogOut className="w-3.5 h-3.5" />
@@ -289,7 +289,7 @@ export const AddEditCompanyPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setShowDeleteConfirm(true)}
-              className="p-2 text-red-500 hover:bg-red-500/10 rounded-xl transition-colors"
+              className="w-10 h-10 rounded-2xl neu-raised-sm bg-[#F0F3F8] dark:bg-[#2B3140] flex items-center justify-center text-red-500 hover:text-red-600 hover:shadow-neu-raised active:shadow-neu-pressed border border-red-500/25 transition-all cursor-pointer"
               title="Delete Company"
             >
               <Trash2 className="w-5 h-5" />
@@ -302,7 +302,7 @@ export const AddEditCompanyPage: React.FC = () => {
         {/* First Company Welcome Banner */}
         {isFirstCompany && (
           <div 
-            className="p-4 border-2 border-blue-600 dark:border-blue-500 bg-blue-50 dark:bg-blue-950/40 text-blue-900 dark:text-blue-200 rounded-2xl flex items-center gap-3 text-sm font-bold shadow-glass-card backdrop-blur-md animate-in fade-in"
+            className="p-4 neu-inset-sm border border-blue-500/25 text-blue-900 dark:text-blue-200 rounded-2xl flex items-center gap-3 text-sm font-bold animate-in fade-in"
           >
             <span>👋 Let's create your first company to get started.</span>
           </div>
@@ -310,7 +310,7 @@ export const AddEditCompanyPage: React.FC = () => {
 
         {/* Info Banner */}
         <div 
-          className="p-4 rounded-2xl flex items-start gap-3 text-xs font-medium leading-relaxed glass-card-subtle border border-blue-200/60 dark:border-blue-800/40 bg-blue-50/50 dark:bg-blue-950/30 text-slate-700 dark:text-slate-300"
+          className="p-4 rounded-2xl flex items-start gap-3 text-xs font-medium leading-relaxed neu-inset-sm border border-blue-500/25 text-slate-700 dark:text-slate-300"
         >
           <Info className="w-5 h-5 shrink-0 mt-0.5 text-blue-600 dark:text-blue-400" />
           <span>
@@ -320,7 +320,7 @@ export const AddEditCompanyPage: React.FC = () => {
 
         <form noValidate onSubmit={handleSubmit} className="space-y-6">
           {/* Basic Information */}
-          <div className="glass-card p-5 md:p-6 rounded-3xl space-y-4">
+          <div className="neu-raised p-5 md:p-6 rounded-3xl space-y-4 border border-white/60 dark:border-white/5">
             <h2 className="text-lg font-black text-slate-900 dark:text-slate-100 tracking-tight flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400"></span>
               Basic Information
@@ -470,7 +470,7 @@ export const AddEditCompanyPage: React.FC = () => {
           </div>
 
           {/* Business Details */}
-          <div className="glass-card p-5 md:p-6 rounded-3xl space-y-4">
+          <div className="neu-raised p-5 md:p-6 rounded-3xl space-y-4 border border-white/60 dark:border-white/5">
             <h2 className="text-lg font-black text-slate-900 dark:text-slate-100 tracking-tight flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400"></span>
               Business Details
@@ -514,7 +514,7 @@ export const AddEditCompanyPage: React.FC = () => {
           </div>
 
           {/* Bank Details */}
-          <div className="glass-card p-5 md:p-6 rounded-3xl space-y-4">
+          <div className="neu-raised p-5 md:p-6 rounded-3xl space-y-4 border border-white/60 dark:border-white/5">
             <h2 className="text-lg font-black text-slate-900 dark:text-slate-100 tracking-tight flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400"></span>
               Bank Details
@@ -592,7 +592,7 @@ export const AddEditCompanyPage: React.FC = () => {
           </div>
 
           {/* Vyapar Note Customization (Screenshots 13 & 14) */}
-          <div className="glass-card p-5 md:p-6 rounded-3xl space-y-4">
+          <div className="neu-raised p-5 md:p-6 rounded-3xl space-y-4 border border-white/60 dark:border-white/5">
             <h2 className="text-lg font-black text-slate-900 dark:text-slate-100 tracking-tight flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400"></span>
               Vyapar Note Customization
@@ -611,8 +611,8 @@ export const AddEditCompanyPage: React.FC = () => {
                     onClick={() => setPdfTemplate(num as 1 | 2)}
                     className={`h-9 w-full rounded-xl font-black text-xs transition-all cursor-pointer flex items-center justify-center gap-1 ${
                       pdfTemplate === num
-                        ? 'btn-glass-primary text-white shadow-glass scale-[1.02]'
-                        : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 border border-[#DCE6F2] dark:border-slate-700 shadow-2xs'
+                        ? 'neu-button-primary text-white scale-[1.02]'
+                        : 'neu-button-secondary text-slate-700 dark:text-slate-300'
                     }`}
                   >
                     Template {num}
@@ -634,8 +634,8 @@ export const AddEditCompanyPage: React.FC = () => {
                     onClick={() => setSaudaNoteColor(col.label as Company['saudaNoteColor'])}
                     className={`h-9 w-full rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer border ${
                       saudaNoteColor === col.label
-                        ? 'ring-2 ring-blue-500 bg-blue-50/70 dark:bg-blue-950/50 border-blue-400 font-black shadow-xs scale-[1.02]'
-                        : 'bg-white dark:bg-slate-800 border-[#DCE6F2] dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 shadow-2xs'
+                        ? 'neu-inset-sm ring-2 ring-blue-500 border-blue-400 font-black shadow-xs scale-[1.02]'
+                        : 'neu-raised-sm hover:shadow-neu-raised border border-white/60 dark:border-white/5'
                     }`}
                     title={col.name}
                   >
@@ -738,7 +738,7 @@ export const AddEditCompanyPage: React.FC = () => {
           <button
             type="submit"
             disabled={!name.trim() || !username.trim() || contactNumber.trim().length !== 10 || !address.trim() || !city.trim() || !state.trim() || pinCode.trim().length !== 6 || isSubmitting}
-            className="btn-glass-primary w-full py-4 px-4 font-extrabold text-sm uppercase tracking-wider rounded-2xl mt-6 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none hover:disabled:shadow-none transition-all"
+            className="neu-button-primary w-full py-4 px-4 font-extrabold text-sm uppercase tracking-wider rounded-2xl mt-6 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none hover:disabled:shadow-none transition-all"
           >
             {isSubmitting ? (
               <>
