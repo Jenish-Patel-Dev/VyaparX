@@ -1,4 +1,4 @@
-import { db } from '../db/database';
+import { saudaService } from './saudaService';
 
 export interface PartyWiseReportRow {
   partyId: number;
@@ -13,14 +13,7 @@ export interface PartyWiseReportRow {
 
 export const reportService = {
   async getPartyWiseBrokerageReport(companyId?: number, financialYear?: string): Promise<PartyWiseReportRow[]> {
-    let orders = await db.saudaOrders.toArray();
-    if (companyId) {
-      orders = orders.filter(o => o.companyId === companyId);
-    }
-    if (financialYear) {
-      orders = orders.filter(o => o.financialYear === financialYear);
-    }
-
+    const orders = await saudaService.getAll({ companyId, financialYear });
     const reportMap: Record<number, PartyWiseReportRow> = {};
 
     for (const order of orders) {

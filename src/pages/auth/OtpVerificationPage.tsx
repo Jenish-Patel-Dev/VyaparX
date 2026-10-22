@@ -4,6 +4,8 @@ import { ShieldCheck, ArrowRight, RotateCw, Edit3, Download, Sun, Moon } from 'l
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { companyService } from '../../services/companyService';
+import { userService } from '../../services/userService';
+import { profileService } from '../../services/profileService';
 import { useApp } from '../../context/AppContext';
 import { useTheme } from '../../context/ThemeContext';
 import { usePwa } from '../../context/PwaContext';
@@ -124,10 +126,20 @@ export const OtpVerificationPage: React.FC = () => {
       setIsVerifying(true);
       setErrorMessage('');
       await verifyOtp(email, otpCode);
+      await userService.getOrCreateUser(email);
       toast.success('Email verified successfully!');
 
-      // Check companies associated with this email
       await refreshAppContext();
+      const profile = await profileService.getProfile(email);
+
+      // If user hasn't configured a 6-digit PIN yet, guide them to PIN setup
+      if (!profile.pin || profile.pin.length !== 6) {
+        toast.info('Please set your 6-digit security PIN to continue.');
+        navigate('/setup-pin', { replace: true });
+        return;
+      }
+
+      sessionStorage.setItem('sauda_pin_unlocked', 'true');
       const userCompanies = await companyService.getByUser(email);
 
       if (userCompanies.length > 0) {
@@ -152,7 +164,7 @@ export const OtpVerificationPage: React.FC = () => {
     try {
       setIsResending(true);
       setErrorMessage('');
-      await resendOtp(email);
+      await resendOtp(email, 'login');
       setDigits(['', '', '', '']);
       setCountdown(60);
       inputRefs.current[0]?.focus();

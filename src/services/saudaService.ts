@@ -1,9 +1,23 @@
-import { db } from '../db/database';
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+} from 'firebase/firestore';
+import { firestore } from '../lib/firebase';
+import { getNextSequenceId, docToData } from '../db/firestoreDb';
+import { authService } from './authService';
 import type { SaudaOrder } from '../types';
+
+const COLLECTION_NAME = 'saudaOrders';
 
 export interface SaudaFilters {
   companyId?: number;
   financialYear?: string;
+  userEmail?: string;
   query?: string;
   itemId?: number;
   sellerId?: number;
@@ -16,49 +30,62 @@ export interface SaudaFilters {
 
 export const saudaService = {
   async getAll(filters?: SaudaFilters): Promise<SaudaOrder[]> {
-    let collection = db.saudaOrders.toCollection();
+    const colRef = collection(firestore, COLLECTION_NAME);
+    const snap = await getDocs(colRef);
+    let orders: SaudaOrder[] = [];
 
-    if (filters?.companyId) {
-      collection = db.saudaOrders.where('companyId').equals(filters.companyId);
+    snap.forEach((d) => {
+      orders.push(docToData<SaudaOrder>(d));
+    });
+
+    // 1. Filter by User Email
+    const email = (filters?.userEmail || authService.getUserEmail()).toLowerCase().trim();
+    if (email) {
+      orders = orders.filter((o) => o.userEmail && o.userEmail.toLowerCase().trim() === email);
     }
 
-    let orders = await collection.toArray();
-
+    // 2. Filter by Financial Year
     if (filters?.financialYear) {
-      orders = orders.filter(o => o.financialYear === filters.financialYear);
+      orders = orders.filter((o) => o.financialYear === filters.financialYear);
     }
 
+    // 3. Filter by Company
+    if (filters?.companyId) {
+      orders = orders.filter((o) => o.companyId === filters.companyId);
+    }
+
+    // 4. Other filters
     if (filters?.itemId) {
-      orders = orders.filter(o => o.itemId === filters.itemId);
+      orders = orders.filter((o) => o.itemId === filters.itemId);
     }
 
     if (filters?.sellerId) {
-      orders = orders.filter(o => o.sellerId === filters.sellerId);
+      orders = orders.filter((o) => o.sellerId === filters.sellerId);
     }
 
     if (filters?.buyerId) {
-      orders = orders.filter(o => o.buyerId === filters.buyerId);
+      orders = orders.filter((o) => o.buyerId === filters.buyerId);
     }
 
     if (filters?.partyId) {
-      orders = orders.filter(o => o.sellerId === filters.partyId || o.buyerId === filters.partyId);
+      orders = orders.filter((o) => o.sellerId === filters.partyId || o.buyerId === filters.partyId);
     }
 
     if (filters?.date) {
-      orders = orders.filter(o => o.date === filters.date);
+      orders = orders.filter((o) => o.date === filters.date);
     }
 
     if (filters?.startDate) {
-      orders = orders.filter(o => o.date >= filters.startDate!);
+      orders = orders.filter((o) => o.date >= filters.startDate!);
     }
 
     if (filters?.endDate) {
-      orders = orders.filter(o => o.date <= filters.endDate!);
+      orders = orders.filter((o) => o.date <= filters.endDate!);
     }
 
     if (filters?.query && filters.query.trim()) {
       const q = filters.query.toLowerCase().trim().replace('#', '');
-      orders = orders.filter(o =>
+      orders = orders.filter((o) =>
         String(o.id).includes(q) ||
         (o.doNo && o.doNo.toLowerCase().includes(q)) ||
         (o.itemName && o.itemName.toLowerCase().includes(q)) ||
@@ -73,8 +100,8 @@ export const saudaService = {
       );
     }
 
-    // Ensure all orders have a valid doNo (YYYYMMDD + minimum 3-digit sequence without truncation)
-    orders.forEach(o => {
+    // Ensure all orders have a valid doNo
+    orders.forEach((o) => {
       if (!o.doNo && o.id) {
         const dateClean = (o.date || '').replace(/-/g, '');
         o.doNo = `${dateClean}${String(o.id).padStart(3, '0')}`;
@@ -82,12 +109,20 @@ export const saudaService = {
     });
 
     // Sort descending by ID / Date
-    return orders.sort((a, b) => (b.id || 0) - (a.id || 0));
+    return orders.sort((a, b) => (Number(b.id) || 0) - (Number(a.id) || 0));
   },
 
   async getById(id: number): Promise<SaudaOrder | undefined> {
-    const order = await db.saudaOrders.get(id);
-    if (order && !order.doNo) {
+    const docRef = doc(firestore, COLLECTION_NAME, String(id));
+    const snap = await getDoc(docRef);
+    if (!snap.exists()) return undefined;
+
+    const order = {
+      ...snap.data(),
+      id: Number(snap.id),
+    } as SaudaOrder;
+
+    if (!order.doNo && order.id) {
       const dateClean = (order.date || '').replace(/-/g, '');
       order.doNo = `${dateClean}${String(order.id).padStart(3, '0')}`;
     }
@@ -96,47 +131,47 @@ export const saudaService = {
 
   async create(order: Omit<SaudaOrder, 'id' | 'createdAt' | 'updatedAt'>): Promise<number> {
     const now = new Date().toISOString();
-    const id = await db.saudaOrders.add({
-      ...order,
-      createdAt: now,
-      updatedAt: now,
-    });
-
-    const numId = Number(id);
+    const nextId = await getNextSequenceId(COLLECTION_NAME);
+    const userEmail = (order.userEmail || authService.getUserEmail()).toLowerCase().trim();
     const dateClean = (order.date || now.split('T')[0]).replace(/-/g, '');
-    const seqStr = String(numId).padStart(3, '0');
+    const seqStr = String(nextId).padStart(3, '0');
     const autoDoNo = order.doNo || `${dateClean}${seqStr}`;
 
-    await db.saudaOrders.update(numId, { doNo: autoDoNo });
-    return numId;
+    const docRef = doc(firestore, COLLECTION_NAME, String(nextId));
+    const newOrder: SaudaOrder = {
+      ...order,
+      id: nextId,
+      userEmail,
+      doNo: autoDoNo,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    await setDoc(docRef, newOrder);
+    return nextId;
   },
 
   async update(id: number, updates: Partial<SaudaOrder>): Promise<void> {
     const now = new Date().toISOString();
-    await db.saudaOrders.update(id, {
+    const docRef = doc(firestore, COLLECTION_NAME, String(id));
+    await updateDoc(docRef, {
       ...updates,
       updatedAt: now,
     });
   },
 
   async delete(id: number): Promise<void> {
-    await db.saudaOrders.delete(id);
+    const docRef = doc(firestore, COLLECTION_NAME, String(id));
+    await deleteDoc(docRef);
   },
 
-  async getDashboardStats(companyId?: number, financialYear?: string): Promise<{
+  async getDashboardStats(companyId?: number, financialYear?: string, userEmail?: string): Promise<{
     totalOrders: number;
     primaryItemName: string;
     primaryItemQuantity: number;
     totalAmount: number;
   }> {
-    let orders = await db.saudaOrders.toArray();
-    if (companyId) {
-      orders = orders.filter(o => o.companyId === companyId);
-    }
-    if (financialYear) {
-      orders = orders.filter(o => o.financialYear === financialYear);
-    }
-
+    const orders = await this.getAll({ companyId, financialYear, userEmail });
     const totalOrders = orders.length;
     let totalAmount = 0;
     const itemQuantities: Record<string, number> = {};
@@ -147,12 +182,11 @@ export const saudaService = {
       itemQuantities[key] = (itemQuantities[key] || 0) + (Number(o.quantity) || 0);
     }
 
-    let primaryItemName = 'KAPAS';
+    let primaryItemName = 'ITEMS';
     let primaryItemQuantity = 0;
 
     const itemEntries = Object.entries(itemQuantities);
     if (itemEntries.length > 0) {
-      // Find item with highest quantity
       itemEntries.sort((a, b) => b[1] - a[1]);
       primaryItemName = itemEntries[0][0];
       primaryItemQuantity = itemEntries[0][1];

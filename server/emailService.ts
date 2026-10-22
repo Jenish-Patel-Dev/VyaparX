@@ -103,10 +103,13 @@ export async function verifySmtpConnection(): Promise<{ success: boolean; messag
   }
 }
 
+export type OtpPurpose = 'login' | 'pin_reset';
+
 /**
  * Generates modern, responsive HTML email template for OTP delivery
+ * Differentiates clearly between Account Login vs 6-Digit PIN Reset
  */
-function buildOtpEmailHtml(toEmail: string, otp: string): string {
+function buildOtpEmailHtml(toEmail: string, otp: string, purpose: OtpPurpose = 'login'): string {
   const formattedTime = new Date().toLocaleString('en-IN', {
     timeZone: 'Asia/Kolkata',
     day: '2-digit',
@@ -117,13 +120,66 @@ function buildOtpEmailHtml(toEmail: string, otp: string): string {
     hour12: true,
   });
 
+  const isPinReset = purpose === 'pin_reset';
+
+  // Config based on purpose
+  const config = isPinReset
+    ? {
+        title: 'Your VyaparX PIN Reset Authorization Code',
+        headerGradient: 'linear-gradient(135deg, #0f766e 0%, #0d9488 50%, #059669 100%)',
+        badgeBg: '#ccfbf1',
+        badgeColor: '#0f766e',
+        badgeBorder: '#99f6e4',
+        badgeText: '🛡️ SECURITY PASSCODE (PIN) RESET',
+        headline: 'Reset Your 6-Digit Security PIN',
+        subtext: 'We received a request to reset or change the <strong>6-digit security PIN</strong> for your VyaparX account. Use the one-time authorization code below to verify your identity and set a new Passcode PIN:',
+        otpContainerBg: '#f0fdfa',
+        otpBorder: '#0d9488',
+        otpLabelColor: '#0f766e',
+        otpLabelText: 'PIN RESET AUTHORIZATION CODE',
+        otpColor: '#0f766e',
+        otpBadgeBg: '#99f6e4',
+        otpBadgeColor: '#134e4a',
+        securityTitle: '🛡️ PIN Security Notice',
+        securityItems: [
+          'This code authorizes setting a new 6-digit PIN to unlock your application.',
+          'Never share this code with anyone. VyaparX staff will never ask for your verification code.',
+          'If you did NOT request to reset your PIN, please ignore this email. Your current passcode remains safe and unchanged.',
+        ],
+        purposeLabel: '6-Digit PIN Reset',
+      }
+    : {
+        title: 'Your VyaparX Login Verification Code',
+        headerGradient: 'linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #3b82f6 100%)',
+        badgeBg: '#dbeafe',
+        badgeColor: '#1e40af',
+        badgeBorder: '#bfdbfe',
+        badgeText: '🔐 ACCOUNT SIGN-IN VERIFICATION',
+        headline: 'Verify Your Account Login',
+        subtext: 'We received a request to sign in to your VyaparX portal. Use the one-time verification code below to authenticate your session and access your Sauda Book:',
+        otpContainerBg: '#eff6ff',
+        otpBorder: '#2563eb',
+        otpLabelColor: '#1d4ed8',
+        otpLabelText: 'ONE-TIME LOGIN CODE',
+        otpColor: '#1d4ed8',
+        otpBadgeBg: '#bfdbfe',
+        otpBadgeColor: '#1e3a8a',
+        securityTitle: '🛡️ Sign-in Security Notice',
+        securityItems: [
+          'This code grants full access to your business firms, trading parties, and Sauda records.',
+          'Never share this code with anyone under any circumstances.',
+          'If you did NOT attempt to log in to VyaparX, please verify your email credentials immediately.',
+        ],
+        purposeLabel: 'Account Login Authentication',
+      };
+
   return `
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Your VyaparX Verification Code</title>
+  <title>${config.title}</title>
   <style>
     body {
       margin: 0;
@@ -146,31 +202,31 @@ function buildOtpEmailHtml(toEmail: string, otp: string): string {
       background-color: #ffffff;
       margin: 0 auto;
       max-width: 560px;
-      border-radius: 20px;
+      border-radius: 24px;
       overflow: hidden;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.06), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
       border: 1px solid #e2e8f0;
     }
     .header-banner {
-      background: linear-gradient(135deg, #ff9800 0%, #ea580c 100%);
+      background: ${config.headerGradient};
       padding: 36px 28px;
       text-align: center;
     }
     .brand-logo {
       display: inline-block;
-      font-size: 30px;
+      font-size: 32px;
       font-weight: 900;
-      letter-spacing: 1px;
+      letter-spacing: 1.5px;
       color: #ffffff;
       margin: 0;
       text-transform: uppercase;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.15);
+      text-shadow: 0 2px 4px rgba(0,0,0,0.18);
     }
     .brand-tagline {
-      color: #ffedd5;
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 1.5px;
+      color: rgba(255, 255, 255, 0.88);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
       margin-top: 6px;
       text-transform: uppercase;
     }
@@ -178,71 +234,82 @@ function buildOtpEmailHtml(toEmail: string, otp: string): string {
       padding: 36px 32px;
       text-align: center;
     }
+    .purpose-badge {
+      display: inline-block;
+      background: ${config.badgeBg};
+      color: ${config.badgeColor};
+      border: 1px solid ${config.badgeBorder};
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
     .headline {
       font-size: 22px;
-      font-weight: 800;
+      font-weight: 900;
       color: #0f172a;
-      margin: 0 0 10px 0;
+      margin: 0 0 12px 0;
+      line-height: 1.3;
     }
     .subtext {
       font-size: 14px;
-      color: #64748b;
+      color: #475569;
       line-height: 1.6;
       margin: 0 0 26px 0;
     }
     .otp-container {
-      background: #fff7ed;
-      border: 2px dashed #f97316;
-      border-radius: 16px;
+      background: ${config.otpContainerBg};
+      border: 2px dashed ${config.otpBorder};
+      border-radius: 18px;
       padding: 24px 20px;
-      margin: 0 auto 26px;
-      max-width: 380px;
+      margin: 0 auto 28px;
+      max-width: 400px;
     }
     .otp-label {
       font-size: 11px;
-      font-weight: 700;
-      color: #c2410c;
+      font-weight: 800;
+      color: ${config.otpLabelColor};
       text-transform: uppercase;
       letter-spacing: 2px;
       margin-bottom: 8px;
       display: block;
     }
     .otp-number {
-      font-size: 42px;
+      font-size: 44px;
       font-weight: 900;
       letter-spacing: 14px;
-      color: #ea580c;
+      color: ${config.otpColor};
       font-family: 'SF Pro Display', -apple-system, 'Courier New', Courier, monospace;
-      padding-left: 14px; /* balance letter-spacing */
+      padding-left: 14px;
       line-height: 1.1;
       margin: 4px 0;
     }
     .otp-badge {
       display: inline-block;
       margin-top: 10px;
-      background: #fed7aa;
-      color: #9a3412;
+      background: ${config.otpBadgeBg};
+      color: ${config.otpBadgeColor};
       font-size: 12px;
       font-weight: 700;
-      padding: 4px 12px;
+      padding: 4px 14px;
       border-radius: 9999px;
     }
     .security-box {
       background: #f8fafc;
       border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 16px 20px;
+      border-radius: 14px;
+      padding: 18px 20px;
       margin-bottom: 24px;
       text-align: left;
     }
     .security-title {
       font-size: 12px;
-      font-weight: 700;
-      color: #334155;
-      margin-bottom: 6px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
+      font-weight: 800;
+      color: #1e293b;
+      margin-bottom: 8px;
     }
     .security-list {
       margin: 0;
@@ -270,8 +337,8 @@ function buildOtpEmailHtml(toEmail: string, otp: string): string {
     }
     .meta-val {
       color: #0f172a;
-      font-family: monospace;
-      font-weight: 600;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-weight: 700;
     }
     .footer {
       background: #f8fafc;
@@ -290,40 +357,44 @@ function buildOtpEmailHtml(toEmail: string, otp: string): string {
       <!-- Header Banner -->
       <div class="header-banner">
         <div class="brand-logo">VyaparX</div>
-        <div class="brand-tagline">Commodity Brokerage Management System</div>
+        <div class="brand-tagline">Commodity ERP & Trade Sauda Book</div>
       </div>
 
       <!-- Main Body -->
       <div class="content-body">
-        <h2 class="headline">Verify Your Email Address</h2>
-        <p class="subtext">
-          We received a request to log in to your VyaparX portal. Please use the one-time verification code below:
-        </p>
+        <!-- Purpose Badge -->
+        <div class="purpose-badge">${config.badgeText}</div>
+
+        <h2 class="headline">${config.headline}</h2>
+        <p class="subtext">${config.subtext}</p>
 
         <!-- OTP Highlight Card -->
         <div class="otp-container">
-          <span class="otp-label">Verification Code</span>
+          <span class="otp-label">${config.otpLabelText}</span>
           <div class="otp-number">${otp}</div>
           <div class="otp-badge">⏱️ Valid for 5 minutes only</div>
         </div>
 
         <!-- Security Guidance -->
         <div class="security-box">
-          <div class="security-title">🛡️ Security Reminder</div>
+          <div class="security-title">${config.securityTitle}</div>
           <ul class="security-list">
-            <li>Never share this code with anyone. VyaparX support will never request your OTP.</li>
-            <li>If you did not request this login, your account is still secure. You can safely disregard this message.</li>
+            ${config.securityItems.map(item => `<li>${item}</li>`).join('')}
           </ul>
         </div>
 
         <!-- Request Details -->
         <div class="meta-card">
           <div class="meta-row">
+            <span class="meta-key">Request Purpose:</span>
+            <span class="meta-val">${config.purposeLabel}</span>
+          </div>
+          <div class="meta-row">
             <span class="meta-key">Recipient:</span>
             <span class="meta-val">${toEmail}</span>
           </div>
           <div class="meta-row">
-            <span class="meta-key">Timestamp:</span>
+            <span class="meta-key">Timestamp (IST):</span>
             <span class="meta-val">${formattedTime}</span>
           </div>
         </div>
@@ -332,7 +403,7 @@ function buildOtpEmailHtml(toEmail: string, otp: string): string {
       <!-- Footer -->
       <div class="footer">
         © 2026 VyaparX. All rights reserved.<br>
-        This is an automated security transmission. Please do not reply directly to this email.
+        Automated security notification for commodity & agro brokerage services.
       </div>
     </div>
   </div>
@@ -343,29 +414,37 @@ function buildOtpEmailHtml(toEmail: string, otp: string): string {
 
 /**
  * Dispatches the OTP email to the user's real email address.
- * Throws an error if SMTP is not configured or if sending fails.
+ * Tailors subject and HTML according to OTP purpose ('login' | 'pin_reset').
  */
 export async function sendOtpEmail(
   toEmail: string,
-  otp: string
+  otp: string,
+  purpose: OtpPurpose = 'login'
 ): Promise<{ success: boolean; messageId?: string }> {
   try {
     const transporter = getTransporter();
     const fromUser = process.env.EMAIL_USER?.trim() || 'noreply@vyaparx.com';
     const fromAddress = process.env.EMAIL_FROM?.trim() || `"VyaparX Security" <${fromUser}>`;
 
-    const htmlContent = buildOtpEmailHtml(toEmail, otp);
-    const plainText = `Your VyaparX verification code is: ${otp}\n\nThis code will expire in 5 minutes.\nDo not share this code with anyone.\n\nSent to: ${toEmail}\nVyaparX - Commodity Brokerage Management System`;
+    const htmlContent = buildOtpEmailHtml(toEmail, otp, purpose);
+    const isPinReset = purpose === 'pin_reset';
+    const subject = isPinReset
+      ? `🔑 [VyaparX] ${otp} is your 6-Digit PIN Reset Code`
+      : `🔐 [VyaparX] ${otp} is your Login Verification Code`;
+
+    const plainText = isPinReset
+      ? `Your VyaparX 6-Digit PIN Reset authorization code is: ${otp}\n\nPurpose: Reset Security Passcode (PIN)\nValid for 5 minutes.\nDo not share this code with anyone.\n\nSent to: ${toEmail}\nVyaparX - Commodity ERP & Sauda Book`
+      : `Your VyaparX Login verification code is: ${otp}\n\nPurpose: Account Sign-In Verification\nValid for 5 minutes.\nDo not share this code with anyone.\n\nSent to: ${toEmail}\nVyaparX - Commodity ERP & Sauda Book`;
 
     const info = await transporter.sendMail({
       from: fromAddress,
       to: toEmail,
-      subject: `${otp} is your VyaparX verification code`,
+      subject,
       text: plainText,
       html: htmlContent,
     });
 
-    console.log(`[EMAIL SUCCESS] Real OTP email delivered to ${toEmail}. MessageId: ${info.messageId}`);
+    console.log(`[EMAIL SUCCESS] Real OTP email (${purpose}) delivered to ${toEmail}. MessageId: ${info.messageId}`);
     return { success: true, messageId: info.messageId };
   } catch (error: any) {
     console.error(`[EMAIL ERROR] Failed to send real email to ${toEmail}:`, error.message);

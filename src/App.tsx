@@ -10,10 +10,13 @@ import { AppShell } from './components/layout/AppShell';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { InstallAppModal } from './components/common/InstallAppModal';
 import { UpdateAppModal } from './components/common/UpdateAppModal';
+import { DisclaimerTermsModal } from './components/common/DisclaimerTermsModal';
+import { ScrollToTop } from './components/common/ScrollToTop';
 
 // Auth Pages
 import { EmailLoginPage } from './pages/auth/EmailLoginPage';
 import { OtpVerificationPage } from './pages/auth/OtpVerificationPage';
+import { SetupPinPage } from './pages/auth/SetupPinPage';
 
 // Pages
 import { SplashPage } from './pages/SplashPage';
@@ -38,6 +41,7 @@ import { LegalPages } from './pages/legal/LegalPages';
 export function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <ThemeProvider>
         <LanguageProvider>
           <PwaProvider>
@@ -46,6 +50,7 @@ export function App() {
                 <ToastProvider>
                   <InstallAppModal />
                   <UpdateAppModal />
+                  <DisclaimerTermsModal />
                   <Routes>
                   {/* Public Auth Routes */}
                   <Route element={<AppShell />}>
@@ -56,6 +61,7 @@ export function App() {
                   {/* Protected Application Routes */}
                   <Route element={<ProtectedRoute />}>
                     <Route element={<AppShell />}>
+                      <Route path="/setup-pin" element={<SetupPinPage />} />
                       <Route path="/create-first-company" element={<AddEditCompanyPage />} />
                       <Route path="/" element={<SplashPage />} />
                       <Route path="/splash" element={<SplashPage />} />

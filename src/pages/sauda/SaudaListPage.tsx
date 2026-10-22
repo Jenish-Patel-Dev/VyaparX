@@ -402,7 +402,7 @@ export const SaudaListPage: React.FC = () => {
       {/* Share / PDF Preview Modal */}
       {activeShareOrder && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in">
-          <div className="w-full max-w-4xl bg-[#E8EDF3] dark:bg-[#262B36] border border-white/60 dark:border-white/5 rounded-2xl shadow-neu-raised-lg overflow-hidden flex flex-col max-h-[92vh]">
+          <div className="w-full max-w-4xl bg-[#E8EDF3] dark:bg-[#262B36] border border-[#D5DDE7] dark:border-white/5 rounded-2xl shadow-neu-raised-lg overflow-hidden flex flex-col max-h-[92vh]">
             <div className="p-4 border-b border-black/[0.06] dark:border-white/10 flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-xl neu-raised-sm flex items-center justify-center text-blue-600 dark:text-blue-400 border border-white/60 dark:border-white/5">
@@ -468,7 +468,7 @@ export const SaudaListPage: React.FC = () => {
           onClick={() => setShowFilterModal(false)}
         >
           <div 
-            className="w-full max-w-md bg-[#E8EDF3] dark:bg-[#262B36] rounded-3xl shadow-neu-raised-lg border border-white/60 dark:border-white/5 overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-150"
+            className="w-full max-w-md bg-[#E8EDF3] dark:bg-[#262B36] rounded-3xl shadow-neu-raised-lg border border-[#D5DDE7] dark:border-white/5 overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-150"
             onClick={e => e.stopPropagation()}
           >
             {/* Header */}

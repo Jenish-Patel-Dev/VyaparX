@@ -198,7 +198,7 @@ function checkRateLimit(email: string): { allowed: boolean; waitSeconds?: number
 // -----------------------------------------------------
 
 async function handleSendOtp(req: Request, res: Response): Promise<void> {
-  const { email } = req.body;
+  const { email, purpose = 'login' } = req.body;
   if (!email || !isValidEmail(email)) {
     res.status(400).json({ success: false, message: 'Please enter a valid email address.' });
     return;
@@ -256,7 +256,7 @@ async function handleSendOtp(req: Request, res: Response): Promise<void> {
   }
 
   try {
-    await sendOtpEmail(normalizedEmail, otp);
+    await sendOtpEmail(normalizedEmail, otp, purpose);
     const otpToken = signOtpToken(normalizedEmail, otp, expiresAt);
     res.json({
       success: true,

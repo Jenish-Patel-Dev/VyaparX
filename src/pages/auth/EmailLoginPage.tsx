@@ -31,7 +31,7 @@ export const EmailLoginPage: React.FC = () => {
 
     try {
       setIsSubmitting(true);
-      await sendOtp(email.trim().toLowerCase());
+      await sendOtp(email.trim().toLowerCase(), 'login');
       setPendingEmail(email.trim().toLowerCase());
       toast.success('Verification code sent to your email.');
       navigate('/verify-otp');

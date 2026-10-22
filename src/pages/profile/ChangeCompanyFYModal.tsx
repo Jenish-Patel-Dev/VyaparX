@@ -47,7 +47,7 @@ export const ChangeCompanyFYModal: React.FC<Props> = ({ isOpen, onClose }) => {
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in"
     >
       <div 
-        className="w-full max-w-sm neu-raised-lg rounded-3xl p-6 space-y-5 animate-in zoom-in-95 border border-white/60 dark:border-white/10"
+        className="w-full max-w-sm neu-raised-lg rounded-3xl p-6 space-y-5 animate-in zoom-in-95 border border-[#D5DDE7] dark:border-white/10"
         onClick={e => e.stopPropagation()}
       >
         <div className="flex justify-between items-center border-b border-black/[0.06] dark:border-white/10 pb-3">

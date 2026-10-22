@@ -53,7 +53,7 @@ export const SearchSelectModal: React.FC<SearchSelectModalProps> = ({
       style={{ backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
     >
       <div 
-        className="w-full max-w-md bg-[#E8EDF3] dark:bg-[#262B36] rounded-3xl shadow-neu-raised-lg overflow-hidden flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-150 border border-white/60 dark:border-white/5"
+        className="w-full max-w-md bg-[#E8EDF3] dark:bg-[#262B36] rounded-3xl shadow-neu-raised-lg overflow-hidden flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-150 border border-[#D5DDE7] dark:border-white/5"
         onClick={e => e.stopPropagation()}
       >
         {/* Search Input Box */}

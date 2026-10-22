@@ -15,17 +15,17 @@
     --text-secondary: #68758A;
     --text-muted: #8994A5;
     --border-subtle: #D5DDE7;
-    --border-highlight: #FFFFFF;
+    --border-highlight: rgba(255, 255, 255, 0.45);
 
-    --shadow-light: #FFFFFF;
-    --shadow-dark: #C5CCD6;
+    --shadow-light: rgba(255, 255, 255, 0.65);
+    --shadow-dark: rgba(166, 178, 195, 0.45);
 
-    --shadow-raised: 5px 5px 12px #C5CCD6, -5px -5px 12px #FFFFFF;
-    --shadow-raised-sm: 2.5px 2.5px 6px #C5CCD6, -2.5px -2.5px 6px #FFFFFF;
-    --shadow-raised-lg: 8px 8px 18px #BAC3CE, -8px -8px 18px #FFFFFF;
-    --shadow-inset: inset 3px 3px 6px #C5CCD6, inset -3px -3px 6px #FFFFFF;
-    --shadow-inset-sm: inset 2px 2px 4px #C5CCD6, inset -2px -2px 4px #FFFFFF;
-    --shadow-pressed: inset 2.5px 2.5px 5px #C5CCD6, inset -2.5px -2.5px 5px #FFFFFF;
+    --shadow-raised: 3px 3px 8px rgba(166, 178, 195, 0.4), -3px -3px 7px rgba(255, 255, 255, 0.65);
+    --shadow-raised-sm: 1.5px 1.5px 4px rgba(166, 178, 195, 0.32), -1.5px -1.5px 4px rgba(255, 255, 255, 0.6);
+    --shadow-raised-lg: 5px 6px 14px rgba(160, 174, 192, 0.35), -4px -4px 10px rgba(255, 255, 255, 0.5);
+    --shadow-inset: inset 2px 2px 4px rgba(166, 178, 195, 0.35), inset -2px -2px 4px rgba(255, 255, 255, 0.65);
+    --shadow-inset-sm: inset 1.5px 1.5px 3px rgba(166, 178, 195, 0.28), inset -1px -1px 2.5px rgba(255, 255, 255, 0.6);
+    --shadow-pressed: inset 2px 2px 4px rgba(166, 178, 195, 0.4), inset -1.5px -1.5px 3px rgba(255, 255, 255, 0.55);
 
     --primary: #2563EB;
     --primary-hover: #1D4ED8;
@@ -158,6 +158,35 @@
   border: 1px solid var(--border-subtle);
   box-shadow: var(--shadow-raised-lg);
   transition: all 0.25s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* Overlay Modals & Dialogs (Eliminates harsh white halo / glare on dark backdrops) */
+.fixed.inset-0 .neu-raised-lg,
+.fixed.inset-0 .neu-modal,
+.fixed.inset-0 .shadow-neu-raised-lg,
+.fixed.inset-0 [role="dialog"],
+.fixed.inset-0 > div > [role="dialog"],
+.fixed.inset-0 > div.shadow-neu-raised-lg,
+.fixed.inset-0 > div > div.shadow-neu-raised-lg,
+.fixed.inset-0 > div > div.neu-raised-lg {
+  box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.22), 0 8px 18px -4px rgba(15, 23, 42, 0.1), 0 0 0 1px var(--border-subtle) !important;
+}
+
+.dark .fixed.inset-0 .neu-raised-lg,
+.dark .fixed.inset-0 .neu-modal,
+.dark .fixed.inset-0 .shadow-neu-raised-lg,
+.dark .fixed.inset-0 [role="dialog"],
+.dark .fixed.inset-0 > div > [role="dialog"],
+.dark .fixed.inset-0 > div.shadow-neu-raised-lg,
+.dark .fixed.inset-0 > div > div.shadow-neu-raised-lg,
+.dark .fixed.inset-0 > div > div.neu-raised-lg {
+  box-shadow: 0 24px 50px -10px rgba(0, 0, 0, 0.75), 0 10px 20px -5px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Soften hardcoded white borders in Light Mode so they don't produce glaring white outlines */
+:root:not(.dark) .border-white\/80,
+:root:not(.dark) .border-white\/60 {
+  border-color: rgba(213, 221, 231, 0.75) !important;
 }
 
 /* Recessed / Sunken Neumorphic Surface (Well, Inset Panels) */
