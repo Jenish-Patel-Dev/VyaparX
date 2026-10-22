@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { authService, type AuthUser } from '../services/authService';
+import { authService, type AuthUser, type OtpPurpose } from '../services/authService';
 
 interface AuthContextType {
   currentUser: AuthUser | null;
@@ -8,9 +8,9 @@ interface AuthContextType {
   isLoadingAuth: boolean;
   pendingEmail: string;
   setPendingEmail: (email: string) => void;
-  sendOtp: (email: string) => Promise<void>;
+  sendOtp: (email: string, purpose?: OtpPurpose) => Promise<void>;
   verifyOtp: (email: string, otp: string) => Promise<AuthUser>;
-  resendOtp: (email: string) => Promise<void>;
+  resendOtp: (email: string, purpose?: OtpPurpose) => Promise<void>;
   logout: () => void;
 }
 
@@ -58,8 +58,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     sessionStorage.setItem('sauda_pending_email', email);
   };
 
-  const sendOtp = async (email: string): Promise<void> => {
-    await authService.sendOtp(email);
+  const sendOtp = async (email: string, purpose: OtpPurpose = 'login'): Promise<void> => {
+    await authService.sendOtp(email, purpose);
     updatePendingEmail(email);
   };
 
@@ -74,8 +74,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return res.user;
   };
 
-  const resendOtp = async (email: string): Promise<void> => {
-    await authService.resendOtp(email);
+  const resendOtp = async (email: string, purpose: OtpPurpose = 'login'): Promise<void> => {
+    await authService.resendOtp(email, purpose);
   };
 
   const logout = () => {

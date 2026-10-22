@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef, ReactNode } from 'react';
 
 interface BeforeInstallPromptEvent extends Event {
   readonly platforms: string[];
@@ -54,10 +54,13 @@ export const PwaProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [swRegistration, setSwRegistration] = useState<ServiceWorkerRegistration | null>(null);
+  const latestServerVersionRef = useRef<string | null>(null);
 
   // Check Service Worker Registration for updates
   const checkSwUpdate = useCallback(async (): Promise<boolean> => {
     if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return false;
+    // Don't show update prompt in local development mode
+    if (import.meta.env.DEV) return false;
 
     try {
       const reg = await navigator.serviceWorker.getRegistration();
@@ -75,7 +78,7 @@ export const PwaProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
 
       // Explicitly check server for newer sw.js
-      await reg.update();
+      await reg.update().catch(() => {});
 
       if (reg.waiting) {
         setIsUpdateAvailable(true);
@@ -93,6 +96,8 @@ export const PwaProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   // Check version.json (Bulletproof HTTP polling check)
   const checkVersionJsonUpdate = useCallback(async (): Promise<boolean> => {
     if (typeof window === 'undefined') return false;
+    // Don't show update prompt in local development mode
+    if (import.meta.env.DEV) return false;
 
     try {
       const res = await fetch(`/version.json?_t=${Date.now()}`, {
@@ -105,19 +110,30 @@ export const PwaProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
       if (res.ok) {
         const data = await res.json();
-        const clientBuildId = typeof __APP_BUILD_ID__ !== 'undefined' ? __APP_BUILD_ID__ : undefined;
-        const storedBuildId = localStorage.getItem('vyaparx_client_build_id');
-        const activeBuildId = clientBuildId || storedBuildId;
+        if (!data.version) return false;
 
-        if (activeBuildId && data.version && data.version !== activeBuildId) {
+        latestServerVersionRef.current = String(data.version);
+
+        // If client has already updated/acknowledged this exact version, do not prompt
+        const acknowledgedVersion = localStorage.getItem('vyaparx_client_build_id');
+        if (acknowledgedVersion === String(data.version)) {
+          return false;
+        }
+
+        const clientBuildId = typeof __APP_BUILD_ID__ !== 'undefined' ? String(__APP_BUILD_ID__) : undefined;
+        const activeBuildId = acknowledgedVersion || clientBuildId;
+
+        // If the server version differs from the active client build
+        if (activeBuildId && data.version && String(data.version) !== activeBuildId) {
           console.log(`[PWA Update] New version detected: server=${data.version}, client=${activeBuildId}`);
           setIsUpdateAvailable(true);
           if (!sessionStorage.getItem('vyaparx_update_dismissed')) {
             setIsUpdateModalOpen(true);
           }
           return true;
-        } else if (!storedBuildId && data.version) {
-          localStorage.setItem('vyaparx_client_build_id', data.version);
+        } else if (!acknowledgedVersion && data.version) {
+          // Initialize baseline client build id
+          localStorage.setItem('vyaparx_client_build_id', String(data.version));
         }
       }
     } catch {
@@ -128,17 +144,26 @@ export const PwaProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   // Combined update checker
   const checkForUpdates = useCallback(async (): Promise<boolean> => {
+    if (import.meta.env.DEV) return false;
     const swFound = await checkSwUpdate();
     if (swFound) return true;
     return await checkVersionJsonUpdate();
   }, [checkSwUpdate, checkVersionJsonUpdate]);
 
-  // Apply update immediately: purge cache, notify SW, reload
+  // Apply update immediately: acknowledge version, purge cache, notify SW, reload
   const applyUpdate = useCallback(async (): Promise<void> => {
     setIsUpdating(true);
 
     try {
-      // 1. Send skip waiting to all waiting or active service workers
+      // 1. Mark this version as acknowledged so it NEVER loops again after reload
+      if (latestServerVersionRef.current) {
+        localStorage.setItem('vyaparx_client_build_id', latestServerVersionRef.current);
+      }
+      sessionStorage.setItem('vyaparx_update_dismissed', 'true');
+      setIsUpdateModalOpen(false);
+      setIsUpdateAvailable(false);
+
+      // 2. Send skip waiting to all waiting or active service workers
       if ('serviceWorker' in navigator) {
         const registrations = await navigator.serviceWorker.getRegistrations();
         for (const reg of registrations) {
@@ -153,18 +178,14 @@ export const PwaProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         }
       }
 
-      // 2. Clear all CacheStorage entries
+      // 3. Clear all CacheStorage entries
       if ('caches' in window) {
         const cacheNames = await caches.keys();
         await Promise.all(cacheNames.map((name) => caches.delete(name)));
       }
 
-      // 3. Reset dismissed status & stored client build ID
-      sessionStorage.removeItem('vyaparx_update_dismissed');
-      localStorage.removeItem('vyaparx_client_build_id');
-
       // 4. Short grace period for SW activate
-      await new Promise((resolve) => setTimeout(resolve, 400));
+      await new Promise((resolve) => setTimeout(resolve, 300));
 
       // 5. Hard reload page with cache-busting timestamp
       const currentUrl = new URL(window.location.href);
@@ -211,8 +232,8 @@ export const PwaProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     window.addEventListener('pwa-prompt-ready', handlePromptReady);
     window.addEventListener('appinstalled', handleAppInstalled);
 
-    // Service Worker update detection
-    if ('serviceWorker' in navigator) {
+    // Service Worker update detection (production only)
+    if (!import.meta.env.DEV && 'serviceWorker' in navigator) {
       navigator.serviceWorker.ready.then((reg) => {
         setSwRegistration(reg);
 
@@ -249,24 +270,33 @@ export const PwaProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       });
     }
 
-    // Initial check after app mounts
-    const initialTimer = setTimeout(() => {
-      checkForUpdates();
-    }, 2500);
+    // Initial check after app mounts (production only)
+    let initialTimer: ReturnType<typeof setTimeout> | undefined;
+    let intervalTimer: ReturnType<typeof setInterval> | undefined;
 
-    // Periodic check every 60 seconds
-    const intervalTimer = setInterval(() => {
-      checkForUpdates();
-    }, 60000);
+    if (!import.meta.env.DEV) {
+      initialTimer = setTimeout(() => {
+        checkForUpdates();
+      }, 2500);
+
+      // Periodic check every 60 seconds
+      intervalTimer = setInterval(() => {
+        checkForUpdates();
+      }, 60000);
+    }
 
     // Check whenever user switches back to this tab or app is foregrounded
     const handleVisibility = () => {
-      if (document.visibilityState === 'visible') {
+      if (!import.meta.env.DEV && document.visibilityState === 'visible') {
         checkForUpdates();
       }
     };
-    const handleFocus = () => checkForUpdates();
-    const handleOnline = () => checkForUpdates();
+    const handleFocus = () => {
+      if (!import.meta.env.DEV) checkForUpdates();
+    };
+    const handleOnline = () => {
+      if (!import.meta.env.DEV) checkForUpdates();
+    };
 
     document.addEventListener('visibilitychange', handleVisibility);
     window.addEventListener('focus', handleFocus);
@@ -276,8 +306,8 @@ export const PwaProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       mediaQuery.removeEventListener('change', handleMediaChange);
       window.removeEventListener('pwa-prompt-ready', handlePromptReady);
       window.removeEventListener('appinstalled', handleAppInstalled);
-      clearTimeout(initialTimer);
-      clearInterval(intervalTimer);
+      if (initialTimer) clearTimeout(initialTimer);
+      if (intervalTimer) clearInterval(intervalTimer);
       document.removeEventListener('visibilitychange', handleVisibility);
       window.removeEventListener('focus', handleFocus);
       window.removeEventListener('online', handleOnline);

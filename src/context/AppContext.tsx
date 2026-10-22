@@ -1,10 +1,11 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import type { Company, FinancialYear, UserProfile } from '../types';
 import { companyService } from '../services/companyService';
 import { profileService } from '../services/profileService';
 import { seedInitialData } from '../db/seedData';
 
 import { authService } from '../services/authService';
+import { userService } from '../services/userService';
 
 interface AppContextType {
   currentCompany: Company | null;
@@ -37,6 +38,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return localStorage.getItem('vyapar_sidebar_collapsed') === 'true';
   });
 
+  const currentCompanyRef = useRef<Company | null>(null);
+  currentCompanyRef.current = currentCompany;
+
   const toggleSidebar = () => {
     setIsSidebarCollapsed(prev => {
       const next = !prev;
@@ -50,29 +54,37 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       await seedInitialData();
 
       const user = await authService.getCurrentUser();
-      const userEmail = user?.email;
+      const userEmail = (user?.email || authService.getUserEmail()).toLowerCase().trim();
+
+      if (userEmail) {
+        await userService.getOrCreateUser(userEmail);
+      }
 
       const [comps, fYears, prof] = await Promise.all([
-        userEmail ? companyService.getByUser(userEmail) : companyService.getAll(),
+        companyService.getAll(userEmail),
         profileService.getFinancialYears(),
-        profileService.getProfile(),
+        profileService.getProfile(userEmail),
       ]);
 
       setCompanies(comps);
       setFinancialYears(fYears);
 
-      // Set default company
+      // Set default company without creating state identity churn
       const defaultComp = comps.find(c => c.isDefault) || comps[0] || null;
       setCurrentCompanyState(prev => {
-        if (prev && comps.some(c => c.id === prev.id)) {
-          return comps.find(c => c.id === prev.id)!;
+        if (!prev) return defaultComp;
+        const matching = comps.find(c => c.id === prev.id);
+        if (!matching) return defaultComp;
+        if (JSON.stringify(prev) === JSON.stringify(matching)) {
+          return prev;
         }
-        return defaultComp;
+        return matching;
       });
 
       // Synchronize active username with active company
-      const activeComp = (currentCompany && comps.some(c => c.id === currentCompany.id))
-        ? currentCompany
+      const currentRefId = currentCompanyRef.current?.id;
+      const activeComp = (currentRefId && comps.find(c => c.id === currentRefId))
+        ? comps.find(c => c.id === currentRefId)!
         : defaultComp;
 
       if (activeComp?.username) {
@@ -85,7 +97,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setCurrentFinancialYearState(prev => prev || defaultFY);
 
       // Check PIN lock
-      if (prof.isPinEnabled && prof.pin) {
+      if (prof.isPinEnabled && prof.pin && prof.pin.length === 6) {
         const sessionUnlocked = sessionStorage.getItem('sauda_pin_unlocked');
         if (!sessionUnlocked) {
           setIsPinLocked(true);
@@ -96,7 +108,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     } finally {
       setIsLoading(false);
     }
-  }, [currentCompany]);
+  }, []);
 
   useEffect(() => {
     refreshAppContext();
@@ -106,7 +118,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setCurrentCompanyState(comp);
     if (comp.username) {
       setUserProfile(prev => prev ? { ...prev, name: comp.username! } : null);
-      profileService.updateProfile({ name: comp.username });
+      const userEmail = authService.getUserEmail();
+      profileService.updateProfile({ name: comp.username }, userEmail);
     }
   };
 
@@ -118,6 +131,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (userProfile && userProfile.pin === pin) {
       setIsPinLocked(false);
       sessionStorage.setItem('sauda_pin_unlocked', 'true');
+      const userEmail = (userProfile.email || authService.getUserEmail()).toLowerCase().trim();
+      if (userEmail) {
+        userService.updateLastLogin(userEmail);
+      }
       return true;
     }
     return false;

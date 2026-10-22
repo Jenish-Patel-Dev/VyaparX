@@ -101,7 +101,7 @@ export const QuickAddItemModal: React.FC<QuickAddItemModalProps> = ({
       style={{ backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
     >
       <div 
-        className="w-full max-w-md bg-[#E8EDF3] dark:bg-[#262B36] rounded-3xl shadow-neu-raised-lg overflow-hidden flex flex-col max-h-[90vh] border border-white/60 dark:border-white/5 animate-in zoom-in-95 duration-150"
+        className="w-full max-w-md bg-[#E8EDF3] dark:bg-[#262B36] rounded-3xl shadow-neu-raised-lg overflow-hidden flex flex-col max-h-[90vh] border border-[#D5DDE7] dark:border-white/5 animate-in zoom-in-95 duration-150"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}

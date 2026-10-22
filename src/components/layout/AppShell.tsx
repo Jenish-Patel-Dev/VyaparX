@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { DesktopSidebar } from './DesktopSidebar';
 import { TopHeader } from './TopHeader';
@@ -9,6 +9,18 @@ import { useTheme } from '../../context/ThemeContext';
 export const AppShell: React.FC = () => {
   const location = useLocation();
   const { palette } = useTheme();
+  const mainRef = useRef<HTMLElement | null>(null);
+
+  // Reset scroll of the active viewport whenever user navigates to any new page
+  useEffect(() => {
+    if (mainRef.current) {
+      mainRef.current.scrollTop = 0;
+      mainRef.current.scrollLeft = 0;
+    }
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, [location.pathname]);
   const isSplash =
     location.pathname === '/' ||
     location.pathname === '/splash' ||
@@ -24,8 +36,8 @@ export const AppShell: React.FC = () => {
     );
   }
 
-  // Standalone Company Setup Screen for New Users (No sidebar, top header, or bottom nav)
-  if (location.pathname === '/create-first-company') {
+  // Standalone Company & PIN Setup Screens (No sidebar, top header, or bottom nav)
+  if (location.pathname === '/create-first-company' || location.pathname === '/setup-pin') {
     return (
       <main className="min-h-screen bg-[#E8EDF3] dark:bg-[#20242D] text-[#263244] dark:text-[#F0F3F8]">
         <Outlet />
@@ -54,7 +66,7 @@ export const AppShell: React.FC = () => {
         <TopHeader />
         
         {/* Isolated Scrollable Viewport - Only this container scrolls */}
-        <main className="relative z-10 flex-1 overflow-y-auto overflow-x-hidden min-w-0 w-full scroll-smooth pb-24 md:pb-0">
+        <main ref={mainRef} className="relative z-10 flex-1 overflow-y-auto overflow-x-hidden min-w-0 w-full pb-24 md:pb-0">
           <Outlet />
         </main>
       </div>

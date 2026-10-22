@@ -678,7 +678,7 @@ export const SaudaBillsPage: React.FC = () => {
           onClick={() => setShowFilterModal(false)}
         >
           <div 
-            className="w-full max-w-md bg-[#E8EDF3] dark:bg-[#262B36] rounded-3xl shadow-neu-raised-lg border border-white/60 dark:border-white/5 overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-150"
+            className="w-full max-w-md bg-[#E8EDF3] dark:bg-[#262B36] rounded-3xl shadow-neu-raised-lg border border-[#D5DDE7] dark:border-white/5 overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-150"
             onClick={e => e.stopPropagation()}
           >
             {/* Header */}

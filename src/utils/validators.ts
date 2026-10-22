@@ -105,8 +105,8 @@ export const validatePin = (newPin: string, confirmPin?: string): string => {
   if (!trimmed) {
     return 'PIN is required';
   }
-  if (!/^\d{4}$/.test(trimmed)) {
-    return 'PIN must be exactly 4 digits';
+  if (!/^\d{6}$/.test(trimmed)) {
+    return 'PIN must be exactly 6 digits';
   }
   if (confirmPin !== undefined && confirmPin !== trimmed) {
     return 'Confirm PIN does not match';

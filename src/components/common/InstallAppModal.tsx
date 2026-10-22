@@ -46,7 +46,7 @@ export const InstallAppModal: React.FC = () => {
       style={{ backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
     >
       <div
-        className="bg-[#E8EDF3] dark:bg-[#262B36] border border-white/60 dark:border-white/10 rounded-3xl max-w-lg w-full overflow-hidden shadow-neu-raised-lg animate-in zoom-in-95 duration-200"
+        className="bg-[#E8EDF3] dark:bg-[#262B36] border border-[#D5DDE7] dark:border-white/10 rounded-3xl max-w-lg w-full overflow-hidden shadow-neu-raised-lg animate-in zoom-in-95 duration-200"
         role="dialog"
         aria-modal="true"
       >

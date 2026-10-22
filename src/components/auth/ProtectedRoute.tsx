@@ -2,12 +2,10 @@ import React from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useApp } from '../../context/AppContext';
-import { useTheme } from '../../context/ThemeContext';
 
 export const ProtectedRoute: React.FC = () => {
   const { isAuthenticated, isLoadingAuth } = useAuth();
-  const { companies, isLoading } = useApp();
-  const { palette } = useTheme();
+  const { companies, isLoading, userProfile } = useApp();
   const location = useLocation();
 
   if (isLoadingAuth || isLoading) {
@@ -25,13 +23,30 @@ export const ProtectedRoute: React.FC = () => {
     return <Navigate to="/login" replace />;
   }
 
-  // If user has NO companies, enforce that they stay on the company creation page
+  // 1. Enforce 6-digit PIN setup if not set yet
+  const hasPin = Boolean(userProfile?.pin && userProfile.pin.length === 6);
+  if (!hasPin) {
+    if (location.pathname !== '/setup-pin') {
+      return <Navigate to="/setup-pin" replace />;
+    }
+    return <Outlet />;
+  }
+
+  // If PIN is already set and user navigates to /setup-pin
+  if (location.pathname === '/setup-pin') {
+    if (companies.length === 0) {
+      return <Navigate to="/create-first-company" replace />;
+    }
+    return <Navigate to="/home" replace />;
+  }
+
+  // 2. Enforce company creation if user has 0 companies
   if (companies.length === 0) {
     if (location.pathname !== '/create-first-company') {
       return <Navigate to="/create-first-company" replace />;
     }
   } else {
-    // If user already HAS companies and tries to go to /create-first-company, redirect to /home or /splash
+    // If user already HAS companies and tries to go to /create-first-company
     if (location.pathname === '/create-first-company') {
       return <Navigate to="/home" replace />;
     }

@@ -1,3 +1,11 @@
+export interface AppUser {
+  id?: string;
+  email: string;
+  name: string;
+  createdAt: string;
+  lastLoginAt: string;
+}
+
 export interface Company {
   id?: number;
   name: string;
@@ -37,6 +45,7 @@ export interface Item {
   sellerCommissionRate: number;
   buyerCommissionRate: number;
   unit: string;
+  userEmail?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -59,6 +68,7 @@ export interface Party {
   ifscCode?: string;
   upiId?: string;
   partyType?: 'both' | 'seller' | 'buyer';
+  userEmail?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -68,6 +78,7 @@ export interface SaudaOrder {
   doNo?: string;
   companyId: number;
   financialYear: string;
+  userEmail?: string;
   date: string;
   itemId: number;
   itemName: string;
@@ -128,4 +139,5 @@ export interface UserProfile {
   referralCode: string;
   pin?: string;
   isPinEnabled: boolean;
+  email?: string;
 }

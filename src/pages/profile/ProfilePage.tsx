@@ -10,6 +10,7 @@ import {
   Settings,
   Shield,
   Lock,
+  KeyRound,
   Users2,
   Copy,
   Share2,
@@ -28,6 +29,8 @@ import {
   Sun,
   Moon,
   Palette,
+  Code2,
+  Sparkles,
 } from 'lucide-react';
 import { PageHeader } from '../../components/layout/PageHeader';
 import { useApp } from '../../context/AppContext';
@@ -48,6 +51,7 @@ export const ProfilePage: React.FC = () => {
 
   const [showSwitchModal, setShowSwitchModal] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
+  const [showAboutModal, setShowAboutModal] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -156,6 +160,56 @@ export const ProfilePage: React.FC = () => {
             </div>
             <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
           </button>
+        </div>
+
+        {/* Security & PIN Settings Card */}
+        <div className="neu-raised rounded-3xl p-4 sm:p-5 space-y-3 transition-all min-w-0 overflow-hidden border border-white/60 dark:border-white/5">
+          <div className="flex items-center gap-2 font-bold text-sm text-blue-600 dark:text-blue-400">
+            <Lock className="w-4 h-4 shrink-0" />
+            <span>Security & Passcode (PIN)</span>
+          </div>
+
+          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+            Manage your 6-digit security PIN for instant passcode unlock and trade records protection.
+          </p>
+
+          <div className="space-y-2 pt-1">
+            <button
+              type="button"
+              onClick={() => navigate('/profile/security')}
+              className="w-full flex items-center justify-between py-2.5 text-sm text-slate-800 dark:text-slate-200 font-semibold hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl neu-raised-sm bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 flex items-center justify-center">
+                  <KeyRound className="w-4 h-4" />
+                </div>
+                <div className="text-left">
+                  <span className="block font-bold">Change 6-Digit PIN</span>
+                  <span className="text-[11px] font-normal text-slate-500 dark:text-slate-400">
+                    {userProfile?.pin ? 'PIN is configured and active' : 'Set your 6-digit security PIN'}
+                  </span>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-slate-400" />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                lockApp();
+                toast.info('Application screen locked.');
+              }}
+              className="w-full flex items-center justify-between py-2.5 text-sm text-slate-700 dark:text-slate-300 font-medium hover:text-amber-600 dark:hover:text-amber-400 transition-colors cursor-pointer border-t border-black/[0.04] dark:border-white/5 pt-2.5"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl neu-raised-sm bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 flex items-center justify-center">
+                  <Shield className="w-4 h-4" />
+                </div>
+                <span className="font-bold">Lock App Screen Now</span>
+              </div>
+              <Lock className="w-4 h-4 text-amber-500" />
+            </button>
+          </div>
         </div>
 
         {/* Appearance & Theme Card (Light / Dark Mode) */}
@@ -373,7 +427,7 @@ export const ProfilePage: React.FC = () => {
 
           <button
             type="button"
-            onClick={() => toast.info('VyaparX v1.0. Developed for Commodity & Agro Brokers.')}
+            onClick={() => setShowAboutModal(true)}
             className="w-full flex items-center justify-between py-2 text-sm text-slate-700 dark:text-slate-300 font-medium hover:text-teal-700 dark:hover:text-teal-400 transition-colors cursor-pointer"
           >
             <div className="flex items-center gap-3">
@@ -389,7 +443,7 @@ export const ProfilePage: React.FC = () => {
             className="w-full flex items-center justify-between py-2 text-sm text-slate-700 dark:text-slate-300 font-medium hover:text-teal-700 dark:hover:text-teal-400 transition-colors cursor-pointer"
           >
             <div className="flex items-center gap-3">
-              <Smartphone className="w-4 h-4 text-teal-600" />
+              <Mail className="w-4 h-4 text-teal-600" />
               <span>Contact Us</span>
             </div>
             <ChevronRight className="w-4 h-4 text-slate-400" />
@@ -415,90 +469,69 @@ export const ProfilePage: React.FC = () => {
         />
       )}
 
-      {/* Selected Company Contact Us Popup Modal */}
+      {/* Contact Us Modal - Static Developer Support Email */}
       {showContactModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in">
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/70 backdrop-blur-md animate-in fade-in"
+          onClick={() => setShowContactModal(false)}
+        >
           <div
-            className="w-full max-w-sm neu-raised-lg rounded-3xl p-6 space-y-4 border border-white/60 dark:border-white/10 animate-in zoom-in-95"
+            className="w-full max-w-sm neu-raised-lg rounded-3xl p-6 space-y-4 border border-[#D5DDE7] dark:border-white/10 animate-in zoom-in-95 bg-[#E8EDF3] dark:bg-[#262B36]"
             onClick={e => e.stopPropagation()}
           >
             <div className="flex justify-between items-start border-b border-black/[0.06] dark:border-white/10 pb-3">
-              <div>
-                <h3 className="font-extrabold text-base text-slate-900 dark:text-slate-100 uppercase tracking-tight">
-                  {currentCompany?.name || 'Company Contact'}
-                </h3>
-                {currentCompany?.username && (
-                  <p className="text-xs font-bold uppercase mt-0.5 text-blue-600 dark:text-blue-400">
-                    @{currentCompany.username}
-                  </p>
-                )}
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl neu-raised-sm bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 flex items-center justify-center shrink-0">
+                  <Mail className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-base text-slate-900 dark:text-slate-100 tracking-tight">
+                    Contact Us
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Support & Help Desk</p>
+                </div>
               </div>
               <button
                 type="button"
                 onClick={() => setShowContactModal(false)}
-                className="w-8 h-8 rounded-xl neu-raised-sm flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 border border-white/60 dark:border-white/5 transition-all cursor-pointer"
+                className="w-8 h-8 rounded-xl neu-raised-sm flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 border border-[#D5DDE7] dark:border-white/5 transition-all cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="space-y-2.5">
-              {/* Phone / Mobile */}
-              <div className="p-3.5 neu-inset-sm rounded-2xl flex items-center justify-between border border-black/[0.04] dark:border-white/5">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-xl neu-raised-sm bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 flex items-center justify-center shrink-0">
-                    <Smartphone className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <div className="text-[10px] font-bold uppercase text-slate-400">Mobile Number</div>
-                    <div className="text-xs font-bold text-slate-900 dark:text-slate-100">
-                      {currentCompany?.contactNumber || userProfile?.phone || '9574823170'}
-                    </div>
-                  </div>
-                </div>
-                {(currentCompany?.contactNumber || userProfile?.phone) && (
-                  <a
-                    href={`tel:${currentCompany?.contactNumber || userProfile?.phone}`}
-                    className="neu-button-primary px-3.5 py-1.5 text-xs font-bold rounded-xl flex items-center gap-1.5 cursor-pointer"
-                  >
-                    <Phone className="w-3.5 h-3.5" />
-                    <span>Call</span>
-                  </a>
-                )}
-              </div>
-
-              {/* Email */}
-              <div className="p-3.5 neu-inset-sm rounded-2xl flex items-center justify-between border border-black/[0.04] dark:border-white/5">
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="w-8 h-8 rounded-xl neu-raised-sm bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 flex items-center justify-center shrink-0">
+            <div className="space-y-3">
+              {/* Only Static Email */}
+              <div className="p-4 neu-inset-sm rounded-2xl flex items-center justify-between border border-black/[0.04] dark:border-white/5">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-9 h-9 rounded-xl neu-raised-sm bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 flex items-center justify-center shrink-0">
                     <Mail className="w-4 h-4" />
                   </div>
                   <div className="min-w-0">
-                    <div className="text-[10px] font-bold uppercase text-slate-400">Email Address</div>
-                    <div className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate max-w-[160px]">
-                      {currentCompany?.email || currentCompany?.userEmail || currentUser?.email || 'krishnafibers@gmail.com'}
+                    <div className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Email Support</div>
+                    <div className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 truncate">
+                      jenishpatel.dev7@gmail.com
                     </div>
                   </div>
                 </div>
-                {(currentCompany?.email || currentCompany?.userEmail || currentUser?.email) && (
-                  <a
-                    href={`mailto:${currentCompany?.email || currentCompany?.userEmail || currentUser?.email}`}
-                    className="neu-button-primary px-3.5 py-1.5 text-xs font-bold rounded-xl shrink-0 flex items-center gap-1.5 cursor-pointer"
+                <div className="flex items-center gap-1.5 shrink-0 ml-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText('jenishpatel.dev7@gmail.com');
+                      toast.success('Email copied to clipboard!');
+                    }}
+                    title="Copy Email"
+                    className="neu-button-secondary p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:text-blue-600 transition-all cursor-pointer"
                   >
-                    <Mail className="w-3.5 h-3.5" />
-                    <span>Email</span>
+                    <Copy className="w-3.5 h-3.5" />
+                  </button>
+                  <a
+                    href="mailto:jenishpatel.dev7@gmail.com"
+                    className="neu-button-primary px-3 py-1.5 text-xs font-bold rounded-xl flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <span>Send</span>
                   </a>
-                )}
-              </div>
-
-              {/* Address */}
-              <div className="p-3.5 neu-inset-sm rounded-2xl text-xs space-y-1 border border-black/[0.04] dark:border-white/5">
-                <div className="text-[10px] font-bold uppercase text-slate-400">Business Address</div>
-                <div className="font-semibold text-slate-800 dark:text-slate-200 uppercase leading-relaxed">
-                  {currentCompany?.address || 'PALIYAD ROAD BOTAD'}
-                  {currentCompany?.city ? `, ${currentCompany.city}` : ', BOTAD'}
-                  {currentCompany?.state ? `, ${currentCompany.state}` : ', GUJARAT'}
-                  {currentCompany?.pinCode ? ` - ${currentCompany.pinCode}` : ' - 364710'}
                 </div>
               </div>
             </div>
@@ -506,6 +539,99 @@ export const ProfilePage: React.FC = () => {
             <button
               type="button"
               onClick={() => setShowContactModal(false)}
+              className="neu-button-secondary w-full py-2.5 font-bold text-xs rounded-2xl transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+              <span>Close</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* About Us Modal - Developer Credits */}
+      {showAboutModal && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/70 backdrop-blur-md animate-in fade-in"
+          onClick={() => setShowAboutModal(false)}
+        >
+          <div
+            className="w-full max-w-sm neu-raised-lg rounded-3xl p-6 space-y-4 border border-[#D5DDE7] dark:border-white/10 animate-in zoom-in-95 bg-[#E8EDF3] dark:bg-[#262B36]"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-start border-b border-black/[0.06] dark:border-white/10 pb-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl neu-raised-sm bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-neu-raised-sm shrink-0">
+                  <Code2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-base text-slate-900 dark:text-slate-100 tracking-tight">
+                    About Us
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">VyaparX • v1.0</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAboutModal(false)}
+                className="w-8 h-8 rounded-xl neu-raised-sm flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 border border-[#D5DDE7] dark:border-white/5 transition-all cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3.5">
+              {/* Developer Credit Box */}
+              <div className="p-4 neu-inset-sm rounded-2xl space-y-2 border border-black/[0.04] dark:border-white/5 text-center">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+                  <Sparkles className="w-3 h-3" />
+                  <span>Design & Developed By</span>
+                </div>
+                <div className="text-lg font-black text-slate-900 dark:text-slate-100 tracking-tight">
+                  Jenish Khambhaliya
+                </div>
+                <div className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest">
+                  Software Developer
+                </div>
+              </div>
+
+              {/* Email Contact Inset */}
+              <div className="p-3 neu-inset-sm rounded-2xl flex items-center justify-between border border-black/[0.04] dark:border-white/5">
+                <div className="flex items-center gap-2 min-w-0">
+                  <Mail className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
+                  <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 truncate">
+                    jenishpatel.dev7@gmail.com
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5 shrink-0 ml-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText('jenishpatel.dev7@gmail.com');
+                      toast.success('Email copied to clipboard!');
+                    }}
+                    title="Copy Email"
+                    className="neu-button-secondary p-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-blue-600 transition-all cursor-pointer"
+                  >
+                    <Copy className="w-3.5 h-3.5" />
+                  </button>
+                  <a
+                    href="mailto:jenishpatel.dev7@gmail.com"
+                    className="neu-button-primary px-2.5 py-1 text-[11px] font-bold rounded-xl flex items-center gap-1 cursor-pointer"
+                  >
+                    <span>Email</span>
+                  </a>
+                </div>
+              </div>
+
+              {/* App Summary */}
+              <div className="p-3 neu-inset-sm rounded-2xl text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed border border-black/[0.04] dark:border-white/5 text-center">
+                Commodity ERP, Sauda Book & Billing Management platform built with speed, precision, and ease-of-use for brokers and commission agents.
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowAboutModal(false)}
               className="neu-button-secondary w-full py-2.5 font-bold text-xs rounded-2xl transition-all flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <X className="w-4 h-4" />
