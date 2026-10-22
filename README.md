@@ -1,845 +1,212 @@
-📒 VyaparX
+# 📒 VyaparX (व्यापारX)
+
+> **Enterprise-Grade Commodity ERP, Trade Billing & Digital Sauda Book Platform**  
+> Designed and engineered for agricultural commodity brokers, commission agents, ginners, and traders (Kapas, Cotton Bales, Khol, Grains, Oilseeds, and Mandi trades).
 
-A modern, responsive business management web application built with React.js for managing companies, items, parties, Sauda orders, payments, dispatches, bills, reports, and business profiles.
+---
 
-The application is designed based on the existing VyaparX mobile application UI/UX and recreated as a responsive web application for both desktop and mobile devices.
+## 🌟 Overview
 
-🚀 Features
-
-🏠 Dashboard
-
-Total Sauda Orders
-
-Current Company information
-
-Current Financial Year
-
-Item summary
-
-Party List
-
-Sauda Order List
-
-Create New Sauda Order
-
-Item List
-
-Sauda Dispatch
-
-Sauda Bill
-
-Quick navigation to major modules
-
-🏢 Company Management
-
-Add, edit, delete and search companies
-
-Set Default Company
-
-Switch Company
-
-GST Number
-
-PAN Number
-
-Bank Details
-
-Account Number
-
-Account Holder Name
-
-IFSC Code
-
-UPI ID
-
-Sauda Note Color
-
-Sauda Note PDF Template
-
-Signature setting
-
-📦 Item Management
-
-Add, edit, delete and search items
-
-Item selection modal
-
-Item ID and location information
-
-Item quality/variety
-
-Example items:
-
-KAPAS
-
-RAM
-
-SKY
-
-👥 Party Management
-
-Manage sellers and buyers from a single party module.
-
-Party Types
-
-Seller
-
-Buyer
-
-Both
-
-Party Information
-
-Party Name
-
-Contact Person
-
-Phone Number
-
-Address
-
-City
-
-State
-
-PIN Code
-
-GST Number
-
-PAN Number
-
-Bank Details
-
-Commission Rate
-
-📝 Sauda Order Management
-
-Create and manage complete Sauda orders using a multi-step workflow:
-
-Item
-
-Seller
-
-Buyer
-
-Item Details
-
-Date
-
-Item Name
-
-Item Quality / Variety
-
-Quantity
-
-Unit
-
-Bill Rate
-
-GST
-
-Bill Number
-
-Payment Terms
-
-Delivery Terms
-
-Remarks
-
-Terms & Conditions
-
-Seller Details
-
-Seller Name
-
-Commission Rate
-
-Commission Amount
-
-Seller Contact Person
-
-Buyer Details
-
-Buyer Name
-
-Commission Rate
-
-Commission Amount
-
-Buyer Contact Person
-
-💰 Automatic Calculations
-
-Bill Amount
-
-Bill Amount = Quantity × Unit × Bill Rate
-
-Commission
-
-Commission Amount = Base Amount × Commission Rate / 100
-
-Payment Balance
-
-Remaining Amount = Total Bill Amount - Total Payments
-
-Dispatch Balance
-
-Remaining Quantity = Order Quantity - Dispatched Quantity
-
-GST is applied when the With GST option is enabled. All calculations are dynamic and are not hardcoded.
-
-🚚 Sauda Dispatch
-
-Sauda ID
-
-Dispatch Date
-
-Quantity
-
-Vehicle Number
-
-Transporter
-
-Driver / Contact
-
-Remarks
-
-Dispatch Status
-
-Statuses:
-
-Pending
-
-Partial
-
-Dispatched
-
-Completed
-
-💳 Payment Management
-
-Payment Date
-
-Amount
-
-Payment Mode
-
-Reference Number
-
-Remarks
-
-Payment Status
-
-Payment modes:
-
-Cash
-
-Bank Transfer
-
-UPI
-
-Cheque
-
-Other
-
-Automatically displays:
-
-Bill Amount
-
-Paid Amount
-
-Remaining Amount
-
-🧾 Sauda Bill & PDF
-
-Professional Sauda notes/bills with:
-
-Template 1
-
-Template 2
-
-Template 3
-
-Template 4
-
-Company Details
-
-Seller Details
-
-Buyer Details
-
-Item Details
-
-Quantity
-
-Rate
-
-Payment Terms
-
-Delivery Terms
-
-Remarks
-
-Terms & Conditions
-
-Signature
-
-Actions:
-
-Preview
-
-Print
-
-Download
-
-📊 Reports
-
-Brokerage Total Amount Party Wise Report
-
-Generated Brokerage Bills
-
-Filters:
-
-Company
-
-Financial Year
-
-Date Range
-
-Item
-
-Seller
-
-Buyer
-
-Party
-
-Status
-
-⚡ Quick Values
-
-Save frequently used values for faster Sauda creation:
-
-Payment Terms
-
-Delivery Terms
-
-Remarks
-
-Quality / Variety
-
-Units
-
-Other recurring fields
-
-🔐 Security
-
-Set PIN
-
-Confirm PIN
-
-Change PIN
-
-Enable / Disable PIN Lock
-
-This is a browser-based implementation and should not be considered production-grade cryptographic security until a secure backend authentication system is implemented.
-
-🎁 Referral System
-
-Referral Code
-
-Copy Referral Code
-
-Share App
-
-My Referral Users
-
-👤 Profile
-
-Includes:
-
-Personal Information
-
-Change Company / Financial Year
-
-Reports
-
-Quick Values
-
-Terms & Conditions
-
-Privacy Policy
-
-How to Use App
-
-Rate Us
-
-About Us
-
-Contact Us
-
-Get Desktop App
-
-Device Management
-
-Set PIN
-
-Referral Code
-
-Share App
-
-My Referral Users
-
-Logout
-
-💾 Data Storage
-
-The current version uses IndexedDB for browser-based persistent data storage.
-
-Data remains available after:
-
-Page refresh
-
-Browser restart
-
-Application restart
-
-IndexedDB Stores
-
-companies
-financialYears
-items
-parties
-saudaOrders
-dispatches
-payments
-quickValues
-settings
-referrals
-users
-
-🏗️ Project Architecture
-
-src/
-│
-├── components/
-│   ├── common/
-│   ├── forms/
-│   ├── cards/
-│   ├── modals/
-│   └── navigation/
-│
-├── pages/
-│   ├── Home/
-│   ├── Items/
-│   ├── Parties/
-│   ├── Sauda/
-│   ├── Companies/
-│   └── Profile/
-│
-├── services/
-│   ├── companyService
-│   ├── itemService
-│   ├── partyService
-│   ├── saudaService
-│   ├── paymentService
-│   ├── dispatchService
-│   └── reportService
-│
-├── db/
-│   ├── indexedDB
-│   ├── repositories
-│   └── seedData
-│
-├── hooks/
-├── utils/
-├── routes/
-├── layouts/
-├── data/
-└── styles/
-
-🛠️ Technology Stack
-
-Technology
-
-Purpose
-
-React.js
-
-Frontend framework
-
-Vite
-
-Development & build tool
-
-React Router
-
-Application routing
-
-JavaScript / TypeScript
-
-Application development
-
-IndexedDB
-
-Persistent browser storage
-
-Lucide React
-
-Icons
-
-CSS
-
-Responsive UI
-
-PDF Library
-
-Bill/PDF generation
-
-📱 Responsive Design
-
-Mobile
-
-Mobile-first forms
-
-Bottom navigation
-
-Floating action buttons
-
-Touch-friendly controls
-
-Mobile search dialogs
-
-Responsive cards
-
-Tablet
-
-Adaptive layouts
-
-Responsive grids
-
-Optimized forms
-
-Desktop
-
-Sidebar navigation
-
-Top header
-
-Dashboard cards
-
-Tables
-
-Multi-column layouts
-
-🎨 UI Design
-
-The application follows the visual style of the VyaparX mobile application.
-
-Primary Brand Color: Orange / Amber
-
-#FF9800
-
-Supporting Colors
-
-Success  → Green
-Buyer    → Blue
-Danger   → Red
-Security → Purple
-Support  → Teal
-
-The UI uses:
-
-Rounded cards
-
-Soft shadows
-
-Clean typography
-
-Consistent spacing
-
-Responsive components
-
-Touch-friendly controls
-
-⚙️ Installation
-
-Clone the repository:
-
-git clone <YOUR_REPOSITORY_URL>
-
-Navigate to the project:
-
+**VyaparX** is a modern, high-performance web and standalone Progressive Web Application (PWA) built with **React 19**, **TypeScript**, and **Google Cloud Firestore**. It digitalizes the traditional brokerage "Sauda Book" ledger, replacing error-prone paper slips with structured, automated, and legally compliant digital trade workflows.
+
+The application features a sleek **Neumorphic design system** supporting both Light and Dark modes, lightning-fast offline-ready performance, 30-day persistent sessions secured by a 6-digit Passcode PIN, and environment-isolated trade disclaimers.
+
+---
+
+## 🚀 Key Features & Modules
+
+### 🏢 1. Multi-Company & Financial Year Management
+* **Multi-Firm Architecture**: Seamlessly switch between multiple brokerage firms under one account.
+* **Firm Profiles**: Manage firm GSTIN, PAN, Bank Details (IFSC, Account Number, UPI ID), signature, and branding.
+* **Financial Year Switching**: Easily navigate across financial years (e.g., `2025-2026`, `2026-2027`) with dynamic ledger segregation.
+
+### 📦 2. Commodity Item Master
+* **Pre-configured Agro Items**: Kapas, Cotton Bales, Khol, Grains, Oilseeds, etc.
+* **Flexible Units**: Bales, Candies, Quintals, Metric Tons, Bags, and Kgs.
+* **Custom Varieties & Grades**: Track moisture, staple length, trash percentage, and quality parameters.
+* **Default Brokerage Rates**: Pre-set commission rates per unit or percentage for instant sauda calculations.
+
+### 👥 3. Party (Counterparty) Directory
+* **Role Classification**: Categorize counterparties as **Seller**, **Buyer**, or **Both**.
+* **Comprehensive Party Records**: Contact person, mobile numbers, business address, APMC Mandi licenses, and GSTIN.
+* **Party-Specific Brokerage**: Override default commission rates for specific trading clients.
+
+### 📝 4. 3-Step Sauda Order Wizard
+* **Step 1: Item & Pricing**: Commodity selection, quantity, packing unit, rate per unit, gross amount calculation, and delivery dates.
+* **Step 2: Seller Details**: Seller party selection, seller commission rate, brokerage amount, dispatch terms, and vehicle details.
+* **Step 3: Buyer Details**: Buyer party selection, buyer commission rate, brokerage amount, payment terms, and condition notes.
+* **Auto-Calculations**: Instant calculation of total bill amount, dual-party brokerage, and net payable summaries.
+
+### 📄 5. Digital Sauda Slips, Printing & PDF
+* **Dual Contract Templates**:
+  * *Template 1*: Classic Tabular Confirmation Note (traditional Mandi trade format).
+  * *Template 2*: Modern Executive Corporate Vector Contract (official corporate layout).
+* **Instant Sharing**: One-click sharing of trade slips via WhatsApp, SMS, or direct download.
+* **High-Res Direct Printing**: Formatted print layouts with automatic page break control and company letterhead.
+
+### 📊 6. Brokerage & Financial Reports
+* **Party-Wise Brokerage Ledger**: Detailed breakdowns of total orders, physical trade volume, total turnover, and earned brokerage commission.
+* **Live Search & Filter**: Instant filtering by party name, date range, or transaction status.
+* **Official Bill Printing**: Generate and print consolidated brokerage bills for buyer and seller settlements.
+
+### ⚡ 7. Manage Quick Values
+* Accelerate order creation with reusable autocomplete chips for payment terms, delivery conditions, locations, and remarks.
+
+---
+
+## 🔐 Architecture, Security & Reliability
+
+### ☁️ Cloud-Backed Multi-Tenant Database
+* Built on **Google Cloud Firestore** (`vyaparx-610fe`).
+* **Strict Tenant Scoping**: All entities (`users`, `companies`, `parties`, `items`, `saudaOrders`, `quickValues`, `financialYears`) are scoped to the authenticated user's email.
+* Full cloud synchronization across desktop browsers and mobile devices.
+
+### 🔑 30-Day Session & 6-Digit PIN Security
+* **Persistent Authentication**: Users remain logged in for 30 days without repeated OTP prompts.
+* **6-Digit Security Passcode (PIN)**: Mandatory passcode gate protects confidential trading data upon opening the application.
+* **Integrated Forgot PIN Flow**: Reset passcodes seamlessly using 4-digit OTP email verification without account lockout.
+* **Smart Write Triggers**: `lastLoginAt` updates strictly upon 6-digit PIN entry, avoiding excessive Firestore writes.
+
+### 🛡️ Strict Environment-Isolated Disclaimer & Terms
+* **🌐 Web Browser Mode**: Strictly session-isolated via `sessionStorage`; prompts on every fresh browser session/tab and never leaks into `localStorage`.
+* **📱 Installed PWA / App Mode**: Strictly app-isolated via `localStorage`; prompts upon fresh install, remembered across app closes, and resets upon reinstallation.
+* **Mandi Trade Terms**: Comprehensive legal conditions tailored for agricultural commodity brokerage (broker liability limitations, moisture/quality testing, weighbridge discrepancies, APMC Mandi tax, and arbitration).
+
+### 📧 Differentiated OTP Email Delivery
+* Tailored responsive HTML email templates powered by **Nodemailer**:
+  * 🔐 **Login Verification Email**: Royal Blue branding, purpose badge, and portal access notice.
+  * 🔑 **PIN Reset Authorization Email**: Emerald/Teal security banner, purpose badge, and passcode authorization advisory.
+
+### 📱 Progressive Web App (PWA) & Instant Scroll
+* **Installable on All Platforms**: Android (WebAPK), iOS (Safari A2HS), and Desktop (Chrome / Edge / Brave).
+* **PWA Update Notification**: Automatic version check without looping prompts.
+* **Global Scroll-To-Top**: Automatic viewport scroll reset on every route navigation, preventing header cutoffs.
+
+---
+
+## 🛠️ Tech Stack
+
+| Category | Technology |
+|---|---|
+| **Frontend Framework** | [React 19](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/) |
+| **Build Tool & Bundler** | [Vite 8](https://vitejs.dev/) |
+| **Styling & Design** | [Tailwind CSS 3](https://tailwindcss.com/) (Custom Neumorphic System) |
+| **Database** | [Google Cloud Firestore](https://firebase.google.com/docs/firestore) (Firebase Web SDK v13) |
+| **Icons** | [Lucide React](https://lucide.dev/) |
+| **PDF & Canvas Engine** | [jsPDF](https://github.com/parallax/jsPDF) & [html2canvas](https://html2canvas.hertzen.com/) |
+| **Server / API** | [Express 5](https://expressjs.com/) & [serverless-http](https://github.com/dougmoscrop/serverless-http) |
+| **Email Delivery** | [Nodemailer](https://nodemailer.com/) (Gmail SMTP / Custom Host) |
+| **Deployment** | [Vercel](https://vercel.com/) / [Netlify](https://www.netlify.com/) |
+
+---
+
+## 📁 Project Directory Structure
+
+```text
+VyaparX/
+├── api/                   # Serverless entrypoint for Vercel (/api)
+│   └── index.ts
+├── netlify/               # Serverless functions for Netlify
+│   └── functions/api.ts
+├── public/                # Static assets, icons, manifest.json & sw.js
+│   ├── favicon.png
+│   ├── icon-192.png
+│   ├── icon-512.png
+│   ├── manifest.json      # PWA manifest with standalone ?mode=pwa
+│   └── sw.js              # Service Worker
+├── server/                # Backend API & Email Service
+│   ├── app.ts             # Express application & API handlers
+│   └── emailService.ts    # Nodemailer config & dual OTP HTML templates
+├── src/
+│   ├── components/
+│   │   ├── auth/          # ProtectedRoute component
+│   │   ├── common/        # PinLockModal, DisclaimerTermsModal, ScrollToTop, etc.
+│   │   ├── layout/        # AppShell, TopHeader, DesktopSidebar, MobileBottomNav
+│   │   └── pdf/           # SaudaNoteTemplate rendering
+│   ├── context/           # AppContext, AuthContext, ThemeContext, LanguageContext, PwaContext
+│   ├── db/                # Firestore collections, config & initial seed data
+│   ├── i18n/              # Translations (English, Hindi, Gujarati)
+│   ├── lib/               # Firebase app & Firestore initialization
+│   ├── pages/
+│   │   ├── auth/          # EmailLoginPage, OtpVerificationPage, SetupPinPage
+│   │   ├── companies/     # CompaniesListPage, AddEditCompanyPage
+│   │   ├── items/         # ItemsListPage, AddEditItemPage
+│   │   ├── legal/         # LegalPages (Terms & Conditions, Privacy Policy, How-to-Use)
+│   │   ├── parties/       # PartiesListPage, AddEditPartyPage
+│   │   ├── profile/       # ProfilePage, PinSecurityPage, ReportsPage, QuickValuesPage
+│   │   └── sauda/         # SaudaListPage, CreateSaudaPage, EditSaudaPage, SaudaBillsPage
+│   ├── services/          # Cloud Firestore services (company, party, item, sauda, user, etc.)
+│   ├── types/             # TypeScript domain types & interfaces
+│   ├── utils/             # Platform detection, validators, formatters, PDF services
+│   ├── App.tsx            # Main application router & provider layout
+│   └── main.tsx           # Application bootstrap
+├── vercel.json            # Vercel routing configuration
+└── vite.config.ts         # Vite build and dev server config
+```
+
+---
+
+## ⚙️ Environment Configuration
+
+Create a `.env` file in the root directory:
+
+```env
+# Google Cloud Firestore Configuration (Optional override; defaults included in src/lib/firebase.ts)
+VITE_FIREBASE_API_KEY=your_firebase_api_key
+VITE_FIREBASE_AUTH_DOMAIN=vyaparx-610fe.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=vyaparx-610fe
+VITE_FIREBASE_STORAGE_BUCKET=vyaparx-610fe.firebasestorage.app
+VITE_FIREBASE_MESSAGING_SENDER_ID=466142431180
+VITE_FIREBASE_APP_ID=1:466142431180:web:cdfa2c56f909cb5ce53f69
+
+# Real OTP Email Delivery (Gmail SMTP)
+EMAIL_SERVICE=gmail
+EMAIL_USER=your_email@gmail.com
+EMAIL_PASSWORD=your_16_character_google_app_password
+EMAIL_FROM="VyaparX Security" <your_email@gmail.com>
+
+# Server Secret
+JWT_SECRET=your_super_secret_jwt_key
+```
+
+> **Note**: If `EMAIL_USER` and `EMAIL_PASSWORD` are not configured in local development, the system runs in Demo Mode with fallback OTP `1234`.
+
+---
+
+## 🚀 Getting Started
+
+### 1. Clone the repository
+```bash
+git clone https://github.com/your-username/vyaparx.git
 cd vyaparx
+```
 
-Install dependencies:
-
+### 2. Install dependencies
+```bash
 npm install
+```
 
-Start development server:
-
+### 3. Run development server
+```bash
 npm run dev
+```
+Open [http://localhost:5173](http://localhost:5173) in your browser.
 
-Application:
-
-http://localhost:5173
-
-🏭 Production Build
-
+### 4. Build for production
+```bash
 npm run build
+```
 
-Preview production build:
+---
 
-npm run preview
+## 👨‍💻 Author & Credits
 
-Before committing changes, verify:
+* **Designed & Developed by**: **Jenish Khambhaliya**
+* **Role**: Software Developer
+* **Support & Contact Email**: [jenishpatel.dev7@gmail.com](mailto:jenishpatel.dev7@gmail.com)
 
-No build errors
+---
 
-No broken imports
+## 📄 License
 
-No missing routes
-
-No major console errors
-
-🌱 Demo Data
-
-The first application launch includes sample data.
-
-Company
-
-KRISHNA FIBERS
-PALIYAD ROAD BOTAD
-GUJARAT
-
-Items
-
-KAPAS
-RAM
-SKY
-
-Parties
-
-SKY
-RAM
-
-Sample Sauda
-
-Item        : KAPAS
-Seller      : SKY
-Buyer       : RAM
-Quantity    : 200
-Unit        : 100
-Bill Rate   : 5353
-Seller Comm : 2.8%
-Buyer Comm  : 2.6%
-Date        : 08/09/2026
-
-Demo data can be modified or deleted from the application.
-
-🔄 Data Persistence
-
-Create Company
-       ↓
-IndexedDB
-       ↓
-Refresh Browser
-       ↓
-Company Still Available
-
-The same persistence applies to:
-
-Items
-
-Parties
-
-Sauda Orders
-
-Payments
-
-Dispatch
-
-Quick Values
-
-Settings
-
-🔮 Future Backend Integration
-
-The current application is intentionally designed without a backend.
-
-Future architecture:
-
-React
-   ↓
-REST API
-   ↓
-Node.js
-   ↓
-Express.js
-   ↓
-MongoDB
-
-The service architecture allows:
-
-IndexedDBRepository
-
-to be replaced by:
-
-ApiRepository
-
-without rewriting the entire UI.
-
-🗺️ Planned MERN Architecture
-
-                 ┌──────────────────┐
-                 │   React Frontend │
-                 └────────┬─────────┘
-                          │
-                          ▼
-                 ┌──────────────────┐
-                 │  Express REST API│
-                 └────────┬─────────┘
-                          │
-                          ▼
-                 ┌──────────────────┐
-                 │    Node.js       │
-                 └────────┬─────────┘
-                          │
-                          ▼
-                 ┌──────────────────┐
-                 │     MongoDB      │
-                 └──────────────────┘
-
-🔒 Production Security Roadmap
-
-Before production deployment:
-
-User authentication
-
-JWT / session authentication
-
-Secure password hashing
-
-Server-side validation
-
-Role-based access control
-
-API authorization
-
-Secure payment records
-
-Encrypted sensitive data
-
-HTTPS
-
-Rate limiting
-
-Audit logs
-
-Secure PDF generation
-
-Server-side database backups
-
-📂 Main Application Routes
-
-/
-├── /home
-│
-├── /items
-│   ├── /new
-│   ├── /:id
-│   └── /edit/:id
-│
-├── /parties
-│   ├── /new
-│   ├── /:id
-│   └── /edit/:id
-│
-├── /sauda
-│   ├── /create
-│   ├── /:id
-│   ├── /:id/edit
-│   ├── /:id/dispatch
-│   ├── /:id/payment
-│   └── /bills
-│
-├── /companies
-│   ├── /new
-│   ├── /:id
-│   └── /edit/:id
-│
-└── /profile
-    ├── /edit
-    ├── /reports
-    ├── /quick-values
-    ├── /legal
-    ├── /security
-    └── /referrals
-
-📌 Current Status
-
-Frontend              : React.js
-Storage               : IndexedDB
-Responsive Design     : Yes
-Mobile UI             : Yes
-Desktop UI            : Yes
-Company Management    : Available
-Item Management       : Available
-Party Management      : Available
-Sauda Management      : Available
-Payment Management    : Available
-Dispatch Management   : Available
-Reports               : Available
-PDF Bills             : Available
-Quick Values          : Available
-PIN Security          : Available
-Referral System       : Available
-Backend               : Planned
-MongoDB               : Planned
-
-🤝 Contributing
-
-Recommended workflow:
-
-Create a development branch:
-
-git checkout -b dev
-
-Make changes:
-
-git add .
-git commit -m "feat: update sauda order module"
-
-Push the development branch:
-
-git push origin dev
-
-After testing, merge the changes into main.
-
-📜 License
-
-This project is intended for business application development and demonstration purposes.
-
-Add an appropriate commercial or open-source license before public distribution.
-
-👨‍💻 Developer
-
-VyaparX
-
-A modern digital solution for managing:
-
-Companies
-Items
-Parties
-Sauda Orders
-Payments
-Dispatch
-Bills
-Reports
-Business Operations
-
-⭐ Project Vision
-
-The goal of VyaparX is to provide a simple, fast and reliable digital platform for managing day-to-day trading and business transactions.
-
-Simple UI + Fast Data Entry + Automatic Calculations + Business Reports + Digital Bills
+This software and its source code are proprietary. All rights reserved © 2026 **VyaparX**.
