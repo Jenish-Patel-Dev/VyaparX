@@ -4,6 +4,7 @@ import { DesktopSidebar } from './DesktopSidebar';
 import { TopHeader } from './TopHeader';
 import { MobileBottomNav } from './MobileBottomNav';
 import { PinLockModal } from '../common/PinLockModal';
+import { SystemNoticeBanner } from '../common/SystemNoticeBanner';
 import { useTheme } from '../../context/ThemeContext';
 
 export const AppShell: React.FC = () => {
@@ -63,6 +64,7 @@ export const AppShell: React.FC = () => {
 
       {/* Main Right Column (Fixed Header + Scrollable Middle Viewport) */}
       <div className="relative flex-1 flex flex-col h-screen max-h-screen min-w-0 overflow-hidden">
+        <SystemNoticeBanner />
         <TopHeader />
         
         {/* Isolated Scrollable Viewport - Only this container scrolls */}

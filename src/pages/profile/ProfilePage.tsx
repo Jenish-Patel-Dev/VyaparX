@@ -567,7 +567,19 @@ export const ProfilePage: React.FC = () => {
                   <h3 className="font-extrabold text-base text-slate-900 dark:text-slate-100 tracking-tight">
                     About Us
                   </h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">VyaparX • v1.0</p>
+                  <p
+                    onClick={() => {
+                      const count = (Number(sessionStorage.getItem('about_clicks') || '0')) + 1;
+                      sessionStorage.setItem('about_clicks', String(count));
+                      if (count >= 5) {
+                        sessionStorage.removeItem('about_clicks');
+                        navigate('/admin/login');
+                      }
+                    }}
+                    className="text-xs text-slate-500 dark:text-slate-400 cursor-default select-none"
+                  >
+                    VyaparX • v1.0
+                  </p>
                 </div>
               </div>
               <button

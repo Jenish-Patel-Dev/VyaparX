@@ -125,6 +125,32 @@
   }
 }
 
+/* Explicit Custom Scrollbar when scrolling is needed */
+.custom-scrollbar {
+  -ms-overflow-style: auto !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(148, 163, 184, 0.45) transparent !important;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  display: block !important;
+  width: 7px !important;
+  height: 7px !important;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.45) !important;
+  border-radius: 9999px !important;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.75) !important;
+}
+
 /* ==========================================================================
    PREMIUM NEUMORPHISM (SOFT UI) DESIGN SYSTEM CORE SURFACES
    ========================================================================== */
@@ -425,7 +451,11 @@
     overflow: hidden !important;
   }
 
-  /* When printing in isolated mode, hide the main app root entirely */
+  /* When printing in isolated mode, hide the main app root and any modals/portals entirely */
+  body.is-printing-note > *:not(#print-root) {
+    display: none !important;
+  }
+
   body.is-printing-note #root {
     display: none !important;
   }
