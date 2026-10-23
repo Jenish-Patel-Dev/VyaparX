@@ -20,6 +20,17 @@ export const EmailLoginPage: React.FC = () => {
   const [email, setEmail] = useState<string>(pendingEmail || '');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
+  const [secretClicks, setSecretClicks] = useState<number>(0);
+
+  const handleSecretAdminTrigger = () => {
+    const next = secretClicks + 1;
+    if (next >= 5) {
+      navigate('/admin/login');
+    } else {
+      setSecretClicks(next);
+      setTimeout(() => setSecretClicks(0), 3000);
+    }
+  };
 
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -167,7 +178,11 @@ export const EmailLoginPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="text-[10px] sm:text-[11px] text-gray-400 dark:text-gray-500 font-bold tracking-wider uppercase relative z-10 shrink-0 py-1">
+      <div
+        onClick={handleSecretAdminTrigger}
+        className="text-[10px] sm:text-[11px] text-gray-400 dark:text-gray-500 font-bold tracking-wider uppercase relative z-10 shrink-0 py-1 cursor-default select-none"
+        title="VyaparX Enterprise"
+      >
         Commodity Brokerage Management System
       </div>
     </div>

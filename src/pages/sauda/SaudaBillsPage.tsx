@@ -190,7 +190,9 @@ export const SaudaBillsPage: React.FC = () => {
 
   const handlePrint = () => {
     if (selectedOrder) {
-      printSaudaNote(selectedOrder);
+      const seller = parties.find(p => p.id === selectedOrder.sellerId || (selectedOrder.sellerName && p.name.trim().toLowerCase() === selectedOrder.sellerName.trim().toLowerCase()));
+      const buyer = parties.find(p => p.id === selectedOrder.buyerId || (selectedOrder.buyerName && p.name.trim().toLowerCase() === selectedOrder.buyerName.trim().toLowerCase()));
+      printSaudaNote(selectedOrder, 'printable-sauda-note', seller, buyer);
     } else {
       window.print();
     }
@@ -200,12 +202,16 @@ export const SaudaBillsPage: React.FC = () => {
     if (!selectedOrder) return;
     setIsDownloading(true);
     try {
+      const seller = parties.find(p => p.id === selectedOrder.sellerId || (selectedOrder.sellerName && p.name.trim().toLowerCase() === selectedOrder.sellerName.trim().toLowerCase()));
+      const buyer = parties.find(p => p.id === selectedOrder.buyerId || (selectedOrder.buyerName && p.name.trim().toLowerCase() === selectedOrder.buyerName.trim().toLowerCase()));
       const success = await downloadSaudaNotePdf(
         selectedOrder,
         currentCompany,
         activeColor,
         activeTemplate,
-        showSignature
+        showSignature,
+        seller,
+        buyer
       );
       if (success) {
         toast.showToast('Vyapar Note PDF downloaded successfully!', 'success');
@@ -641,6 +647,8 @@ export const SaudaBillsPage: React.FC = () => {
                     <SaudaNoteTemplate
                       order={selectedOrder}
                       company={currentCompany || undefined}
+                      seller={parties.find(p => p.id === selectedOrder.sellerId || (selectedOrder.sellerName && p.name.trim().toLowerCase() === selectedOrder.sellerName.trim().toLowerCase()))}
+                      buyer={parties.find(p => p.id === selectedOrder.buyerId || (selectedOrder.buyerName && p.name.trim().toLowerCase() === selectedOrder.buyerName.trim().toLowerCase()))}
                       color={activeColor}
                       template={activeTemplate}
                       showSignature={showSignature}

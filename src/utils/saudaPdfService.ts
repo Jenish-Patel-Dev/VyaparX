@@ -149,42 +149,45 @@ export const generateSaudaVectorPdf = (
   const themeKey = (color || 'RED').toUpperCase();
   const theme = SAUDA_COLOR_THEMES[themeKey] || SAUDA_COLOR_THEMES.RED;
 
-  const compName = company?.name || 'COMPANY NAME';
-  const compAddr = company?.address || 'Address';
-  const compCityState = `${company?.city || 'City'}, ${company?.state || 'State'}${company?.pinCode ? ' - ' + company.pinCode : ''}`;
-  const compPhone = company?.contactNumber || '9876543210';
-  const compEmail = company?.email || 'xyzdemotest@gmail.com';
+  const compName = company?.name || '-';
+  const compAddr = company?.address || '-';
+  const compCity = company?.city || '';
+  const compState = company?.state || '';
+  const compPin = company?.pinCode ? ` - ${company.pinCode}` : '';
+  const compCityState = [compCity, compState].filter(Boolean).join(', ') + compPin || '-';
+  const compPhone = company?.contactNumber || '-';
+  const compEmail = company?.email || '-';
 
   const orderDoNo = order.doNo || `${(order.date || '').replace(/-/g, '')}${String(order.id || 1).padStart(3, '0')}`;
   const billDateLong = formatLongDate(order.date);
 
-  const itemName = order.itemName || 'COMMODITY NAME';
-  const itemQuality = order.itemQuality || 'A-1';
-  const quantity = order.quantity || 100;
-  const unit = order.unit || 'CANDY';
-  const billRate = order.billRate || 3723;
-  const totalAmount = order.totalBillAmount || (quantity * billRate);
-  const payTerms = order.paymentTerms || '15';
+  const itemName = order.itemName || '-';
+  const itemQuality = order.itemQuality || '-';
+  const quantity = order.quantity !== undefined && order.quantity !== null ? order.quantity : '-';
+  const unit = order.unit || '-';
+  const billRate = order.billRate !== undefined && order.billRate !== null ? order.billRate : '-';
+  const totalAmount = order.totalBillAmount || (typeof quantity === 'number' && typeof billRate === 'number' ? quantity * billRate : 0);
+  const payTerms = order.paymentTerms || '-';
 
-  const sellerName = order.sellerName || seller?.name || 'SELLER NAME';
-  const sellerGst = seller?.gstNumber || order.sellerContactPerson || '24XXXXXXXXXX1Z5';
-  const sellerLoc = order.sellerLocation || seller?.address || 'Address';
+  const sellerName = order.sellerName || seller?.name || '-';
+  const sellerGst = seller?.gstNumber || '-';
+  const sellerLoc = order.sellerLocation || seller?.address || '-';
   const sellerCity = order.sellerCity || seller?.city || '';
-  const sellerFullLocation = [sellerLoc, sellerCity].filter(Boolean).join(', ') || 'Address, City';
-  const sellerComm = `${order.sellerCommissionRate ?? 2.5} %`;
+  const sellerFullLocation = [sellerLoc, sellerCity].filter(Boolean).filter((x) => x !== '-').join(', ') || sellerLoc || '-';
+  const sellerComm = order.sellerCommissionRate !== undefined && order.sellerCommissionRate !== null ? `${order.sellerCommissionRate} %` : '-';
 
-  const buyerName = order.buyerName || buyer?.name || 'BUYER NAME';
-  const buyerGst = buyer?.gstNumber || order.buyerContactPerson || '24XXXXXXXXXX1Z5';
-  const buyerLoc = order.buyerLocation || buyer?.address || 'Address';
+  const buyerName = order.buyerName || buyer?.name || '-';
+  const buyerGst = buyer?.gstNumber || '-';
+  const buyerLoc = order.buyerLocation || buyer?.address || '-';
   const buyerCity = order.buyerCity || buyer?.city || '';
-  const buyerFullLocation = [buyerLoc, buyerCity].filter(Boolean).join(', ') || 'Address, City';
-  const buyerComm = `${order.buyerCommissionRate ?? 2.5} %`;
+  const buyerFullLocation = [buyerLoc, buyerCity].filter(Boolean).filter((x) => x !== '-').join(', ') || buyerLoc || '-';
+  const buyerComm = order.buyerCommissionRate !== undefined && order.buyerCommissionRate !== null ? `${order.buyerCommissionRate} %` : '-';
 
-  const rdValue = order.rdValue || 'A-1';
-  const stapleLength = order.stapleLength || '30';
-  const mic = order.mic || '4-5';
-  const trash = order.trashPercent ? `${order.trashPercent} %` : '3.5 %';
-  const moisture = order.moisturePercent ? `${order.moisturePercent} %` : '5.3 %';
+  const rdValue = order.rdValue || '-';
+  const stapleLength = order.stapleLength || '-';
+  const mic = order.mic || '-';
+  const trash = order.trashPercent ? `${order.trashPercent} %` : '-';
+  const moisture = order.moisturePercent ? `${order.moisturePercent} %` : '-';
 
   const liveTimeStr = formatSaudaFooterDateTime(new Date());
 

@@ -154,7 +154,9 @@ export const SaudaListPage: React.FC = () => {
 
   const handlePrintPdf = () => {
     if (activeShareOrder) {
-      printSaudaNote(activeShareOrder);
+      const seller = parties.find(p => p.id === activeShareOrder.sellerId || (activeShareOrder.sellerName && p.name.trim().toLowerCase() === activeShareOrder.sellerName.trim().toLowerCase()));
+      const buyer = parties.find(p => p.id === activeShareOrder.buyerId || (activeShareOrder.buyerName && p.name.trim().toLowerCase() === activeShareOrder.buyerName.trim().toLowerCase()));
+      printSaudaNote(activeShareOrder, 'printable-sauda-note', seller, buyer);
     } else {
       window.print();
     }
@@ -164,12 +166,16 @@ export const SaudaListPage: React.FC = () => {
     if (!activeShareOrder) return;
     setIsDownloadingPdf(true);
     try {
+      const seller = parties.find(p => p.id === activeShareOrder.sellerId || (activeShareOrder.sellerName && p.name.trim().toLowerCase() === activeShareOrder.sellerName.trim().toLowerCase()));
+      const buyer = parties.find(p => p.id === activeShareOrder.buyerId || (activeShareOrder.buyerName && p.name.trim().toLowerCase() === activeShareOrder.buyerName.trim().toLowerCase()));
       const success = await downloadSaudaNotePdf(
         activeShareOrder,
         currentCompany,
         currentCompany?.saudaNoteColor || 'RED',
         currentCompany?.pdfTemplate || 1,
-        currentCompany?.showSignature !== false
+        currentCompany?.showSignature !== false,
+        seller,
+        buyer
       );
       if (success) {
         toast.success('Vyapar Note PDF downloaded successfully!');
@@ -451,6 +457,8 @@ export const SaudaListPage: React.FC = () => {
                 <SaudaNoteTemplate
                   order={activeShareOrder}
                   company={currentCompany || undefined}
+                  seller={parties.find(p => p.id === activeShareOrder.sellerId || (activeShareOrder.sellerName && p.name.trim().toLowerCase() === activeShareOrder.sellerName.trim().toLowerCase()))}
+                  buyer={parties.find(p => p.id === activeShareOrder.buyerId || (activeShareOrder.buyerName && p.name.trim().toLowerCase() === activeShareOrder.buyerName.trim().toLowerCase()))}
                   color={currentCompany?.saudaNoteColor || 'RED'}
                   template={currentCompany?.pdfTemplate || 1}
                   showSignature={currentCompany?.showSignature !== false}
