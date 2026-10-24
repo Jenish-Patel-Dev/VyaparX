@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { 
@@ -680,9 +681,9 @@ export const SaudaBillsPage: React.FC = () => {
       </div>
 
       {/* Filter Modal Popup */}
-      {showFilterModal && (
+      {showFilterModal && createPortal(
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/50 dark:bg-black/70 backdrop-blur-md animate-in fade-in"
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/45 dark:bg-black/55 backdrop-blur-[3px] animate-in fade-in"
           onClick={() => setShowFilterModal(false)}
         >
           <div 
@@ -777,7 +778,8 @@ export const SaudaBillsPage: React.FC = () => {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

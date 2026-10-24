@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { Search, X, Plus, Info } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 
@@ -47,10 +48,10 @@ export const SearchSelectModal: React.FC<SearchSelectModalProps> = ({
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 dark:bg-black/70 backdrop-blur-xl animate-in fade-in"
-      style={{ backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/45 dark:bg-black/55 backdrop-blur-[3px] animate-in fade-in"
+      onClick={onClose}
     >
       <div 
         className="w-full max-w-md bg-[#E8EDF3] dark:bg-[#262B36] rounded-3xl shadow-neu-raised-lg overflow-hidden flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-150 border border-[#D5DDE7] dark:border-white/5"
@@ -140,6 +141,7 @@ export const SearchSelectModal: React.FC<SearchSelectModalProps> = ({
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

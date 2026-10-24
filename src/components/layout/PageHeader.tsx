@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, RefreshCw, Info, X, CheckCircle2, HelpCircle, Lightbulb, Printer } from 'lucide-react';
@@ -136,9 +137,9 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
       </div>
 
       {/* Page Info & Help Guide Modal */}
-      {isInfoOpen && activeGuide && (
+      {isInfoOpen && activeGuide && createPortal(
         <div 
-          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/75 backdrop-blur-md animate-in fade-in duration-200"
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/45 dark:bg-black/55 backdrop-blur-[3px] animate-in fade-in duration-200"
           onClick={() => setIsInfoOpen(false)}
         >
           <div 
@@ -226,7 +227,8 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

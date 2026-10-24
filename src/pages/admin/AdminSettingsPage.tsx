@@ -7,13 +7,18 @@ import {
   BellRing,
   ShieldCheck,
   CheckCircle2,
+  Wrench,
+  AlertTriangle,
 } from 'lucide-react';
 import { adminService, type SystemNotice } from '../../services/adminService';
 import { AdminCustomSelect } from '../../components/admin/AdminCustomSelect';
+import { AdminMaintenanceModal } from '../../components/admin/AdminMaintenanceModal';
 
 export const AdminSettingsPage: React.FC = () => {
   const [isExporting, setIsExporting] = useState(false);
   const [exportSuccess, setExportSuccess] = useState(false);
+  const [isMaintenanceActive, setIsMaintenanceActive] = useState(false);
+  const [isMaintenanceModalOpen, setIsMaintenanceModalOpen] = useState(false);
 
   // System Notice State
   const [notice, setNotice] = useState<SystemNotice>({
@@ -118,6 +123,50 @@ export const AdminSettingsPage: React.FC = () => {
 
       {/* Grid: System Tools & Broadcast Banner */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Card 0: 1-Click System Maintenance Lockdown */}
+        <div className="p-6 rounded-3xl neu-raised bg-[#F0F3F8] dark:bg-[#262B36] border border-white/80 dark:border-white/10 shadow-neu-raised-sm space-y-4 md:col-span-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className={`w-10 h-10 rounded-2xl flex items-center justify-center font-bold border shadow-neu-raised-sm ${
+                isMaintenanceActive
+                  ? 'bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/30'
+                  : 'neu-raised-sm bg-[#E8EDF3] dark:bg-[#20242D] border-white/80 dark:border-white/10 text-slate-700 dark:text-slate-300'
+              }`}>
+                <Wrench className={`w-5 h-5 ${isMaintenanceActive ? 'animate-bounce' : ''}`} />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-sm font-bold text-slate-900 dark:text-white">
+                    User Portal Maintenance Lockdown
+                  </h2>
+                  <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border ${
+                    isMaintenanceActive
+                      ? 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/30 animate-pulse'
+                      : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
+                  }`}>
+                    {isMaintenanceActive ? '⚠️ Active' : 'Normal'}
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                  1-Click lockdown: regular users see the Maintenance Screen and cannot perform trade actions. Admin panel stays open.
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setIsMaintenanceModalOpen(true)}
+              className={`px-4 py-2.5 rounded-2xl text-xs font-black transition-all cursor-pointer shadow-neu-raised-sm hover:shadow-neu-raised active:shadow-neu-pressed shrink-0 ${
+                isMaintenanceActive
+                  ? 'bg-amber-500 hover:bg-amber-600 text-white animate-pulse'
+                  : 'bg-[#2563EB] hover:bg-[#1D4ED8] text-white'
+              }`}
+            >
+              {isMaintenanceActive ? '⚠️ Manage / Turn OFF' : 'Configure Maintenance'}
+            </button>
+          </div>
+        </div>
+
         {/* Card 1: Cloud Backup & Status */}
         <div className="p-6 rounded-3xl neu-raised bg-[#F0F3F8] dark:bg-[#262B36] border border-white/80 dark:border-white/10 shadow-neu-raised-sm space-y-4">
           <div className="flex items-center gap-3">
@@ -160,12 +209,12 @@ export const AdminSettingsPage: React.FC = () => {
               className="w-full py-3 px-4 rounded-2xl bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold text-xs shadow-neu-raised-sm active:scale-95 flex items-center justify-center gap-2 transition-all disabled:opacity-50 cursor-pointer"
             >
               <Download className="w-4 h-4" />
-              <span>{isExporting ? 'Creating Snapshot...' : 'Export System Backup (JSON)'}</span>
+              <span>{isExporting ? 'Generating Excel...' : 'Export System Backup (Excel)'}</span>
             </button>
             {exportSuccess && (
               <p className="text-center text-xs text-emerald-600 dark:text-emerald-400 font-bold mt-2 flex items-center justify-center gap-1">
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>System data backup downloaded successfully!</span>
+                <span>Multi-sheet Excel backup downloaded successfully!</span>
               </p>
             )}
           </div>

@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import React, { useState, useEffect } from 'react';
 import {
   X,
@@ -40,9 +41,9 @@ export const InstallAppModal: React.FC = () => {
 
   if (!isInstallModalOpen) return null;
 
-  return (
+  return createPortal(
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 dark:bg-black/70 backdrop-blur-xl animate-in fade-in duration-200"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/45 dark:bg-black/55 backdrop-blur-[3px] animate-in fade-in duration-200"
       style={{ backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
     >
       <div
@@ -315,5 +316,5 @@ export const InstallAppModal: React.FC = () => {
         </div>
       </div>
     </div>
-  );
+  , document.body);
 };

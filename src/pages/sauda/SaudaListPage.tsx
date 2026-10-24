@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -406,8 +407,8 @@ export const SaudaListPage: React.FC = () => {
       />
 
       {/* Share / PDF Preview Modal */}
-      {activeShareOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in">
+      {activeShareOrder && createPortal(
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/45 dark:bg-black/55 backdrop-blur-[3px] animate-in fade-in">
           <div className="w-full max-w-4xl bg-[#E8EDF3] dark:bg-[#262B36] border border-[#D5DDE7] dark:border-white/5 rounded-2xl shadow-neu-raised-lg overflow-hidden flex flex-col max-h-[92vh]">
             <div className="p-4 border-b border-black/[0.06] dark:border-white/10 flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
@@ -466,13 +467,14 @@ export const SaudaListPage: React.FC = () => {
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Filter Modal Popup */}
-      {showFilterModal && (
+      {showFilterModal && createPortal(
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/50 dark:bg-black/70 backdrop-blur-md animate-in fade-in"
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/45 dark:bg-black/55 backdrop-blur-[3px] animate-in fade-in"
           onClick={() => setShowFilterModal(false)}
         >
           <div 
@@ -567,7 +569,8 @@ export const SaudaListPage: React.FC = () => {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

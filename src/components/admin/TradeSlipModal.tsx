@@ -147,7 +147,7 @@ export const TradeSlipModal: React.FC<TradeSlipModalProps> = ({ order, onClose }
 
   const modalContent = (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 md:p-6 bg-slate-950/70 backdrop-blur-md animate-fade-in print:hidden"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 md:p-6 bg-slate-950/45 dark:bg-black/55 backdrop-blur-[3px] animate-fade-in print:hidden"
       onClick={onClose}
     >
       <div

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
   ExternalLink,
@@ -9,7 +9,11 @@ import {
   RefreshCw,
   PanelLeftClose,
   PanelLeftOpen,
+  Wrench,
+  AlertTriangle,
 } from 'lucide-react';
+import { adminService } from '../../services/adminService';
+import { AdminMaintenanceModal } from './AdminMaintenanceModal';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import { useTheme } from '../../context/ThemeContext';
 
@@ -26,6 +30,16 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
 }) => {
   const { logoutAdmin, adminUsername, isSidebarCollapsed, toggleSidebar } = useAdminAuth();
   const { isDarkMode, setDarkMode } = useTheme();
+  const [isMaintenanceActive, setIsMaintenanceActive] = useState<boolean>(false);
+  const [isMaintenanceModalOpen, setIsMaintenanceModalOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    const unsub = adminService.subscribeMaintenanceConfig((cfg) => {
+      setIsMaintenanceActive(cfg.isEnabled);
+    });
+    return () => unsub();
+  }, []);
+
 
   return (
     <header className="h-16 px-4 lg:px-6 bg-[#E8EDF3] dark:bg-[#20242D] border-b border-black/5 dark:border-white/5 flex items-center justify-between shrink-0 sticky top-0 z-40 transition-colors shadow-neu-raised-sm">
@@ -78,6 +92,30 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
           </button>
         )}
 
+        {/* Global Maintenance Mode Button */}
+        <button
+          type="button"
+          onClick={() => setIsMaintenanceModalOpen(true)}
+          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
+            isMaintenanceActive
+              ? 'bg-amber-500 hover:bg-amber-600 text-white shadow-neu-raised-sm animate-pulse'
+              : 'border border-white/80 dark:border-white/10 bg-[#F0F3F8] dark:bg-[#2B3140] text-gray-700 dark:text-gray-200 hover:text-amber-600 dark:hover:text-amber-400 shadow-neu-raised-sm hover:shadow-neu-raised active:shadow-neu-pressed'
+          }`}
+          title={isMaintenanceActive ? 'Maintenance Mode is ACTIVE for users! Click to manage' : 'System Maintenance Mode (Lock/Unlock users)'}
+        >
+          {isMaintenanceActive ? (
+            <>
+              <AlertTriangle className="w-3.5 h-3.5 animate-bounce shrink-0" />
+              <span>Maintenance Active</span>
+            </>
+          ) : (
+            <>
+              <Wrench className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+              <span className="hidden sm:inline">Maintenance</span>
+            </>
+          )}
+        </button>
+
         {/* Return to Client App Link */}
         <NavLink
           to="/home"
@@ -129,6 +167,13 @@ export const AdminHeader: React.FC<AdminHeaderProps> = ({
           </button>
         </div>
       </div>
+
+      {/* Global Maintenance Modal */}
+      <AdminMaintenanceModal
+        isOpen={isMaintenanceModalOpen}
+        onClose={() => setIsMaintenanceModalOpen(false)}
+        onStatusChange={setIsMaintenanceActive}
+      />
     </header>
   );
 };

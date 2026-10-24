@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Package, Check } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import { useToast } from '../../context/ToastContext';
@@ -95,12 +96,14 @@ export const QuickAddItemModal: React.FC<QuickAddItemModalProps> = ({
     }
   };
 
-  return (
+  if (!isOpen) return null;
+
+  return createPortal(
     <div 
-      className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 dark:bg-black/70 backdrop-blur-xl animate-in fade-in"
-      style={{ backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/45 dark:bg-black/55 backdrop-blur-[3px] animate-in fade-in"
+      onClick={onClose}
     >
-      <div 
+      <div
         className="w-full max-w-md bg-[#E8EDF3] dark:bg-[#262B36] rounded-3xl shadow-neu-raised-lg overflow-hidden flex flex-col max-h-[90vh] border border-[#D5DDE7] dark:border-white/5 animate-in zoom-in-95 duration-150"
         onClick={e => e.stopPropagation()}
       >
@@ -246,6 +249,7 @@ export const QuickAddItemModal: React.FC<QuickAddItemModalProps> = ({
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

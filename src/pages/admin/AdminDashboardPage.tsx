@@ -17,12 +17,17 @@ import {
   User as UserIcon,
   Filter,
   X,
+  Info,
+  Wrench,
+  AlertTriangle,
 } from 'lucide-react';
 import { adminService, type AdminDashboardMetrics } from '../../services/adminService';
 import { AdminStatCard } from '../../components/admin/AdminStatCard';
 import { AdminCustomSelect } from '../../components/admin/AdminCustomSelect';
+import { AdminAnalyticsChart } from '../../components/admin/AdminAnalyticsChart';
 import { TradeSlipModal } from '../../components/admin/TradeSlipModal';
-import { formatCurrency, formatDate } from '../../utils/formatters';
+import { AdminMaintenanceModal } from '../../components/admin/AdminMaintenanceModal';
+import { formatCurrency, formatDate, formatLakhsCr } from '../../utils/formatters';
 import type { SaudaOrder } from '../../types';
 
 export const AdminDashboardPage: React.FC = () => {
@@ -31,6 +36,8 @@ export const AdminDashboardPage: React.FC = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<SaudaOrder | null>(null);
   const [isExporting, setIsExporting] = useState(false);
+  const [isMaintenanceModalOpen, setIsMaintenanceModalOpen] = useState(false);
+  const [isMaintenanceActive, setIsMaintenanceActive] = useState(false);
 
   // Filters State
   const [selectedFY, setSelectedFY] = useState<string>('ALL');
@@ -54,6 +61,13 @@ export const AdminDashboardPage: React.FC = () => {
   useEffect(() => {
     loadData(selectedFY, selectedUser);
   }, [selectedFY, selectedUser]);
+  useEffect(() => {
+    const unsub = adminService.subscribeMaintenanceConfig((cfg) => {
+      setIsMaintenanceActive(cfg.isEnabled);
+    });
+    return () => unsub();
+  }, []);
+
 
   const handleRefresh = () => {
     setIsRefreshing(true);
@@ -68,19 +82,10 @@ export const AdminDashboardPage: React.FC = () => {
   const handleExportBackup = async () => {
     try {
       setIsExporting(true);
-      const data = await adminService.exportFullDatabase();
-      const jsonStr = JSON.stringify(data, null, 2);
-      const blob = new Blob([jsonStr], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `vyaparx_db_backup_${new Date().toISOString().slice(0, 10)}.json`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      await adminService.exportDatabaseAsExcel();
     } catch (err) {
-      console.error('Export failed:', err);
+      console.error('Excel Export failed:', err);
+      alert('Failed to generate Excel backup. Please try again.');
     } finally {
       setIsExporting(false);
     }
@@ -97,17 +102,7 @@ export const AdminDashboardPage: React.FC = () => {
     );
   }
 
-  const formatLakhsCr = (amount: number) => {
-    if (amount >= 10000000) {
-      return `₹${(amount / 10000000).toFixed(2)} Cr`;
-    }
-    if (amount >= 100000) {
-      return `₹${(amount / 100000).toFixed(2)} Lakh`;
-    }
-    return formatCurrency(amount);
-  };
-
-  const isFiltered = selectedFY !== 'ALL' || selectedUser !== 'ALL';
+const isFiltered = selectedFY !== 'ALL' || selectedUser !== 'ALL';
 
   return (
     <div className="space-y-6 sm:space-y-8 animate-fade-in">
@@ -161,24 +156,52 @@ export const AdminDashboardPage: React.FC = () => {
             <button
               type="button"
               onClick={handleResetFilters}
-              className="inline-flex items-center gap-1 px-3 py-2 rounded-2xl text-xs font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/40 shadow-neu-raised-sm hover:shadow-neu-raised active:shadow-neu-pressed transition-all cursor-pointer"
+              className="inline-flex items-center justify-center gap-1.5 px-3.5 h-[38px] rounded-2xl text-xs font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/40 shadow-neu-raised-sm hover:shadow-neu-raised active:shadow-neu-pressed transition-all cursor-pointer"
               title="Reset all filters to default"
             >
               <X className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Reset</span>
+              <span>Reset</span>
             </button>
           )}
+
+          {/* System Maintenance Mode Toggle Button */}
+          <button
+            type="button"
+            onClick={() => setIsMaintenanceModalOpen(true)}
+            className={`inline-flex items-center justify-center gap-1.5 px-3.5 h-[38px] rounded-2xl text-xs font-bold transition-all cursor-pointer ${
+              isMaintenanceActive
+                ? 'bg-amber-500 hover:bg-amber-600 text-white shadow-neu-raised-sm hover:shadow-neu-raised active:shadow-neu-pressed animate-pulse'
+                : 'border border-white/80 dark:border-white/10 bg-[#F0F3F8] dark:bg-[#2B3140] text-gray-700 dark:text-gray-200 hover:text-amber-600 dark:hover:text-amber-400 shadow-neu-raised-sm hover:shadow-neu-raised active:shadow-neu-pressed'
+            }`}
+            title={
+              isMaintenanceActive
+                ? 'Maintenance Mode is ACTIVE for users! Click to manage or turn off'
+                : 'System Maintenance Mode (Lock/Unlock users)'
+            }
+          >
+            {isMaintenanceActive ? (
+              <>
+                <AlertTriangle className="w-3.5 h-3.5 animate-bounce shrink-0" />
+                <span>Maintenance Active</span>
+              </>
+            ) : (
+              <>
+                <Wrench className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                <span>Maintenance</span>
+              </>
+            )}
+          </button>
 
           {/* Refresh Button */}
           <button
             type="button"
             onClick={handleRefresh}
             disabled={isRefreshing}
-            className="w-10 h-10 sm:w-auto sm:px-3.5 py-2 rounded-2xl border border-white/80 dark:border-white/10 bg-[#F0F3F8] dark:bg-[#2B3140] text-gray-700 dark:text-gray-200 hover:text-[#2563EB] dark:hover:text-[#60A5FA] shadow-neu-raised-sm hover:shadow-neu-raised active:shadow-neu-pressed flex items-center justify-center gap-1.5 text-xs font-bold transition-all disabled:opacity-50 cursor-pointer"
+            className="inline-flex items-center justify-center gap-1.5 px-3.5 h-[38px] rounded-2xl border border-white/80 dark:border-white/10 bg-[#F0F3F8] dark:bg-[#2B3140] text-gray-700 dark:text-gray-200 hover:text-[#2563EB] dark:hover:text-[#60A5FA] shadow-neu-raised-sm hover:shadow-neu-raised active:shadow-neu-pressed text-xs font-bold transition-all disabled:opacity-50 cursor-pointer"
             title="Refresh dashboard data"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-blue-500' : ''}`} />
-            <span className="hidden sm:inline">Refresh</span>
+            <span>Refresh</span>
           </button>
 
           {/* Export Full Backup Button */}
@@ -186,11 +209,11 @@ export const AdminDashboardPage: React.FC = () => {
             type="button"
             onClick={handleExportBackup}
             disabled={isExporting}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-2xl text-xs font-bold bg-[#2563EB] hover:bg-[#1D4ED8] text-white shadow-neu-raised-sm hover:shadow-neu-raised active:shadow-neu-pressed transition-all disabled:opacity-50 cursor-pointer"
-            title="Export complete database backup as JSON"
+            className="inline-flex items-center justify-center gap-1.5 px-4 h-[38px] rounded-2xl text-xs font-bold bg-[#2563EB] hover:bg-[#1D4ED8] text-white shadow-neu-raised-sm hover:shadow-neu-raised active:shadow-neu-pressed transition-all disabled:opacity-50 cursor-pointer"
+            title="Export complete database backup as multi-sheet Excel workbook (.xlsx)"
           >
             <Download className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">{isExporting ? 'Exporting...' : 'Export Backup'}</span>
+            <span>{isExporting ? 'Generating Excel...' : 'Export Backup'}</span>
           </button>
         </div>
       </div>
@@ -224,7 +247,7 @@ export const AdminDashboardPage: React.FC = () => {
         </div>
       )}
 
-      {/* KPI Cards Grid (6 Metric Cards: Users, Turnover, Brokerage, Companies, Parties, Items) */}
+      {/* KPI Cards Grid (Sequence: User, Company, Parties, Items, Brokerage, Trade Turnover) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3.5 sm:gap-4">
         {/* 1. Total Users */}
         <AdminStatCard
@@ -237,40 +260,18 @@ export const AdminDashboardPage: React.FC = () => {
           iconColor="text-indigo-600 dark:text-indigo-400"
         />
 
-        {/* 2. Gross Trade Turnover */}
+        {/* 2. Companies & Firms */}
         <AdminStatCard
-          title="Trade Turnover"
-          value={formatLakhsCr(metrics?.grossTurnover || 0)}
-          subtitle={`${metrics?.totalOrders || 0} sauda orders`}
-          icon={IndianRupee}
-          badge="Volume"
-          badgeColor="emerald"
-          iconColor="text-emerald-600 dark:text-emerald-400"
-        />
-
-        {/* 3. Total Brokerage Revenue */}
-        <AdminStatCard
-          title="Brokerage Revenue"
-          value={formatCurrency(metrics?.totalBrokerage || 0)}
-          subtitle="Buyer + Seller comm."
-          icon={BadgePercent}
-          badge="Commission"
-          badgeColor="amber"
-          iconColor="text-amber-600 dark:text-amber-400"
-        />
-
-        {/* 4. Companies & Firms */}
-        <AdminStatCard
-          title="Companies & Firms"
+          title="Companies"
           value={metrics?.totalCompanies || 0}
-          subtitle="Registered firms"
+          subtitle="Registered companies"
           icon={Building2}
-          badge="Firms"
+          badge="Companies"
           badgeColor="purple"
           iconColor="text-purple-600 dark:text-purple-400"
         />
 
-        {/* 5. Parties Directory */}
+        {/* 3. Parties Directory */}
         <AdminStatCard
           title="Parties Directory"
           value={metrics?.totalParties || 0}
@@ -281,7 +282,7 @@ export const AdminDashboardPage: React.FC = () => {
           iconColor="text-blue-600 dark:text-blue-400"
         />
 
-        {/* 6. Commodities / Items */}
+        {/* 4. Commodities Master (Items) */}
         <AdminStatCard
           title="Commodities Master"
           value={metrics?.totalItems || 0}
@@ -291,13 +292,43 @@ export const AdminDashboardPage: React.FC = () => {
           badgeColor="emerald"
           iconColor="text-teal-600 dark:text-teal-400"
         />
+
+        {/* 5. Brokerage Revenue */}
+        <AdminStatCard
+          title="Brokerage Revenue"
+          value={formatCurrency(metrics?.totalBrokerage || 0)}
+          subtitle="Buyer + Seller comm."
+          icon={BadgePercent}
+          badge="Commission"
+          badgeColor="amber"
+          iconColor="text-amber-600 dark:text-amber-400"
+        />
+
+        {/* 6. Trade Turnover */}
+        <AdminStatCard
+          title="Trade Turnover"
+          value={formatLakhsCr(metrics?.grossTurnover || 0)}
+          subtitle={`${metrics?.totalOrders || 0} sauda orders`}
+          icon={IndianRupee}
+          badge="Volume"
+          badgeColor="emerald"
+          iconColor="text-emerald-600 dark:text-emerald-400"
+        />
       </div>
 
-      {/* Main Two-Column Section: Recent Trades & Recent Users */}
+      {/* Visual Analytics & Growth Chart Section */}
+      <AdminAnalyticsChart
+        monthlyData={metrics?.monthlyTrends || []}
+        dailyData={metrics?.dailyTrends || []}
+        selectedFY={selectedFY}
+        selectedUser={selectedUser}
+      />
+
+      {/* Main Two-Column Section: Recent Trades & Recent Users (Equal Height h-[450px] with Internal Scroll) */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left 2 Cols: Recent Trades Platform-Wide */}
-        <div className="lg:col-span-2 bg-[#F0F3F8] dark:bg-[#262B36] border border-white/80 dark:border-white/10 rounded-3xl p-5 shadow-neu-raised-sm">
-          <div className="flex items-center justify-between pb-4 border-b border-black/[0.06] dark:border-white/10">
+        <div className="lg:col-span-2 bg-[#F0F3F8] dark:bg-[#262B36] border border-white/80 dark:border-white/10 rounded-3xl p-5 shadow-neu-raised-sm h-[450px] flex flex-col">
+          <div className="flex items-center justify-between pb-3 border-b border-black/[0.06] dark:border-white/10 shrink-0">
             <div>
               <h2 className="text-sm font-black text-slate-900 dark:text-slate-100 flex items-center gap-2">
                 <ReceiptText className="w-4 h-4 text-blue-600 dark:text-blue-400" />
@@ -307,72 +338,97 @@ export const AdminDashboardPage: React.FC = () => {
                 </span>
               </h2>
               <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                Latest transactions registered in the selected scope.
+                Latest 10 transactions registered in the selected scope.
               </p>
             </div>
             <NavLink
               to="/admin/sauda"
-              className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold neu-raised-sm bg-[#F0F3F8] dark:bg-[#2B3140] border border-white/80 dark:border-white/10 text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 shadow-neu-raised-sm hover:shadow-neu-raised active:shadow-neu-pressed transition-all shrink-0 cursor-pointer"
             >
               <span>View All</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </NavLink>
           </div>
 
-          <div className="mt-4 overflow-x-auto">
+          <div className="mt-3 flex-1 min-h-0 overflow-y-auto overflow-x-auto custom-scrollbar">
             <table className="w-full text-left text-xs">
-              <thead>
-                <tr className="border-b border-black/[0.06] dark:border-white/10 text-[11px] font-bold uppercase text-slate-400">
-                  <th className="pb-3 font-bold">DO #</th>
-                  <th className="pb-3 font-bold">User Email</th>
-                  <th className="pb-3 font-bold">Commodity</th>
-                  <th className="pb-3 font-bold">Parties (Seller ➔ Buyer)</th>
-                  <th className="pb-3 font-bold text-right">Amount</th>
-                  <th className="pb-3 font-bold text-center">Action</th>
+              <thead className="sticky top-0 bg-[#F0F3F8] dark:bg-[#262B36] z-10 border-b border-black/[0.06] dark:border-white/10 text-[11px] font-bold uppercase text-slate-400">
+                <tr>
+                  <th className="py-2.5 font-bold">DO #</th>
+                  <th className="py-2.5 font-bold">Company / User</th>
+                  <th className="py-2.5 font-bold">Commodity</th>
+                  <th className="py-2.5 font-bold">Parties (Seller ➔ Buyer)</th>
+                  <th className="py-2.5 font-bold text-right">Amount</th>
+                  <th className="py-2.5 font-bold text-right">Commission</th>
+                  <th className="py-2.5 font-bold text-center">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-black/[0.04] dark:divide-white/5 font-medium">
                 {metrics?.recentOrders && metrics.recentOrders.length > 0 ? (
-                  metrics.recentOrders.map((o) => (
-                    <tr key={o.id} className="hover:bg-black/[0.02] dark:hover:bg-white/[0.03] transition-colors">
-                      <td className="py-3 font-mono font-bold text-slate-900 dark:text-slate-100">
-                        #{o.id}
-                      </td>
-                      <td className="py-3 text-slate-600 dark:text-slate-300 max-w-[140px] truncate" title={o.userEmail}>
-                        {o.userEmail || '—'}
-                      </td>
-                      <td className="py-3">
-                        <span className="font-semibold text-slate-900 dark:text-slate-100">
-                          {o.itemName}
-                        </span>
-                        <div className="text-[10px] text-slate-400">
-                          {o.quantity} {o.unit}
-                        </div>
-                      </td>
-                      <td className="py-3 max-w-[180px] truncate">
-                        <span className="text-emerald-600 dark:text-emerald-400 font-bold">{o.sellerName}</span>
-                        <span className="text-slate-400 mx-1">➔</span>
-                        <span className="text-blue-600 dark:text-blue-400 font-bold">{o.buyerName}</span>
-                      </td>
-                      <td className="py-3 text-right font-bold text-slate-900 dark:text-slate-100 font-mono">
-                        {formatCurrency(o.totalBillAmount)}
-                      </td>
-                      <td className="py-3 text-center">
-                        <button
-                          type="button"
-                          onClick={() => setSelectedOrder(o)}
-                          className="w-8 h-8 rounded-xl neu-raised-sm bg-[#E8EDF3] dark:bg-[#20242D] border border-white/80 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 flex items-center justify-center transition-all cursor-pointer mx-auto"
-                          title="View Digital Contract Slip"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))
+                  metrics.recentOrders.map((o) => {
+                    const tradeCommission =
+                      (Number(o.sellerCommissionAmount) || 0) + (Number(o.buyerCommissionAmount) || 0);
+                    return (
+                      <tr key={o.id} className="hover:bg-black/[0.02] dark:hover:bg-white/[0.03] transition-colors">
+                        <td className="py-3 font-mono font-bold text-slate-900 dark:text-slate-100">
+                          #{o.id}
+                        </td>
+                        <td className="py-3 max-w-[170px]">
+                          <div className="font-extrabold text-slate-900 dark:text-slate-100 truncate" title={o.companyName}>
+                            {o.companyName || '—'}
+                          </div>
+                          <div className="text-[10px] text-slate-400 truncate font-mono" title={o.userEmail}>
+                            {o.userEmail || '—'}
+                          </div>
+                        </td>
+                        <td className="py-3">
+                          <span className="font-semibold text-slate-900 dark:text-slate-100">
+                            {o.itemName}
+                          </span>
+                          <div className="text-[10px] text-slate-400">
+                            {o.quantity} {o.unit}
+                          </div>
+                        </td>
+                        <td className="py-3 max-w-[180px] truncate">
+                          <span className="text-emerald-600 dark:text-emerald-400 font-bold">{o.sellerName}</span>
+                          <span className="text-slate-400 mx-1">➔</span>
+                          <span className="text-blue-600 dark:text-blue-400 font-bold">{o.buyerName}</span>
+                        </td>
+                        <td className="py-3 text-right font-bold text-slate-900 dark:text-slate-100 font-mono">
+                          {formatCurrency(o.totalBillAmount)}
+                        </td>
+                        <td className="py-3 text-right font-mono">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-extrabold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 whitespace-nowrap">
+                            +{formatCurrency(tradeCommission)}
+                          </span>
+                        </td>
+                        <td className="py-3 text-center">
+                          <button
+                            type="button"
+                            onClick={() => setSelectedOrder(o)}
+                            className="w-8 h-8 rounded-xl neu-raised-sm bg-[#E8EDF3] dark:bg-[#20242D] border border-white/80 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 flex items-center justify-center transition-all cursor-pointer mx-auto"
+                            title="View Digital Contract Slip"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })
                 ) : (
                   <tr>
-                    <td colSpan={6} className="py-8 text-center text-slate-400 font-medium">
+                    <td colSpan={7} className="py-8 text-center text-slate-400 font-medium">
                       No trades found for selected filter criteria.
+                    </td>
+                  </tr>
+                )}
+                {metrics?.recentOrders && metrics.recentOrders.length > 0 && (
+                  <tr>
+                    <td colSpan={7} className="py-4 text-center text-slate-400 dark:text-slate-500 text-xs font-semibold">
+                      <div className="flex items-center justify-center gap-1.5 opacity-80">
+                        <Info className="w-3.5 h-3.5 shrink-0" />
+                        <span>No more trades to display</span>
+                      </div>
                     </td>
                   </tr>
                 )}
@@ -381,33 +437,33 @@ export const AdminDashboardPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Right 1 Col: User Overview / Recent Users */}
-        <div className="bg-[#F0F3F8] dark:bg-[#262B36] border border-white/80 dark:border-white/10 rounded-3xl p-5 shadow-neu-raised-sm">
-          <div className="flex items-center justify-between pb-4 border-b border-black/[0.06] dark:border-white/10">
+        {/* Right 1 Col: User Overview / Recent Users (10 Users with Internal Scroll) */}
+        <div className="bg-[#F0F3F8] dark:bg-[#262B36] border border-white/80 dark:border-white/10 rounded-3xl p-5 shadow-neu-raised-sm h-[450px] flex flex-col">
+          <div className="flex items-center justify-between pb-3 border-b border-black/[0.06] dark:border-white/10 shrink-0">
             <div>
               <h2 className="text-sm font-black text-slate-900 dark:text-slate-100 flex items-center gap-2">
                 <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                 <span>{selectedUser !== 'ALL' ? 'Selected User Profile' : 'Recent Users'}</span>
               </h2>
               <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                {selectedUser !== 'ALL' ? 'Account details of filtered user.' : 'New accounts created in platform.'}
+                {selectedUser !== 'ALL' ? 'Account details of filtered user.' : 'Latest 10 accounts created in platform.'}
               </p>
             </div>
             <NavLink
               to="/admin/users"
-              className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold neu-raised-sm bg-[#F0F3F8] dark:bg-[#2B3140] border border-white/80 dark:border-white/10 text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 shadow-neu-raised-sm hover:shadow-neu-raised active:shadow-neu-pressed transition-all shrink-0 cursor-pointer"
             >
               <span>Manage</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </NavLink>
           </div>
 
-          <div className="mt-4 space-y-2.5">
+          <div className="mt-3 flex-1 min-h-0 overflow-y-auto custom-scrollbar space-y-2.5 pr-1">
             {metrics?.recentUsers && metrics.recentUsers.length > 0 ? (
               metrics.recentUsers.map((u) => (
                 <div
                   key={u.id || u.email}
-                  className="p-3 rounded-2xl bg-[#E8EDF3] dark:bg-[#20242D] border border-white/80 dark:border-white/10 flex items-center justify-between shadow-2xs"
+                  className="p-3 rounded-2xl bg-[#E8EDF3] dark:bg-[#20242D] border border-white/80 dark:border-white/10 flex items-center justify-between shadow-2xs hover:shadow-neu-raised-sm transition-all"
                 >
                   <div className="min-w-0 pr-2">
                     <p className="text-xs font-extrabold text-slate-900 dark:text-white truncate">
@@ -429,25 +485,40 @@ export const AdminDashboardPage: React.FC = () => {
                 No users found.
               </p>
             )}
+            {metrics?.recentUsers && metrics.recentUsers.length > 0 && (
+              <div className="text-center py-4 text-slate-400 dark:text-slate-500 text-xs font-semibold flex items-center justify-center gap-1.5 opacity-80">
+                <Info className="w-3.5 h-3.5 shrink-0" />
+                <span>No more users to display</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Bottom Section: Top Commodities & Top Brokers Leaderboards */}
+      {/* Bottom Section: Top Commodities & Top Brokers Leaderboards (Equal Height h-[450px] with Internal Scroll) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Top Commodities */}
-        <div className="bg-[#F0F3F8] dark:bg-[#262B36] border border-white/80 dark:border-white/10 rounded-3xl p-5 shadow-neu-raised-sm">
-          <div className="flex items-center justify-between pb-3 border-b border-black/[0.06] dark:border-white/10">
-            <h3 className="text-sm font-black text-slate-900 dark:text-slate-100 flex items-center gap-2">
-              <Package className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-              <span>Top Traded Commodities</span>
-            </h3>
-            <NavLink to="/admin/items" className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer">
-              View Items
+        {/* Top Commodities (Top 10) */}
+        <div className="bg-[#F0F3F8] dark:bg-[#262B36] border border-white/80 dark:border-white/10 rounded-3xl p-5 shadow-neu-raised-sm h-[450px] flex flex-col">
+          <div className="flex items-center justify-between pb-3 border-b border-black/[0.06] dark:border-white/10 shrink-0">
+            <div>
+              <h3 className="text-sm font-black text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                <Package className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <span>Top Traded Commodities</span>
+              </h3>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                Top 10 commodities by overall turnover volume.
+              </p>
+            </div>
+            <NavLink
+              to="/admin/items"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold neu-raised-sm bg-[#F0F3F8] dark:bg-[#2B3140] border border-white/80 dark:border-white/10 text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 shadow-neu-raised-sm hover:shadow-neu-raised active:shadow-neu-pressed transition-all shrink-0 cursor-pointer"
+            >
+              <span>View Items</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </NavLink>
           </div>
 
-          <div className="mt-4 space-y-3">
+          <div className="mt-3 flex-1 min-h-0 overflow-y-auto custom-scrollbar space-y-2.5 pr-1">
             {metrics?.topCommodities && metrics.topCommodities.length > 0 ? (
               metrics.topCommodities.map((item, idx) => {
                 const maxTurnover = metrics.topCommodities[0].turnover || 1;
@@ -474,27 +545,42 @@ export const AdminDashboardPage: React.FC = () => {
             ) : (
               <p className="py-4 text-xs text-slate-400 text-center font-medium">No commodity trades recorded.</p>
             )}
+            {metrics?.topCommodities && metrics.topCommodities.length > 0 && (
+              <div className="text-center py-4 text-slate-400 dark:text-slate-500 text-xs font-semibold flex items-center justify-center gap-1.5 opacity-80">
+                <Info className="w-3.5 h-3.5 shrink-0" />
+                <span>No more commodities to display</span>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Top Brokers Activity */}
-        <div className="bg-[#F0F3F8] dark:bg-[#262B36] border border-white/80 dark:border-white/10 rounded-3xl p-5 shadow-neu-raised-sm">
-          <div className="flex items-center justify-between pb-3 border-b border-black/[0.06] dark:border-white/10">
-            <h3 className="text-sm font-black text-slate-900 dark:text-slate-100 flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-              <span>Broker Performance Leaderboard</span>
-            </h3>
-            <NavLink to="/admin/analytics" className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer">
-              Full Analytics
+        {/* Top Brokers Activity (Top 10) */}
+        <div className="bg-[#F0F3F8] dark:bg-[#262B36] border border-white/80 dark:border-white/10 rounded-3xl p-5 shadow-neu-raised-sm h-[450px] flex flex-col">
+          <div className="flex items-center justify-between pb-3 border-b border-black/[0.06] dark:border-white/10 shrink-0">
+            <div>
+              <h3 className="text-sm font-black text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                <span>Broker Performance Leaderboard</span>
+              </h3>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                Top 10 broker rankings by trade turnover volume.
+              </p>
+            </div>
+            <NavLink
+              to="/admin/analytics"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold neu-raised-sm bg-[#F0F3F8] dark:bg-[#2B3140] border border-white/80 dark:border-white/10 text-slate-700 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 shadow-neu-raised-sm hover:shadow-neu-raised active:shadow-neu-pressed transition-all shrink-0 cursor-pointer"
+            >
+              <span>Full Analytics</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </NavLink>
           </div>
 
-          <div className="mt-4 space-y-2.5">
+          <div className="mt-3 flex-1 min-h-0 overflow-y-auto custom-scrollbar space-y-2.5 pr-1">
             {metrics?.topBrokers && metrics.topBrokers.length > 0 ? (
               metrics.topBrokers.map((b, idx) => (
                 <div
                   key={b.email}
-                  className="p-3 rounded-2xl bg-[#E8EDF3] dark:bg-[#20242D] border border-white/80 dark:border-white/10 flex items-center justify-between text-xs shadow-2xs"
+                  className="p-3 rounded-2xl bg-[#E8EDF3] dark:bg-[#20242D] border border-white/80 dark:border-white/10 flex items-center justify-between text-xs shadow-2xs hover:shadow-neu-raised-sm transition-all"
                 >
                   <div className="flex items-center gap-2.5 min-w-0 pr-2">
                     <div className="w-7 h-7 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center font-black text-xs shrink-0 border border-blue-500/20">
@@ -522,9 +608,22 @@ export const AdminDashboardPage: React.FC = () => {
             ) : (
               <p className="py-4 text-xs text-slate-400 text-center font-medium">No broker activity recorded yet.</p>
             )}
+            {metrics?.topBrokers && metrics.topBrokers.length > 0 && (
+              <div className="text-center py-4 text-slate-400 dark:text-slate-500 text-xs font-semibold flex items-center justify-center gap-1.5 opacity-80">
+                <Info className="w-3.5 h-3.5 shrink-0" />
+                <span>No more brokers to display</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
+
+      {/* System Maintenance Control Modal */}
+      <AdminMaintenanceModal
+        isOpen={isMaintenanceModalOpen}
+        onClose={() => setIsMaintenanceModalOpen(false)}
+        onStatusChange={setIsMaintenanceActive}
+      />
 
       {/* Trade Slip Preview Modal */}
       {selectedOrder && (
