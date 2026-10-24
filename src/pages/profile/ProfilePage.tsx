@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -470,9 +471,9 @@ export const ProfilePage: React.FC = () => {
       )}
 
       {/* Contact Us Modal - Static Developer Support Email */}
-      {showContactModal && (
+      {showContactModal && createPortal(
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/70 backdrop-blur-md animate-in fade-in"
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/45 dark:bg-black/55 backdrop-blur-[3px] animate-in fade-in"
           onClick={() => setShowContactModal(false)}
         >
           <div
@@ -545,13 +546,14 @@ export const ProfilePage: React.FC = () => {
               <span>Close</span>
             </button>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* About Us Modal - Developer Credits */}
-      {showAboutModal && (
+      {showAboutModal && createPortal(
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/70 backdrop-blur-md animate-in fade-in"
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/45 dark:bg-black/55 backdrop-blur-[3px] animate-in fade-in"
           onClick={() => setShowAboutModal(false)}
         >
           <div
@@ -650,7 +652,8 @@ export const ProfilePage: React.FC = () => {
               <span>Close</span>
             </button>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Logout Confirmation Dialog */}

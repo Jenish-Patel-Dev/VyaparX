@@ -105,7 +105,7 @@ export const AdminCustomSelect: React.FC<AdminCustomSelectProps> = ({
           type="button"
           disabled={disabled}
           onClick={() => !disabled && setIsOpen((prev) => !prev)}
-          className={`w-full flex items-center justify-between gap-2.5 px-3.5 py-2 rounded-2xl bg-[#F0F3F8] dark:bg-[#2B3140] border border-white/80 dark:border-white/10 shadow-neu-raised-sm hover:shadow-neu-raised active:shadow-neu-pressed transition-all text-xs font-bold text-slate-800 dark:text-slate-100 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
+          className={`w-full flex items-center justify-between gap-2.5 px-3.5 h-[38px] rounded-2xl bg-[#F0F3F8] dark:bg-[#2B3140] border border-white/80 dark:border-white/10 shadow-neu-raised-sm hover:shadow-neu-raised active:shadow-neu-pressed transition-all text-xs font-bold text-slate-800 dark:text-slate-100 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
             isOpen ? 'shadow-neu-inset-sm border-blue-500/30 dark:border-blue-400/30' : ''
           }`}
         >

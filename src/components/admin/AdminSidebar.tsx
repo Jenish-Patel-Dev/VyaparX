@@ -21,7 +21,7 @@ export const AdminSidebar: React.FC = () => {
   const mainNav = [
     { to: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { to: '/admin/users', label: 'Users & Accounts', icon: Users },
-    { to: '/admin/companies', label: 'Companies & Firms', icon: Building2 },
+    { to: '/admin/companies', label: 'Companies', icon: Building2 },
     { to: '/admin/sauda', label: 'All Sauda Trades', icon: ReceiptText },
     { to: '/admin/parties', label: 'Parties Directory', icon: Contact },
     { to: '/admin/items', label: 'Commodities Master', icon: Package },

@@ -25,6 +25,19 @@ export function formatCurrency(amount: number, decimals: number = 2): string {
     : `₹${formattedInteger}`;
 }
 
+export function formatLakhsCr(amount: number): string {
+  if (isNaN(amount) || amount === null || amount === undefined) {
+    return '₹0.00';
+  }
+  if (amount >= 10000000) {
+    return `₹${(amount / 10000000).toFixed(2)} Cr`;
+  }
+  if (amount >= 100000) {
+    return `₹${(amount / 100000).toFixed(2)} Lakh`;
+  }
+  return formatCurrency(amount);
+}
+
 export function formatDate(dateString?: string): string {
   if (!dateString) return '';
   // handles YYYY-MM-DD or ISO string to DD/MM/YYYY
@@ -33,6 +46,47 @@ export function formatDate(dateString?: string): string {
     return `${parts[2]}/${parts[1]}/${parts[0]}`;
   }
   return dateString;
+}
+
+export function formatDateTime(dateString?: string): string {
+  if (!dateString) return '—';
+  try {
+    const d = new Date(dateString);
+    if (isNaN(d.getTime())) return dateString;
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    let hours = d.getHours();
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12 || 12;
+    const formattedHours = String(hours).padStart(2, '0');
+    return `${day}/${month}/${year}, ${formattedHours}:${minutes} ${ampm}`;
+  } catch {
+    return dateString;
+  }
+}
+
+export function formatDateTimeParts(dateString?: string): { date: string; time: string } | null {
+  if (!dateString) return null;
+  try {
+    const d = new Date(dateString);
+    if (isNaN(d.getTime())) return { date: dateString, time: '' };
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    let hours = d.getHours();
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12 || 12;
+    const formattedHours = String(hours).padStart(2, '0');
+    return {
+      date: `${day}/${month}/${year}`,
+      time: `${formattedHours}:${minutes} ${ampm}`,
+    };
+  } catch {
+    return { date: dateString, time: '' };
+  }
 }
 
 export function formatISODate(date: Date = new Date()): string {
@@ -67,4 +121,3 @@ export function formatReportDoNo(doNo?: string, id?: number): string {
   const clean = raw.replace(/^DO\s*#?/i, '').replace(/^#/, '');
   return `#${clean}`;
 }
-

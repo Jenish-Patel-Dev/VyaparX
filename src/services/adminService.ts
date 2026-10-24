@@ -1,5 +1,7 @@
+import * as XLSX from 'xlsx';
 import {
   collection,
+  onSnapshot,
   doc,
   getDoc,
   getDocs,
@@ -12,6 +14,34 @@ import { firestore } from '../lib/firebase';
 import { docToData, getNextSequenceId } from '../db/firestoreDb';
 import type { AppUser, Company, SaudaOrder, Party, Item } from '../types';
 
+export interface MaintenanceConfig {
+  isEnabled: boolean;
+  title?: string;
+  message?: string;
+  estimatedEndTime?: string;
+  supportEmail?: string;
+  updatedAt?: string;
+  updatedBy?: string;
+}
+
+export interface MonthlyTrendData {
+  monthKey: string;
+  label: string;
+  fullLabel: string;
+  turnover: number;
+  brokerage: number;
+  tradesCount: number;
+}
+
+export interface DailyTrendData {
+  date: string;
+  label: string;
+  fullLabel: string;
+  turnover: number;
+  brokerage: number;
+  tradesCount: number;
+}
+
 export interface AdminDashboardMetrics {
   totalUsers: number;
   activeToday: number;
@@ -21,12 +51,14 @@ export interface AdminDashboardMetrics {
   totalBrokerage: number;
   totalParties: number;
   totalItems: number;
-  recentOrders: SaudaOrder[];
+  recentOrders: (SaudaOrder & { companyName?: string })[];
   recentUsers: AppUser[];
   topCommodities: { name: string; count: number; turnover: number }[];
   topBrokers: { email: string; name: string; ordersCount: number; turnover: number; brokerage: number }[];
   allFinancialYears: string[];
   allUsersList: { email: string; name: string }[];
+  monthlyTrends: MonthlyTrendData[];
+  dailyTrends: DailyTrendData[];
 }
 
 export interface SystemNotice {
@@ -42,6 +74,7 @@ export interface AdminUserStats extends AppUser {
   turnover: number;
   brokerage: number;
   partiesCount: number;
+  itemsCount: number;
 }
 
 const DEFAULT_ADMIN_PASSCODE = 'Admin@VyaparX2026';
@@ -242,24 +275,137 @@ export const adminService = {
       }
     });
 
-    // Sort Top Commodities
+    // Company Name Lookup Map
+    const companyMapById = new Map<number, string>();
+    companies.forEach((c) => {
+      if (c.id) companyMapById.set(Number(c.id), c.name);
+    });
+
+    // Sort Top Commodities (Top 10)
     const topCommodities = Object.entries(commodityMap)
       .map(([name, data]) => ({ name, count: data.count, turnover: data.turnover }))
       .sort((a, b) => b.turnover - a.turnover)
-      .slice(0, 5);
+      .slice(0, 10);
 
-    // Sort Top Brokers
+    // Sort Top Brokers (Top 10)
     const topBrokers = Object.values(brokerMap)
       .filter((b) => b.ordersCount > 0 || !selectedEmail)
       .sort((a, b) => b.turnover - a.turnover)
-      .slice(0, 5);
+      .slice(0, 10);
 
-    // Sort Recent Orders
-    const sortedOrders = [...filteredOrders].sort((a, b) => (b.date || '').localeCompare(a.date || '') || (Number(b.id) || 0) - (Number(a.id) || 0));
+    // Sort Recent Orders (Recent 10 trades, sorted most recent date/created first)
+    const sortedOrders = [...filteredOrders].sort((a, b) => {
+      const dateA = a.date || '';
+      const dateB = b.date || '';
+      if (dateA !== dateB) return dateB.localeCompare(dateA);
+      const createdA = a.createdAt || '';
+      const createdB = b.createdAt || '';
+      if (createdA !== createdB) return createdB.localeCompare(createdA);
+      return (Number(b.id) || 0) - (Number(a.id) || 0);
+    });
 
-    // Sort Recent Users
+    const recentOrders = sortedOrders.slice(0, 10).map((o) => ({
+      ...o,
+      companyName: (o.companyId ? companyMapById.get(Number(o.companyId)) : undefined) || '—',
+    }));
+
+    // Sort Recent Users (Recent 10 registered accounts)
     const filteredUsers = selectedEmail ? users.filter((u) => (u.email || '').toLowerCase().trim() === selectedEmail) : users;
-    const sortedUsers = [...filteredUsers].sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+    const sortedUsers = [...filteredUsers].sort((a, b) => {
+      const createdA = a.createdAt || '';
+      const createdB = b.createdAt || '';
+      if (createdA !== createdB) return createdB.localeCompare(createdA);
+      return (Number(b.id) || 0) - (Number(a.id) || 0);
+    });
+
+    // Financial Year 12-Month Trends (April to March)
+    let startYear = new Date().getFullYear();
+    let endYear = startYear + 1;
+    if (selectedFY && selectedFY.includes('-')) {
+      const parts = selectedFY.split('-');
+      startYear = parseInt(parts[0], 10) || startYear;
+      endYear = parseInt(parts[1], 10) || (startYear + 1);
+    } else {
+      const currentMonth = new Date().getMonth() + 1;
+      if (currentMonth < 4) {
+        startYear = new Date().getFullYear() - 1;
+        endYear = startYear + 1;
+      }
+    }
+
+    const fyMonths = [
+      { monthNum: 4, year: startYear, label: 'Apr', full: `April ${startYear}` },
+      { monthNum: 5, year: startYear, label: 'May', full: `May ${startYear}` },
+      { monthNum: 6, year: startYear, label: 'Jun', full: `June ${startYear}` },
+      { monthNum: 7, year: startYear, label: 'Jul', full: `July ${startYear}` },
+      { monthNum: 8, year: startYear, label: 'Aug', full: `August ${startYear}` },
+      { monthNum: 9, year: startYear, label: 'Sep', full: `September ${startYear}` },
+      { monthNum: 10, year: startYear, label: 'Oct', full: `October ${startYear}` },
+      { monthNum: 11, year: startYear, label: 'Nov', full: `November ${startYear}` },
+      { monthNum: 12, year: startYear, label: 'Dec', full: `December ${startYear}` },
+      { monthNum: 1, year: endYear, label: 'Jan', full: `January ${endYear}` },
+      { monthNum: 2, year: endYear, label: 'Feb', full: `February ${endYear}` },
+      { monthNum: 3, year: endYear, label: 'Mar', full: `March ${endYear}` },
+    ];
+
+    const monthlyTrends: MonthlyTrendData[] = fyMonths.map((m) => {
+      const prefix = `${m.year}-${String(m.monthNum).padStart(2, '0')}`;
+      let mTurnover = 0;
+      let mBrokerage = 0;
+      let mCount = 0;
+
+      filteredOrders.forEach((o) => {
+        const oDate = o.date || (o.createdAt ? o.createdAt.split('T')[0] : '');
+        if (oDate.startsWith(prefix)) {
+          mTurnover += Number(o.totalBillAmount) || 0;
+          mBrokerage += (Number(o.sellerCommissionAmount) || 0) + (Number(o.buyerCommissionAmount) || 0);
+          mCount++;
+        }
+      });
+
+      return {
+        monthKey: prefix,
+        label: m.label,
+        fullLabel: m.full,
+        turnover: mTurnover,
+        brokerage: mBrokerage,
+        tradesCount: mCount,
+      };
+    });
+
+    // Daily Trend (Last 7 Days)
+    const dailyTrends: DailyTrendData[] = [];
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+      const label = `${d.getDate()} ${monthNames[d.getMonth()]}`;
+      const fullLabel = `${dayNames[d.getDay()]}, ${d.getDate()} ${monthNames[d.getMonth()]} ${d.getFullYear()}`;
+
+      let dayTurnover = 0;
+      let dayBrokerage = 0;
+      let dayCount = 0;
+
+      filteredOrders.forEach((o) => {
+        const oDate = o.date || (o.createdAt ? o.createdAt.split('T')[0] : '');
+        if (oDate === dateStr) {
+          dayTurnover += Number(o.totalBillAmount) || 0;
+          dayBrokerage += (Number(o.sellerCommissionAmount) || 0) + (Number(o.buyerCommissionAmount) || 0);
+          dayCount++;
+        }
+      });
+
+      dailyTrends.push({
+        date: dateStr,
+        label,
+        fullLabel,
+        turnover: dayTurnover,
+        brokerage: dayBrokerage,
+        tradesCount: dayCount,
+      });
+    }
 
     const totalUsersCount = selectedEmail ? (filteredUsers.length > 0 ? 1 : 0) : usersSnap.size;
 
@@ -272,12 +418,14 @@ export const adminService = {
       totalBrokerage,
       totalParties: filteredParties.length,
       totalItems: filteredItems.length,
-      recentOrders: sortedOrders.slice(0, 10),
-      recentUsers: sortedUsers.slice(0, 8),
+      recentOrders,
+      recentUsers: sortedUsers.slice(0, 10),
       topCommodities,
       topBrokers,
       allFinancialYears,
       allUsersList,
+      monthlyTrends,
+      dailyTrends,
     };
   },
 
@@ -285,11 +433,12 @@ export const adminService = {
   // USERS MANAGEMENT
   // ----------------------------------------------------
   async getAllUsersWithStats(): Promise<AdminUserStats[]> {
-    const [usersSnap, companiesSnap, ordersSnap, partiesSnap] = await Promise.all([
+    const [usersSnap, companiesSnap, ordersSnap, partiesSnap, itemsSnap] = await Promise.all([
       getDocs(collection(firestore, 'users')),
       getDocs(collection(firestore, 'companies')),
       getDocs(collection(firestore, 'saudaOrders')),
       getDocs(collection(firestore, 'parties')),
+      getDocs(collection(firestore, 'items')),
     ]);
 
     const companies: Company[] = [];
@@ -300,6 +449,9 @@ export const adminService = {
 
     const parties: Party[] = [];
     partiesSnap.forEach((d) => parties.push(docToData<Party>(d)));
+
+    const items: Item[] = [];
+    itemsSnap.forEach((d) => items.push(docToData<Item>(d)));
 
     const list: AdminUserStats[] = [];
 
@@ -313,6 +465,7 @@ export const adminService = {
       );
       const userOrders = orders.filter((o) => o.userEmail && o.userEmail.toLowerCase().trim() === cleanEmail);
       const userParties = parties.filter((p) => p.userEmail && p.userEmail.toLowerCase().trim() === cleanEmail);
+      const userItems = items.filter((i) => i.userEmail && i.userEmail.toLowerCase().trim() === cleanEmail);
 
       const turnover = userOrders.reduce((acc, o) => acc + (Number(o.totalBillAmount) || 0), 0);
       const brokerage = userOrders.reduce((acc, o) => acc + ((Number(o.sellerCommissionAmount) || 0) + (Number(o.buyerCommissionAmount) || 0)), 0);
@@ -324,6 +477,7 @@ export const adminService = {
         turnover,
         brokerage,
         partiesCount: userParties.length,
+        itemsCount: userItems.length,
       });
     });
 
@@ -503,6 +657,76 @@ export const adminService = {
   },
 
   // ----------------------------------------------------
+  // SYSTEM MAINTENANCE MODE
+  // ----------------------------------------------------
+  async getMaintenanceConfig(): Promise<MaintenanceConfig> {
+    try {
+      const docRef = doc(firestore, 'system_settings', 'maintenance');
+      const snap = await getDoc(docRef);
+      if (snap.exists()) {
+        return snap.data() as MaintenanceConfig;
+      }
+    } catch (err) {
+      console.warn('Could not fetch maintenance config:', err);
+    }
+    return {
+      isEnabled: false,
+      title: 'System Under Scheduled Maintenance',
+      message: 'We are currently performing essential system maintenance and performance optimizations. Normal client access will be restored shortly.',
+      estimatedEndTime: '',
+      supportEmail: 'jenishpatel.dev7@gmail.com',
+    };
+  },
+
+  async setMaintenanceConfig(config: Partial<MaintenanceConfig>): Promise<void> {
+    const docRef = doc(firestore, 'system_settings', 'maintenance');
+    await setDoc(docRef, {
+      ...config,
+      updatedAt: new Date().toISOString(),
+    }, { merge: true });
+  },
+
+  async toggleMaintenanceMode(
+    isEnabled: boolean,
+    customMessage?: string,
+    estimatedEndTime?: string
+  ): Promise<void> {
+    const docRef = doc(firestore, 'system_settings', 'maintenance');
+    const updateData: Partial<MaintenanceConfig> = {
+      isEnabled,
+      updatedAt: new Date().toISOString(),
+      updatedBy: 'Super Admin',
+    };
+    if (customMessage !== undefined) updateData.message = customMessage;
+    if (estimatedEndTime !== undefined) updateData.estimatedEndTime = estimatedEndTime;
+
+    await setDoc(docRef, updateData, { merge: true });
+  },
+
+  subscribeMaintenanceConfig(callback: (config: MaintenanceConfig) => void): () => void {
+    const docRef = doc(firestore, 'system_settings', 'maintenance');
+    return onSnapshot(
+      docRef,
+      (snap) => {
+        if (snap.exists()) {
+          callback(snap.data() as MaintenanceConfig);
+        } else {
+          callback({
+            isEnabled: false,
+            title: 'System Under Scheduled Maintenance',
+            message: 'We are currently performing essential system maintenance and performance optimizations. Normal client access will be restored shortly.',
+            estimatedEndTime: '',
+            supportEmail: 'jenishpatel.dev7@gmail.com',
+          });
+        }
+      },
+      (error) => {
+        console.warn('Maintenance listener snapshot error:', error);
+      }
+    );
+  },
+
+  // ----------------------------------------------------
   // SYSTEM NOTICE (GLOBAL BROADCAST)
   // ----------------------------------------------------
   async getSystemNotice(): Promise<SystemNotice | null> {
@@ -527,7 +751,229 @@ export const adminService = {
   },
 
   // ----------------------------------------------------
-  // DATABASE BACKUP & EXPORT
+  // DATABASE BACKUP & MULTI-SHEET EXCEL EXPORT
+  // ----------------------------------------------------
+  async exportDatabaseAsExcel(): Promise<{ fileName: string; totalSheets: number }> {
+    const [
+      usersSnap,
+      companiesSnap,
+      ordersSnap,
+      partiesSnap,
+      itemsSnap,
+      fySnap,
+      quickSnap,
+      countersSnap,
+    ] = await Promise.all([
+      getDocs(collection(firestore, 'users')),
+      getDocs(collection(firestore, 'companies')),
+      getDocs(collection(firestore, 'saudaOrders')),
+      getDocs(collection(firestore, 'parties')),
+      getDocs(collection(firestore, 'items')),
+      getDocs(collection(firestore, 'financialYears')),
+      getDocs(collection(firestore, 'quickValues')),
+      getDocs(collection(firestore, 'counters')),
+    ]);
+
+    // Build Company Name Lookup
+    const companyMap: Record<string | number, string> = {};
+    companiesSnap.forEach((d) => {
+      const data = d.data() as Company;
+      if (data.id && data.name) {
+        companyMap[data.id] = data.name;
+      }
+    });
+
+    // 1. Sauda Orders (Clean business data; excluding createdAt, updatedAt)
+    const ordersRows = ordersSnap.docs.map((d) => {
+      const o = d.data() as SaudaOrder;
+      const companyName = o.companyId ? companyMap[o.companyId] || '-' : '-';
+      return {
+        'Order ID': o.id ?? d.id,
+        'DO No': o.doNo || '-',
+        'Trade Date': o.date || '-',
+        'Financial Year': o.financialYear || '-',
+        'Company Name': companyName,
+        'Commodity Name': o.itemName || '-',
+        'Quality': o.itemQuality || '-',
+        'Quantity': Number(o.quantity) || 0,
+        'Unit': o.unit || '-',
+        'Bill Rate (₹)': Number(o.billRate) || 0,
+        'With GST': o.withGST ? 'Yes' : 'No',
+        'GST %': Number(o.gstPercent) || 0,
+        'GST Amount (₹)': Number(o.gstAmount) || 0,
+        'Total Bill Amount (₹)': Number(o.totalBillAmount) || 0,
+        'Total Commission (₹)': (Number(o.sellerCommissionAmount) || 0) + (Number(o.buyerCommissionAmount) || 0),
+        'Seller Name': o.sellerName || '-',
+        'Seller City': o.sellerCity || '-',
+        'Seller Comm. Rate': Number(o.sellerCommissionRate) || 0,
+        'Seller Commission (₹)': Number(o.sellerCommissionAmount) || 0,
+        'Buyer Name': o.buyerName || '-',
+        'Buyer City': o.buyerCity || '-',
+        'Buyer Comm. Rate': Number(o.buyerCommissionRate) || 0,
+        'Buyer Commission (₹)': Number(o.buyerCommissionAmount) || 0,
+        'Bill No': o.billNo || '-',
+        'Payment Terms': o.paymentTerms || '-',
+        'Delivery Terms': o.deliveryTerms || '-',
+        'RD Value': o.rdValue || '-',
+        'Staple Length': o.stapleLength || '-',
+        'Mic': o.mic || '-',
+        'Trash %': o.trashPercent || '-',
+        'Moisture %': o.moisturePercent || '-',
+        'Remarks': o.remark || '-',
+        'Terms & Conditions': o.termsConditions || '-',
+        'User Email': o.userEmail || '-',
+      };
+    });
+
+    // 2. Companies (Clean business data; excluding createdAt, updatedAt, logo clutter)
+    const companiesRows = companiesSnap.docs.map((d) => {
+      const c = d.data() as Company;
+      return {
+        'Company ID': c.id ?? d.id,
+        'Company Name': c.name || '-',
+        'Contact Number': c.contactNumber || '-',
+        'Email': c.email || '-',
+        'Address': c.address || '-',
+        'City': c.city || '-',
+        'State': c.state || '-',
+        'Pincode': c.pinCode || '-',
+        'GST Number': c.gstNumber || '-',
+        'PAN Number': c.panNumber || '-',
+        'Bank Name': c.bankName || '-',
+        'Account Number': c.accountNumber || '-',
+        'Account Holder Name': c.accountHolderName || '-',
+        'IFSC Code': c.ifscCode || '-',
+        'UPI ID': c.upiId || '-',
+        'Is Default': c.isDefault ? 'Yes' : 'No',
+        'User Email': c.userEmail || '-',
+      };
+    });
+
+    // 3. Parties Directory (Excluding createdAt, updatedAt)
+    const partiesRows = partiesSnap.docs.map((d) => {
+      const p = d.data() as Party;
+      return {
+        'Party ID': p.id ?? d.id,
+        'Party Name': p.name || '-',
+        'Party Type': p.partyType ? (p.partyType === 'both' ? 'Both' : p.partyType === 'seller' ? 'Seller' : 'Buyer') : '-',
+        'Mobile Number': p.mobileNumber || '-',
+        'Email': p.email || '-',
+        'Address': p.address || '-',
+        'City': p.city || '-',
+        'State': p.state || '-',
+        'Pincode': p.pinCode || '-',
+        'GST Number': p.gstNumber || '-',
+        'PAN Number': p.panNumber || '-',
+        'License Number': p.licenseNumber || '-',
+        'Bank Name': p.bankName || '-',
+        'Account Number': p.accountNumber || '-',
+        'Account Holder Name': p.accountHolderName || '-',
+        'IFSC Code': p.ifscCode || '-',
+        'UPI ID': p.upiId || '-',
+        'User Email': p.userEmail || '-',
+      };
+    });
+
+    // 4. Commodities (Excluding createdAt, updatedAt)
+    const itemsRows = itemsSnap.docs.map((d) => {
+      const item = d.data() as Item;
+      return {
+        'Item ID': item.id ?? d.id,
+        'Commodity Name': item.name || '-',
+        'Trading Unit': item.unit || '-',
+        'Seller Comm. Rate': Number(item.sellerCommissionRate) || 0,
+        'Buyer Comm. Rate': Number(item.buyerCommissionRate) || 0,
+        'User Email': item.userEmail || '-',
+      };
+    });
+
+    // 5. Users (STRICTLY EXCLUDING pin, pinUpdatedAt, isPinEnabled, passwords, createdAt, updatedAt)
+    const usersRows = usersSnap.docs.map((d) => {
+      const u = d.data() as Record<string, any>;
+      return {
+        'User ID': d.id,
+        'Full Name': u.name || '-',
+        'Email Address': u.email || '-',
+        'Phone Number': u.phone || u.contactNumber || '-',
+        'Role': u.role || 'User',
+        'Account Status': u.status || 'Active',
+        'Last Login': u.lastLoginAt ? String(u.lastLoginAt) : '-',
+      };
+    });
+
+    // 6. Financial Years
+    const fyRows = fySnap.docs.map((d) => {
+      const fy = d.data() as Record<string, any>;
+      return {
+        'FY ID': d.id,
+        'Financial Year': fy.name || fy.id || '-',
+        'Current Active FY': fy.isCurrent ? 'Yes' : 'No',
+      };
+    });
+
+    // 7. Quick Dropdowns
+    const quickRows = quickSnap.docs.map((d) => {
+      const q = d.data() as Record<string, any>;
+      return {
+        'ID': q.id ?? d.id,
+        'Dropdown Category': q.category || '-',
+        'Option Value': q.value || '-',
+      };
+    });
+
+    // 8. System Counters
+    const countersRows = countersSnap.docs.map((d) => {
+      const c = d.data() as Record<string, any>;
+      return {
+        'Sequence Name': d.id,
+        'Current Counter Value': c.value ?? c.count ?? c.seq ?? 0,
+      };
+    });
+
+    // Helper: auto-calculate column widths
+    const appendSheetWithAutoWidth = (
+      wb: XLSX.WorkBook,
+      data: Record<string, any>[],
+      sheetName: string
+    ) => {
+      const ws = XLSX.utils.json_to_sheet(data.length > 0 ? data : [{}]);
+      if (data.length > 0) {
+        const colWidths = Object.keys(data[0]).map((key) => {
+          const maxValLength = Math.max(
+            key.length,
+            ...data.map((row) => String(row[key] ?? '').length)
+          );
+          return { wch: Math.min(Math.max(maxValLength + 3, 10), 45) };
+        });
+        ws['!cols'] = colWidths;
+      }
+      XLSX.utils.book_append_sheet(wb, ws, sheetName);
+    };
+
+    // Build multi-sheet workbook
+    const wb = XLSX.utils.book_new();
+    appendSheetWithAutoWidth(wb, ordersRows, 'Sauda Orders');
+    appendSheetWithAutoWidth(wb, companiesRows, 'Companies');
+    appendSheetWithAutoWidth(wb, partiesRows, 'Parties Directory');
+    appendSheetWithAutoWidth(wb, itemsRows, 'Commodities');
+    appendSheetWithAutoWidth(wb, usersRows, 'Users');
+    appendSheetWithAutoWidth(wb, fyRows, 'Financial Years');
+    appendSheetWithAutoWidth(wb, quickRows, 'Quick Dropdowns');
+    appendSheetWithAutoWidth(wb, countersRows, 'System Counters');
+
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const fileName = `VyaparX_Database_Backup_${dateStr}.xlsx`;
+
+    XLSX.writeFile(wb, fileName);
+
+    return {
+      fileName,
+      totalSheets: 8,
+    };
+  },
+
+  // ----------------------------------------------------
+  // DATABASE BACKUP & EXPORT (JSON)
   // ----------------------------------------------------
   async exportFullDatabase(): Promise<Record<string, unknown>> {
     const [usersSnap, companiesSnap, ordersSnap, partiesSnap, itemsSnap, countersSnap] = await Promise.all([

@@ -13,6 +13,7 @@ import { InstallAppModal } from './components/common/InstallAppModal';
 import { UpdateAppModal } from './components/common/UpdateAppModal';
 import { DisclaimerTermsModal } from './components/common/DisclaimerTermsModal';
 import { ScrollToTop } from './components/common/ScrollToTop';
+import { MaintenanceGuard } from './components/common/MaintenanceGuard';
 
 // Client Auth Pages
 import { EmailLoginPage } from './pages/auth/EmailLoginPage';
@@ -110,63 +111,65 @@ export function App() {
                       </Route>
 
                       {/* =========================================
-                          REGULAR USER PORTAL (CLIENT APP)
+                          REGULAR USER PORTAL (PROTECTED BY REALTIME MAINTENANCE GUARD)
                           ========================================= */}
-                      {/* Public Auth Routes */}
-                      <Route element={<AppShell />}>
-                        <Route path="/login" element={<EmailLoginPage />} />
-                        <Route path="/verify-otp" element={<OtpVerificationPage />} />
-                      </Route>
-
-                      {/* Protected Application Routes */}
-                      <Route element={<ProtectedRoute />}>
+                      <Route element={<MaintenanceGuard />}>
+                        {/* Public Auth Routes */}
                         <Route element={<AppShell />}>
-                          <Route path="/setup-pin" element={<SetupPinPage />} />
-                          <Route path="/create-first-company" element={<AddEditCompanyPage />} />
-                          <Route path="/" element={<SplashPage />} />
-                          <Route path="/splash" element={<SplashPage />} />
-                          <Route path="/home" element={<HomePage />} />
+                          <Route path="/login" element={<EmailLoginPage />} />
+                          <Route path="/verify-otp" element={<OtpVerificationPage />} />
+                        </Route>
 
-                          {/* Items */}
-                          <Route path="/items" element={<ItemsListPage />} />
-                          <Route path="/items/new" element={<AddEditItemPage />} />
-                          <Route path="/items/edit/:id" element={<AddEditItemPage />} />
+                        {/* Protected Application Routes */}
+                        <Route element={<ProtectedRoute />}>
+                          <Route element={<AppShell />}>
+                            <Route path="/setup-pin" element={<SetupPinPage />} />
+                            <Route path="/create-first-company" element={<AddEditCompanyPage />} />
+                            <Route path="/" element={<SplashPage />} />
+                            <Route path="/splash" element={<SplashPage />} />
+                            <Route path="/home" element={<HomePage />} />
 
-                          {/* Parties */}
-                          <Route path="/parties" element={<PartiesListPage />} />
-                          <Route path="/parties/new" element={<AddEditPartyPage />} />
-                          <Route path="/parties/edit/:id" element={<AddEditPartyPage />} />
+                            {/* Items */}
+                            <Route path="/items" element={<ItemsListPage />} />
+                            <Route path="/items/new" element={<AddEditItemPage />} />
+                            <Route path="/items/edit/:id" element={<AddEditItemPage />} />
 
-                          {/* Companies */}
-                          <Route path="/companies" element={<CompaniesListPage />} />
-                          <Route path="/companies/new" element={<AddEditCompanyPage />} />
-                          <Route path="/companies/edit/:id" element={<AddEditCompanyPage />} />
+                            {/* Parties */}
+                            <Route path="/parties" element={<PartiesListPage />} />
+                            <Route path="/parties/new" element={<AddEditPartyPage />} />
+                            <Route path="/parties/edit/:id" element={<AddEditPartyPage />} />
 
-                          {/* Vyapar Orders (with backward-compatible /sauda aliases) */}
-                          <Route path="/vyapar" element={<SaudaListPage />} />
-                          <Route path="/vyapar/create" element={<CreateSaudaPage />} />
-                          <Route path="/vyapar/edit/:id" element={<EditSaudaPage />} />
-                          <Route path="/vyapar/bills" element={<SaudaBillsPage />} />
+                            {/* Companies */}
+                            <Route path="/companies" element={<CompaniesListPage />} />
+                            <Route path="/companies/new" element={<AddEditCompanyPage />} />
+                            <Route path="/companies/edit/:id" element={<AddEditCompanyPage />} />
 
-                          <Route path="/sauda" element={<Navigate to="/vyapar" replace />} />
-                          <Route path="/sauda/create" element={<Navigate to="/vyapar/create" replace />} />
-                          <Route path="/sauda/edit/:id" element={<EditSaudaPage />} />
-                          <Route path="/sauda/bills" element={<Navigate to="/vyapar/bills" replace />} />
+                            {/* Vyapar Orders (with backward-compatible /sauda aliases) */}
+                            <Route path="/vyapar" element={<SaudaListPage />} />
+                            <Route path="/vyapar/create" element={<CreateSaudaPage />} />
+                            <Route path="/vyapar/edit/:id" element={<EditSaudaPage />} />
+                            <Route path="/vyapar/bills" element={<SaudaBillsPage />} />
 
-                          {/* Profile & Utilities */}
-                          <Route path="/profile" element={<ProfilePage />} />
-                          <Route path="/profile/reports" element={<ReportsPage />} />
-                          <Route path="/profile/quick-values" element={<QuickValuesPage />} />
-                          <Route path="/profile/security" element={<PinSecurityPage />} />
-                          <Route path="/profile/referrals" element={<ReferralsPage />} />
+                            <Route path="/sauda" element={<Navigate to="/vyapar" replace />} />
+                            <Route path="/sauda/create" element={<Navigate to="/vyapar/create" replace />} />
+                            <Route path="/sauda/edit/:id" element={<EditSaudaPage />} />
+                            <Route path="/sauda/bills" element={<Navigate to="/vyapar/bills" replace />} />
 
-                          {/* Legal & Support */}
-                          <Route path="/legal/terms" element={<LegalPages />} />
-                          <Route path="/legal/privacy" element={<LegalPages />} />
-                          <Route path="/legal/how-to-use" element={<LegalPages />} />
+                            {/* Profile & Utilities */}
+                            <Route path="/profile" element={<ProfilePage />} />
+                            <Route path="/profile/reports" element={<ReportsPage />} />
+                            <Route path="/profile/quick-values" element={<QuickValuesPage />} />
+                            <Route path="/profile/security" element={<PinSecurityPage />} />
+                            <Route path="/profile/referrals" element={<ReferralsPage />} />
 
-                          {/* Fallback */}
-                          <Route path="*" element={<Navigate to="/home" replace />} />
+                            {/* Legal & Support */}
+                            <Route path="/legal/terms" element={<LegalPages />} />
+                            <Route path="/legal/privacy" element={<LegalPages />} />
+                            <Route path="/legal/how-to-use" element={<LegalPages />} />
+
+                            {/* Fallback */}
+                            <Route path="*" element={<Navigate to="/home" replace />} />
+                          </Route>
                         </Route>
                       </Route>
 

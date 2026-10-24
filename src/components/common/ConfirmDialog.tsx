@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import React from 'react';
 import { AlertTriangle, X, Check, Trash2, LogOut } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
@@ -36,9 +37,9 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     confirmText === 'लॉग आउट' ||
     confirmText === 'લૉગ આઉટ';
 
-  return (
+  return createPortal(
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/45 dark:bg-black/70 backdrop-blur-md animate-in fade-in"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/45 dark:bg-black/55 backdrop-blur-[3px] animate-in fade-in"
     >
       <div 
         className="w-full max-w-sm bg-[#E8EDF3] dark:bg-[#262B36] rounded-3xl shadow-neu-raised-lg p-6 animate-in zoom-in-95 duration-150 border border-[#D5DDE7] dark:border-[#303746]"
@@ -93,5 +94,5 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         </div>
       </div>
     </div>
-  );
+  , document.body);
 };

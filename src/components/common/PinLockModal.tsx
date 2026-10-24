@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import React, { useState, useEffect } from 'react';
 import { Lock, Unlock, KeyRound, ShieldAlert, ArrowRight, RotateCw, CheckCircle2, Delete } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
@@ -186,10 +187,10 @@ export const PinLockModal: React.FC = () => {
     }
   };
 
-  return (
+  return createPortal(
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-2xl select-none"
-      style={{ backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' }}
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/45 dark:bg-black/55 backdrop-blur-[3px] select-none"
+      
     >
       <div className="w-full max-w-sm bg-[#E8EDF3] dark:bg-[#20242D] rounded-3xl p-6 sm:p-8 neu-raised border border-[#D5DDE7] dark:border-white/5 flex flex-col items-center text-center animate-in zoom-in-95 space-y-5">
         
@@ -375,5 +376,5 @@ export const PinLockModal: React.FC = () => {
         )}
       </div>
     </div>
-  );
+  , document.body);
 };

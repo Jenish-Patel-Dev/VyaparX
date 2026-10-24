@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import React, { useState } from 'react';
 import { X, Building2, Calendar, Check } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
@@ -42,9 +43,11 @@ export const ChangeCompanyFYModal: React.FC<Props> = ({ isOpen, onClose }) => {
     onClose();
   };
 
-  return (
+  if (!isOpen) return null;
+
+  return createPortal(
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/45 dark:bg-black/55 backdrop-blur-[3px] animate-in fade-in"
     >
       <div 
         className="w-full max-w-sm neu-raised-lg rounded-3xl p-6 space-y-5 animate-in zoom-in-95 border border-[#D5DDE7] dark:border-white/10"
@@ -128,5 +131,5 @@ export const ChangeCompanyFYModal: React.FC<Props> = ({ isOpen, onClose }) => {
         </button>
       </div>
     </div>
-  );
+  , document.body);
 };
