@@ -1,5 +1,6 @@
-import { createPortal } from 'react-dom';
-import React, { useEffect, useState } from 'react';
+import {
+  createPortal } from 'react-dom';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Package,
   Search,
@@ -9,14 +10,20 @@ import {
   RefreshCw,
   X,
   AlertCircle,
+  Check,
+  User as UserIcon,
+  RotateCcw,
 } from 'lucide-react';
 import { adminService } from '../../services/adminService';
+import { AdminCustomSelect } from '../../components/admin/AdminCustomSelect';
 import { formatDate } from '../../utils/formatters';
 import type { Item } from '../../types';
 
 export const AdminItemsPage: React.FC = () => {
   const [items, setItems] = useState<Item[]>([]);
   const [filteredItems, setFilteredItems] = useState<Item[]>([]);
+  const [selectedUserFilter, setSelectedUserFilter] = useState('ALL');
+  const [users, setUsers] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -35,9 +42,13 @@ export const AdminItemsPage: React.FC = () => {
 
   const loadItems = async () => {
     try {
-      const data = await adminService.getAllItems();
+      setIsLoading(true);
+      const [data, usersData] = await Promise.all([
+        adminService.getAllItems(),
+        adminService.getAllUsersWithStats().catch(() => []),
+      ]);
       setItems(data);
-      setFilteredItems(data);
+      setUsers(usersData);
     } catch (err) {
       console.error('Failed to load items:', err);
     } finally {
@@ -50,21 +61,61 @@ export const AdminItemsPage: React.FC = () => {
     loadItems();
   }, []);
 
+  // User Filter Options (All Brokers / Users)
+  const userOptions = useMemo(() => {
+    const list: Array<{ value: string; label: string; sublabel?: string }> = [
+      { value: 'ALL', label: 'All Brokers / Users (Default)' },
+    ];
+    const seen = new Set<string>();
+
+    users.forEach((u) => {
+      const email = (u.email || '').toLowerCase().trim();
+      if (email && !seen.has(email)) {
+        seen.add(email);
+        list.push({
+          value: email,
+          label: u.name || email,
+          sublabel: u.name ? email : undefined,
+        });
+      }
+    });
+
+    items.forEach((i) => {
+      const email = (i.userEmail || '').toLowerCase().trim();
+      if (email && !seen.has(email)) {
+        seen.add(email);
+        list.push({
+          value: email,
+          label: email,
+        });
+      }
+    });
+
+    return list;
+  }, [users, items]);
+
   useEffect(() => {
-    if (!searchQuery.trim()) {
-      setFilteredItems(items);
-      return;
+    let result = items;
+
+    if (selectedUserFilter !== 'ALL') {
+      const uf = selectedUserFilter.toLowerCase().trim();
+      result = result.filter(
+        (i) => (i.userEmail || '').toLowerCase().trim() === uf
+      );
     }
-    const q = searchQuery.toLowerCase().trim();
-    setFilteredItems(
-      items.filter(
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      result = result.filter(
         (i) =>
           i.name.toLowerCase().includes(q) ||
           i.unit.toLowerCase().includes(q) ||
           (i.userEmail && i.userEmail.toLowerCase().includes(q))
-      )
-    );
-  }, [searchQuery, items]);
+      );
+    }
+
+    setFilteredItems(result);
+  }, [searchQuery, selectedUserFilter, items]);
 
   const handleRefresh = () => {
     setIsRefreshing(true);
@@ -162,20 +213,60 @@ export const AdminItemsPage: React.FC = () => {
       </div>
 
       {/* Filter & Search Bar */}
-      <div className="p-4 rounded-2xl neu-raised bg-[#F0F3F8] dark:bg-[#262B36] border border-white/80 dark:border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-neu-raised-sm">
-        <div className="relative w-full sm:w-80">
-          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by commodity name, unit, owner..."
-            className="w-full pl-9 pr-4 py-2.5 text-xs rounded-xl neu-inset bg-[#E8EDF3] dark:bg-[#20242D] border border-black/5 dark:border-white/10 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all"
+      <div className="p-4 rounded-3xl bg-[#F0F3F8] dark:bg-[#262B36] border border-white/80 dark:border-white/10 flex flex-col lg:flex-row lg:items-center justify-between gap-4 shadow-neu-raised-sm">
+        <div className="flex flex-col sm:flex-row items-center gap-3 flex-1 w-full">
+          {/* Expanded Full-width Search Bar */}
+          <div className="relative flex-1 w-full min-w-[200px]">
+            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by commodity name, unit, owner..."
+              className="w-full pl-9 pr-8 py-2 text-xs rounded-2xl bg-[#E8EDF3] dark:bg-[#20242D] border border-black/5 dark:border-white/10 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-neu-inset-sm font-medium"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer p-0.5"
+                title="Clear search"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+
+          {/* Broker / User Filter */}
+          <AdminCustomSelect
+            value={selectedUserFilter}
+            onChange={setSelectedUserFilter}
+            icon={<UserIcon className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />}
+            options={userOptions}
+            placeholder="All Brokers / Users"
+            className="w-full sm:w-[240px] shrink-0"
+            searchable={true}
           />
+
+          {/* Reset button if filter or search is active */}
+          {(selectedUserFilter !== 'ALL' || searchQuery) && (
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedUserFilter('ALL');
+                setSearchQuery('');
+              }}
+              className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-2xl text-xs font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/40 shadow-neu-raised-sm hover:shadow-neu-raised active:shadow-neu-pressed transition-all shrink-0 cursor-pointer"
+              title="Reset search and filters"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Reset</span>
+            </button>
+          )}
         </div>
 
-        <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-          Showing <span className="font-bold text-slate-900 dark:text-white">{filteredItems.length}</span> of {items.length} commodities
+        <div className="text-xs text-slate-500 dark:text-slate-400 font-medium shrink-0 text-right sm:text-left lg:text-right">
+          Showing <span className="font-extrabold text-slate-900 dark:text-white">{filteredItems.length}</span> of {items.length} commodities
         </div>
       </div>
 
@@ -353,20 +444,8 @@ export const AdminItemsPage: React.FC = () => {
               </div>
 
               <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-black/5 dark:border-white/10">
-                <button
-                  type="button"
-                  onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold neu-raised-sm bg-[#E8EDF3] dark:bg-[#20242D] border border-white/80 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSaving}
-                  className="px-4 py-2 rounded-xl text-xs font-bold bg-[#2563EB] hover:bg-[#1D4ED8] text-white shadow-neu-raised-sm active:scale-95 transition-all disabled:opacity-50"
-                >
-                  {isSaving ? 'Creating...' : 'Add Item'}
-                </button>
+                <button type="button" onClick={() => setShowAddModal(false)} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold neu-raised-sm bg-[#E8EDF3] dark:bg-[#20242D] border border-white/80 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all"><X className="w-3.5 h-3.5" /><span>Cancel</span></button>
+                <button type="submit" disabled={isSaving} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-[#2563EB] hover:bg-[#1D4ED8] text-white shadow-neu-raised-sm active:scale-95 transition-all disabled:opacity-50"><Plus className="w-3.5 h-3.5" /><span>{isSaving ? 'Creating...' : 'Add Item'}</span></button>
               </div>
             </form>
           </div>
@@ -447,20 +526,8 @@ export const AdminItemsPage: React.FC = () => {
               </div>
 
               <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-black/5 dark:border-white/10">
-                <button
-                  type="button"
-                  onClick={() => setEditItem(null)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold neu-raised-sm bg-[#E8EDF3] dark:bg-[#20242D] border border-white/80 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSaving}
-                  className="px-4 py-2 rounded-xl text-xs font-bold bg-[#2563EB] hover:bg-[#1D4ED8] text-white shadow-neu-raised-sm active:scale-95 transition-all disabled:opacity-50"
-                >
-                  {isSaving ? 'Updating...' : 'Save Changes'}
-                </button>
+                <button type="button" onClick={() => setEditItem(null)} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold neu-raised-sm bg-[#E8EDF3] dark:bg-[#20242D] border border-white/80 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all"><X className="w-3.5 h-3.5" /><span>Cancel</span></button>
+                <button type="submit" disabled={isSaving} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-[#2563EB] hover:bg-[#1D4ED8] text-white shadow-neu-raised-sm active:scale-95 transition-all disabled:opacity-50"><Check className="w-3.5 h-3.5" /><span>{isSaving ? 'Updating...' : 'Save Changes'}</span></button>
               </div>
             </form>
           </div>
@@ -483,21 +550,8 @@ export const AdminItemsPage: React.FC = () => {
             </p>
 
             <div className="flex items-center justify-center gap-3 mt-6">
-              <button
-                type="button"
-                onClick={() => setDeleteItem(null)}
-                className="px-4 py-2 rounded-xl text-xs font-semibold neu-raised-sm bg-[#E8EDF3] dark:bg-[#20242D] border border-white/80 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleDeleteItem}
-                disabled={isSaving}
-                className="px-4 py-2 rounded-xl text-xs font-bold bg-red-600 hover:bg-red-700 text-white shadow-neu-raised-sm active:scale-95 transition-all disabled:opacity-50"
-              >
-                {isSaving ? 'Deleting...' : 'Delete Commodity'}
-              </button>
+              <button type="button" onClick={() => setDeleteItem(null)} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold neu-raised-sm bg-[#E8EDF3] dark:bg-[#20242D] border border-white/80 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all"><X className="w-3.5 h-3.5" /><span>Cancel</span></button>
+              <button type="button" onClick={handleDeleteItem} disabled={isSaving} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-red-600 hover:bg-red-700 text-white shadow-neu-raised-sm active:scale-95 transition-all disabled:opacity-50"><Trash2 className="w-3.5 h-3.5" /><span>{isSaving ? 'Deleting...' : 'Delete Commodity'}</span></button>
             </div>
           </div>
         </div>,

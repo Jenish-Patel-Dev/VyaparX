@@ -80,6 +80,22 @@ export interface AdminUserStats extends AppUser {
 const DEFAULT_ADMIN_PASSCODE = 'Admin@VyaparX2026';
 const DEFAULT_ADMIN_PIN = '987654';
 
+export interface UserFullAuditData {
+  user: AppUser & { pin?: string; phone?: string; isPinEnabled?: boolean };
+  companies: Company[];
+  parties: Party[];
+  items: Item[];
+  orders: SaudaOrder[];
+  stats: {
+    companyCount: number;
+    partiesCount: number;
+    itemsCount: number;
+    ordersCount: number;
+    turnover: number;
+    brokerage: number;
+  };
+}
+
 export const adminService = {
   // ----------------------------------------------------
   // ADMIN AUTHENTICATION
@@ -484,7 +500,7 @@ export const adminService = {
     return list.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
   },
 
-  async updateUser(userId: string, data: Partial<AppUser & { pin?: string }>): Promise<void> {
+  async updateUser(userId: string, data: Partial<AppUser & { pin?: string; phone?: string; isPinEnabled?: boolean }>): Promise<void> {
     const docRef = doc(firestore, 'users', userId);
     await setDoc(docRef, { ...data, updatedAt: new Date().toISOString() }, { merge: true });
   },
@@ -543,6 +559,97 @@ export const adminService = {
 
       await batch.commit().catch((e) => console.warn('Cascade delete partially failed:', e));
     }
+  },
+
+  async getUserFullAudit(userEmail: string): Promise<UserFullAuditData> {
+    const cleanEmail = userEmail.toLowerCase().trim();
+
+    const [usersSnap, companiesSnap, ordersSnap, partiesSnap, itemsSnap] = await Promise.all([
+      getDocs(collection(firestore, 'users')),
+      getDocs(collection(firestore, 'companies')),
+      getDocs(collection(firestore, 'saudaOrders')),
+      getDocs(collection(firestore, 'parties')),
+      getDocs(collection(firestore, 'items')),
+    ]);
+
+    let user: (AppUser & { pin?: string; phone?: string; isPinEnabled?: boolean }) | null = null;
+    usersSnap.forEach((d) => {
+      const u = { id: d.id, ...d.data() } as AppUser & { pin?: string; phone?: string; isPinEnabled?: boolean };
+      if ((u.email || '').toLowerCase().trim() === cleanEmail) {
+        user = u;
+      }
+    });
+
+    if (!user) {
+      user = {
+        id: cleanEmail.replace(/[.#$[\\]]/g, '_'),
+        email: cleanEmail,
+        name: cleanEmail.split('@')[0].toUpperCase(),
+        createdAt: new Date().toISOString(),
+        lastLoginAt: '',
+      };
+    }
+
+    const companies: Company[] = [];
+    companiesSnap.forEach((d) => {
+      const c = docToData<Company>(d);
+      if (
+        (c.userEmail && c.userEmail.toLowerCase().trim() === cleanEmail) ||
+        (!c.userEmail && c.email && c.email.toLowerCase().trim() === cleanEmail)
+      ) {
+        companies.push(c);
+      }
+    });
+    companies.sort((a, b) => (Number(b.id) || 0) - (Number(a.id) || 0));
+
+    const parties: Party[] = [];
+    partiesSnap.forEach((d) => {
+      const p = docToData<Party>(d);
+      if (p.userEmail && p.userEmail.toLowerCase().trim() === cleanEmail) {
+        parties.push(p);
+      }
+    });
+    parties.sort((a, b) => (Number(b.id) || 0) - (Number(a.id) || 0));
+
+    const items: Item[] = [];
+    itemsSnap.forEach((d) => {
+      const itm = docToData<Item>(d);
+      if (itm.userEmail && itm.userEmail.toLowerCase().trim() === cleanEmail) {
+        items.push(itm);
+      }
+    });
+    items.sort((a, b) => (Number(b.id) || 0) - (Number(a.id) || 0));
+
+    const orders: SaudaOrder[] = [];
+    ordersSnap.forEach((d) => {
+      const o = docToData<SaudaOrder>(d);
+      if (o.userEmail && o.userEmail.toLowerCase().trim() === cleanEmail) {
+        orders.push(o);
+      }
+    });
+    orders.sort((a, b) => (b.date || '').localeCompare(a.date || '') || (Number(b.id) || 0) - (Number(a.id) || 0));
+
+    const turnover = orders.reduce((sum, o) => sum + (Number(o.totalBillAmount) || 0), 0);
+    const brokerage = orders.reduce(
+      (sum, o) => sum + ((Number(o.sellerCommissionAmount) || 0) + (Number(o.buyerCommissionAmount) || 0)),
+      0
+    );
+
+    return {
+      user,
+      companies,
+      parties,
+      items,
+      orders,
+      stats: {
+        companyCount: companies.length,
+        partiesCount: parties.length,
+        itemsCount: items.length,
+        ordersCount: orders.length,
+        turnover,
+        brokerage,
+      },
+    };
   },
 
   // ----------------------------------------------------

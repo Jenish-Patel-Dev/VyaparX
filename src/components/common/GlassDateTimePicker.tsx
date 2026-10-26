@@ -196,9 +196,9 @@ export const GlassDateTimePicker: React.FC<GlassDateTimePickerProps> = ({
 
   const formatOutput = (d: Date, h: string, min: string, p: 'AM' | 'PM') => {
     const day = String(d.getDate()).padStart(2, '0');
-    const month = SHORT_MONTH_NAMES[d.getMonth()];
+    const month = SHORT_MONTH_NAMES[d.getMonth()].toUpperCase();
     const year = d.getFullYear();
-    return `${day} ${month} ${year}, ${h}:${min} ${p}`;
+    return `${day}-${month}-${year} ${h}:${min} ${p}`;
   };
 
   const handleApply = () => {

@@ -1,5 +1,8 @@
-import { createPortal } from 'react-dom';
-import React, { useEffect, useState } from 'react';
+import {
+  createPortal } from 'react-dom';
+import React,
+  { useEffect, useMemo,
+  useState } from 'react';
 import {
   Contact,
   Search,
@@ -11,6 +14,9 @@ import {
   CreditCard,
   X,
   AlertCircle,
+  Check,
+  User as UserIcon,
+  RotateCcw,
 } from 'lucide-react';
 import { adminService } from '../../services/adminService';
 import { AdminCustomSelect } from '../../components/admin/AdminCustomSelect';
@@ -21,6 +27,8 @@ export const AdminPartiesPage: React.FC = () => {
   const [filteredParties, setFilteredParties] = useState<Party[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<'ALL' | 'seller' | 'buyer' | 'both'>('ALL');
+  const [selectedUserFilter, setSelectedUserFilter] = useState('ALL');
+  const [users, setUsers] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -32,9 +40,13 @@ export const AdminPartiesPage: React.FC = () => {
 
   const loadParties = async () => {
     try {
-      const data = await adminService.getAllParties();
+      setIsLoading(true);
+      const [data, usersData] = await Promise.all([
+        adminService.getAllParties(),
+        adminService.getAllUsersWithStats().catch(() => []),
+      ]);
       setParties(data);
-      setFilteredParties(data);
+      setUsers(usersData);
     } catch (err) {
       console.error('Failed to load parties:', err);
     } finally {
@@ -47,8 +59,48 @@ export const AdminPartiesPage: React.FC = () => {
     loadParties();
   }, []);
 
+  // User Filter Options (All Brokers / Users)
+  const userOptions = useMemo(() => {
+    const list: Array<{ value: string; label: string; sublabel?: string }> = [
+      { value: 'ALL', label: 'All Brokers / Users (Default)' },
+    ];
+    const seen = new Set<string>();
+
+    users.forEach((u) => {
+      const email = (u.email || '').toLowerCase().trim();
+      if (email && !seen.has(email)) {
+        seen.add(email);
+        list.push({
+          value: email,
+          label: u.name || email,
+          sublabel: u.name ? email : undefined,
+        });
+      }
+    });
+
+    parties.forEach((p) => {
+      const email = (p.userEmail || '').toLowerCase().trim();
+      if (email && !seen.has(email)) {
+        seen.add(email);
+        list.push({
+          value: email,
+          label: email,
+        });
+      }
+    });
+
+    return list;
+  }, [users, parties]);
+
   useEffect(() => {
     let result = parties;
+
+    if (selectedUserFilter !== 'ALL') {
+      const uf = selectedUserFilter.toLowerCase().trim();
+      result = result.filter(
+        (p) => (p.userEmail || '').toLowerCase().trim() === uf
+      );
+    }
 
     if (typeFilter !== 'ALL') {
       result = result.filter((p) => p.partyType === typeFilter);
@@ -67,7 +119,7 @@ export const AdminPartiesPage: React.FC = () => {
     }
 
     setFilteredParties(result);
-  }, [searchQuery, typeFilter, parties]);
+  }, [searchQuery, typeFilter, selectedUserFilter, parties]);
 
   const handleRefresh = () => {
     setIsRefreshing(true);
@@ -128,36 +180,75 @@ export const AdminPartiesPage: React.FC = () => {
         </button>
       </div>
 
-      {/* Filter & Search */}
-      <div className="p-4 rounded-3xl bg-[#F0F3F8] dark:bg-[#262B36] border border-white/80 dark:border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-neu-raised-sm">
-        <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto flex-1">
-          <div className="relative w-full sm:w-80">
+      {/* Filter & Search Bar */}
+      <div className="p-4 rounded-3xl bg-[#F0F3F8] dark:bg-[#262B36] border border-white/80 dark:border-white/10 flex flex-col lg:flex-row lg:items-center justify-between gap-4 shadow-neu-raised-sm">
+        <div className="flex flex-col sm:flex-row items-center gap-3 flex-1 w-full">
+          {/* Expanded Full-width Search Bar */}
+          <div className="relative flex-1 w-full min-w-[200px]">
             <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by party name, phone, city, user..."
-              className="w-full pl-9 pr-4 py-2 text-xs rounded-2xl bg-[#E8EDF3] dark:bg-[#20242D] border border-black/5 dark:border-white/10 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-neu-inset-sm"
+              className="w-full pl-9 pr-8 py-2 text-xs rounded-2xl bg-[#E8EDF3] dark:bg-[#20242D] border border-black/5 dark:border-white/10 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-neu-inset-sm font-medium"
             />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer p-0.5"
+                title="Clear search"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
 
-          <div className="w-full sm:w-auto min-w-[180px]">
-            <AdminCustomSelect
-              value={typeFilter}
-              onChange={(val) => setTypeFilter(val as 'ALL' | 'seller' | 'buyer' | 'both')}
-              icon={<Filter className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />}
-              options={[
-                { value: 'ALL', label: 'All Party Types' },
-                { value: 'seller', label: 'Sellers Only' },
-                { value: 'buyer', label: 'Buyers Only' },
-                { value: 'both', label: 'Both (Buyer & Seller)' },
-              ]}
-            />
-          </div>
+          {/* Broker / User Filter */}
+          <AdminCustomSelect
+            value={selectedUserFilter}
+            onChange={setSelectedUserFilter}
+            icon={<UserIcon className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />}
+            options={userOptions}
+            placeholder="All Brokers / Users"
+            className="w-full sm:w-[220px] shrink-0"
+            searchable={true}
+          />
+
+          {/* Party Type Filter */}
+          <AdminCustomSelect
+            value={typeFilter}
+            onChange={(val) => setTypeFilter(val as 'ALL' | 'seller' | 'buyer' | 'both')}
+            icon={<Filter className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400 shrink-0" />}
+            options={[
+              { value: 'ALL', label: 'All Party Types' },
+              { value: 'seller', label: 'Sellers Only' },
+              { value: 'buyer', label: 'Buyers Only' },
+              { value: 'both', label: 'Both (Buyer & Seller)' },
+            ]}
+            className="w-full sm:w-[200px] shrink-0"
+          />
+
+          {/* Reset button if filter or search is active */}
+          {(selectedUserFilter !== 'ALL' || typeFilter !== 'ALL' || searchQuery) && (
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedUserFilter('ALL');
+                setTypeFilter('ALL');
+                setSearchQuery('');
+              }}
+              className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-2xl text-xs font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/40 shadow-neu-raised-sm hover:shadow-neu-raised active:shadow-neu-pressed transition-all shrink-0 cursor-pointer"
+              title="Reset search and filters"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Reset</span>
+            </button>
+          )}
         </div>
 
-        <div className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+        <div className="text-xs text-slate-500 dark:text-slate-400 font-medium shrink-0 text-right sm:text-left lg:text-right">
           Showing <span className="font-extrabold text-slate-900 dark:text-white">{filteredParties.length}</span> of {parties.length} parties
         </div>
       </div>
@@ -343,13 +434,7 @@ export const AdminPartiesPage: React.FC = () => {
             </div>
 
             <div className="pt-2 border-t border-black/5 dark:border-white/10 flex justify-end">
-              <button
-                type="button"
-                onClick={() => setSelectedParty(null)}
-                className="px-4 py-2 rounded-xl text-xs font-bold neu-raised-sm bg-[#E8EDF3] dark:bg-[#20242D] border border-white/80 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:text-blue-600 transition-all cursor-pointer"
-              >
-                Close
-              </button>
+              <button type="button" onClick={() => setSelectedParty(null)} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold neu-raised-sm bg-[#E8EDF3] dark:bg-[#20242D] border border-white/80 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:text-blue-600 transition-all cursor-pointer"><X className="w-3.5 h-3.5" /><span>Close</span></button>
             </div>
           </div>
         </div>,
@@ -465,20 +550,8 @@ export const AdminPartiesPage: React.FC = () => {
               </div>
 
               <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-black/5 dark:border-white/10">
-                <button
-                  type="button"
-                  onClick={() => setEditParty(null)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold neu-raised-sm bg-[#E8EDF3] dark:bg-[#20242D] border border-white/80 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSaving}
-                  className="px-4 py-2 rounded-xl text-xs font-bold bg-[#2563EB] hover:bg-[#1D4ED8] text-white shadow-neu-raised-sm active:scale-95 transition-all disabled:opacity-50 cursor-pointer"
-                >
-                  {isSaving ? 'Saving...' : 'Save Changes'}
-                </button>
+                <button type="button" onClick={() => setEditParty(null)} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold neu-raised-sm bg-[#E8EDF3] dark:bg-[#20242D] border border-white/80 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all cursor-pointer"><X className="w-3.5 h-3.5" /><span>Cancel</span></button>
+                <button type="submit" disabled={isSaving} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-[#2563EB] hover:bg-[#1D4ED8] text-white shadow-neu-raised-sm active:scale-95 transition-all disabled:opacity-50 cursor-pointer"><Check className="w-3.5 h-3.5" /><span>{isSaving ? 'Saving...' : 'Save Changes'}</span></button>
               </div>
             </form>
           </div>
@@ -501,21 +574,8 @@ export const AdminPartiesPage: React.FC = () => {
             </p>
 
             <div className="flex items-center justify-center gap-3 mt-6">
-              <button
-                type="button"
-                onClick={() => setDeleteParty(null)}
-                className="px-4 py-2 rounded-xl text-xs font-semibold neu-raised-sm bg-[#E8EDF3] dark:bg-[#20242D] border border-white/80 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleDelete}
-                disabled={isSaving}
-                className="px-4 py-2 rounded-xl text-xs font-bold bg-red-600 hover:bg-red-700 text-white shadow-neu-raised-sm active:scale-95 transition-all disabled:opacity-50 cursor-pointer"
-              >
-                {isSaving ? 'Deleting...' : 'Delete Party'}
-              </button>
+              <button type="button" onClick={() => setDeleteParty(null)} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold neu-raised-sm bg-[#E8EDF3] dark:bg-[#20242D] border border-white/80 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all cursor-pointer"><X className="w-3.5 h-3.5" /><span>Cancel</span></button>
+              <button type="button" onClick={handleDelete} disabled={isSaving} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-red-600 hover:bg-red-700 text-white shadow-neu-raised-sm active:scale-95 transition-all disabled:opacity-50 cursor-pointer"><Trash2 className="w-3.5 h-3.5" /><span>{isSaving ? 'Deleting...' : 'Delete Party'}</span></button>
             </div>
           </div>
         </div>,
