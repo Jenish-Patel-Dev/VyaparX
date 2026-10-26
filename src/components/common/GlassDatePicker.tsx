@@ -2,8 +2,10 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, ChevronDown, Check, X } from 'lucide-react';
 import { FieldError } from './FieldError';
+import { formatDate } from '../../utils/formatters';
 
 interface GlassDatePickerProps {
+  icon?: React.ReactNode;
   value: string; // ISO date 'YYYY-MM-DD'
   onChange: (dateStr: string) => void;
   label?: string;
@@ -57,20 +59,17 @@ function toISODateString(d: Date): string {
 // Format for display: 'YYYY-MM-DD' -> 'DD-MM-YYYY'
 function formatDisplayDate(str?: string): string {
   if (!str) return '';
-  const parts = str.split('T')[0].split('-');
-  if (parts.length === 3) {
-    return `${parts[2]}-${parts[1]}-${parts[0]}`;
-  }
-  return str;
+  return formatDate(str);
 }
 
 export const GlassDatePicker: React.FC<GlassDatePickerProps> = ({
   value,
   onChange,
+  icon,
   label,
   required = false,
   error,
-  placeholder = 'DD-MM-YYYY',
+  placeholder = 'DD-MON-YYYY',
   disabled = false,
   minDate,
   maxDate,
@@ -539,17 +538,20 @@ export const GlassDatePicker: React.FC<GlassDatePickerProps> = ({
           error ? 'border-red-500 ring-2 ring-red-200/50 bg-red-50/20' : ''
         } ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${triggerClassName}`}
       >
-        <span
-          className={`tracking-wide ${
-            effectiveValue
-              ? 'text-slate-900 dark:text-slate-100 font-bold'
-              : 'text-slate-400 dark:text-slate-500 font-normal'
-          }`}
-        >
-          {effectiveValue ? formatDisplayDate(effectiveValue) : placeholder}
-        </span>
+        <div className="flex items-center gap-2 min-w-0 flex-1 text-left">
+          {icon && <span className="shrink-0">{icon}</span>}
+          <span
+            className={`truncate tracking-wide ${
+              effectiveValue
+                ? 'text-slate-900 dark:text-slate-100 font-bold'
+                : 'text-slate-400 dark:text-slate-500 font-normal'
+            }`}
+          >
+            {effectiveValue ? formatDisplayDate(effectiveValue) : placeholder}
+          </span>
+        </div>
 
-        <div className="flex items-center gap-1.5 text-blue-600 dark:text-blue-400 shrink-0">
+        <div className="flex items-center gap-1.5 text-slate-400 shrink-0">
           {!required && value && (
             <span
               onClick={e => {
@@ -562,7 +564,7 @@ export const GlassDatePicker: React.FC<GlassDatePickerProps> = ({
               <X className="w-3.5 h-3.5 stroke-[2.2]" />
             </span>
           )}
-          <CalendarIcon className="w-4 h-4 stroke-[2.2] group-hover:scale-110 transition-transform" />
+          {!icon && <CalendarIcon className="w-4 h-4 text-blue-600 dark:text-blue-400 stroke-[2.2] group-hover:scale-110 transition-transform" />}
         </div>
       </div>
 

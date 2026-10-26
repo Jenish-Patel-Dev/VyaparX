@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { createPortal } from 'react-dom';
 import {
   Users,
@@ -22,6 +23,7 @@ import { formatCurrency, formatDateTime, formatDateTimeParts } from '../../utils
 import { AdminCustomSelect } from '../../components/admin/AdminCustomSelect';
 
 export const AdminUsersPage: React.FC = () => {
+  const navigate = useNavigate();
   const [users, setUsers] = useState<AdminUserStats[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<AdminUserStats[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -239,11 +241,17 @@ export const AdminUsersPage: React.FC = () => {
                       <tr key={u.id || u.email} className="hover:bg-black/[0.02] dark:hover:bg-white/[0.03] transition-colors">
                         {/* 1. User Details */}
                         <td className="py-3.5 px-4">
-                          <div className="font-extrabold text-slate-900 dark:text-white">
-                            {u.name || u.email.split('@')[0]}
-                          </div>
-                          <div className="text-[11px] font-mono text-slate-500 dark:text-slate-400">
-                            {u.email}
+                          <div
+                            onClick={() => navigate(`/admin/users/${encodeURIComponent(u.email)}`)}
+                            className="cursor-pointer group select-none"
+                            title="Click to view comprehensive user reports"
+                          >
+                            <div className="font-extrabold text-slate-900 dark:text-white group-hover:text-blue-600 transition-colors">
+                              {u.name || u.email.split('@')[0]}
+                            </div>
+                            <div className="text-[11px] font-mono text-slate-500 dark:text-slate-400 group-hover:underline">
+                              {u.email}
+                            </div>
                           </div>
                         </td>
 
@@ -320,12 +328,9 @@ export const AdminUsersPage: React.FC = () => {
                           <div className="flex items-center justify-center gap-1.5">
                             <button
                               type="button"
-                              onClick={() => {
-                                setSelectedUser(u);
-                                setShowViewModal(true);
-                              }}
+                              onClick={() => navigate(`/admin/users/${encodeURIComponent(u.email)}`)}
                               className="w-8 h-8 rounded-xl neu-raised-sm bg-[#E8EDF3] dark:bg-[#20242D] border border-white/80 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 flex items-center justify-center transition-all cursor-pointer"
-                              title="View User Details"
+                              title="View Comprehensive User Report"
                             >
                               <Eye className="w-4 h-4" />
                             </button>
@@ -459,13 +464,7 @@ export const AdminUsersPage: React.FC = () => {
               </div>
 
               <div className="pt-3 border-t border-black/[0.06] dark:border-white/10 flex justify-end">
-                <button
-                  type="button"
-                  onClick={() => setShowViewModal(false)}
-                  className="px-4 py-2 rounded-2xl text-xs font-bold bg-[#F0F3F8] dark:bg-[#2B3140] border border-white/80 dark:border-white/10 text-slate-700 dark:text-slate-200 hover:text-blue-600 shadow-neu-raised-sm hover:shadow-neu-raised active:shadow-neu-pressed cursor-pointer"
-                >
-                  Close
-                </button>
+                <button type="button" onClick={() => setShowViewModal(false)} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-2xl text-xs font-bold bg-[#F0F3F8] dark:bg-[#2B3140] border border-white/80 dark:border-white/10 text-slate-700 dark:text-slate-200 hover:text-blue-600 shadow-neu-raised-sm hover:shadow-neu-raised active:shadow-neu-pressed cursor-pointer"><X className="w-3.5 h-3.5" /><span>Close</span></button>
               </div>
             </div>
           </div>,

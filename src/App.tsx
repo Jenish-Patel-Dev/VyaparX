@@ -46,6 +46,7 @@ import { AdminLayout } from './components/admin/AdminLayout';
 import { AdminLoginPage } from './pages/admin/AdminLoginPage';
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
 import { AdminUsersPage } from './pages/admin/AdminUsersPage';
+import { AdminUserDetailPage } from './pages/admin/AdminUserDetailPage';
 import { AdminCompaniesPage } from './pages/admin/AdminCompaniesPage';
 import { AdminSaudaOrdersPage } from './pages/admin/AdminSaudaOrdersPage';
 import { AdminPartiesPage } from './pages/admin/AdminPartiesPage';
@@ -101,6 +102,7 @@ export function App() {
                           <Route index element={<Navigate to="/admin/dashboard" replace />} />
                           <Route path="dashboard" element={<AdminDashboardPage />} />
                           <Route path="users" element={<AdminUsersPage />} />
+                          <Route path="users/:email" element={<AdminUserDetailPage />} />
                           <Route path="companies" element={<AdminCompaniesPage />} />
                           <Route path="sauda" element={<AdminSaudaOrdersPage />} />
                           <Route path="parties" element={<AdminPartiesPage />} />

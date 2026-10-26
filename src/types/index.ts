@@ -2,6 +2,9 @@ export interface AppUser {
   id?: string;
   email: string;
   name: string;
+  phone?: string;
+  pin?: string;
+  isPinEnabled?: boolean;
   createdAt: string;
   lastLoginAt: string;
 }

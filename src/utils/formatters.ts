@@ -38,12 +38,65 @@ export function formatLakhsCr(amount: number): string {
   return formatCurrency(amount);
 }
 
+const MONTH_NAMES = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+
 export function formatDate(dateString?: string): string {
   if (!dateString) return '';
-  // handles YYYY-MM-DD or ISO string to DD/MM/YYYY
-  const parts = dateString.split('T')[0].split('-');
+  const str = String(dateString).trim();
+  // Already in DD-MON-YYYY format (e.g. 26-OCT-2026)
+  if (/^\d{2}-[A-Za-z]{3}-\d{4}$/.test(str)) {
+    return str.toUpperCase();
+  }
+  // Try clean ISO date part YYYY-MM-DD
+  const clean = str.split('T')[0];
+  const parts = clean.split('-');
   if (parts.length === 3) {
-    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    if (parts[0].length === 4) {
+      // YYYY-MM-DD
+      const year = parts[0];
+      const monthIdx = parseInt(parts[1], 10) - 1;
+      const day = parts[2].padStart(2, '0');
+      const month = MONTH_NAMES[monthIdx] || parts[1].toUpperCase();
+      return `${day}-${month}-${year}`;
+    } else if (parts[2].length === 4) {
+      // DD-MM-YYYY
+      const day = parts[0].padStart(2, '0');
+      const year = parts[2];
+      const monthIdx = parseInt(parts[1], 10) - 1;
+      const month = !isNaN(monthIdx) && monthIdx >= 0 && monthIdx < 12
+        ? MONTH_NAMES[monthIdx]
+        : parts[1].toUpperCase();
+      return `${day}-${month}-${year}`;
+    }
+  }
+  const slashParts = str.split('/');
+  if (slashParts.length === 3) {
+    if (slashParts[2].length === 4) {
+      // DD/MM/YYYY
+      const day = slashParts[0].padStart(2, '0');
+      const monthIdx = parseInt(slashParts[1], 10) - 1;
+      const year = slashParts[2];
+      const month = MONTH_NAMES[monthIdx] || slashParts[1].toUpperCase();
+      return `${day}-${month}-${year}`;
+    } else if (slashParts[0].length === 4) {
+      // YYYY/MM/DD
+      const year = slashParts[0];
+      const monthIdx = parseInt(slashParts[1], 10) - 1;
+      const day = slashParts[2].padStart(2, '0');
+      const month = MONTH_NAMES[monthIdx] || slashParts[1].toUpperCase();
+      return `${day}-${month}-${year}`;
+    }
+  }
+  try {
+    const d = new Date(str);
+    if (!isNaN(d.getTime())) {
+      const day = String(d.getDate()).padStart(2, '0');
+      const month = MONTH_NAMES[d.getMonth()] || String(d.getMonth() + 1).padStart(2, '0');
+      const year = d.getFullYear();
+      return `${day}-${month}-${year}`;
+    }
+  } catch {
+    // fallback
   }
   return dateString;
 }
@@ -54,14 +107,14 @@ export function formatDateTime(dateString?: string): string {
     const d = new Date(dateString);
     if (isNaN(d.getTime())) return dateString;
     const day = String(d.getDate()).padStart(2, '0');
-    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const month = MONTH_NAMES[d.getMonth()] || String(d.getMonth() + 1).padStart(2, '0');
     const year = d.getFullYear();
     let hours = d.getHours();
     const minutes = String(d.getMinutes()).padStart(2, '0');
     const ampm = hours >= 12 ? 'PM' : 'AM';
     hours = hours % 12 || 12;
     const formattedHours = String(hours).padStart(2, '0');
-    return `${day}/${month}/${year}, ${formattedHours}:${minutes} ${ampm}`;
+    return `${day}-${month}-${year} ${formattedHours}:${minutes} ${ampm}`;
   } catch {
     return dateString;
   }
@@ -73,7 +126,7 @@ export function formatDateTimeParts(dateString?: string): { date: string; time: 
     const d = new Date(dateString);
     if (isNaN(d.getTime())) return { date: dateString, time: '' };
     const day = String(d.getDate()).padStart(2, '0');
-    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const month = MONTH_NAMES[d.getMonth()] || String(d.getMonth() + 1).padStart(2, '0');
     const year = d.getFullYear();
     let hours = d.getHours();
     const minutes = String(d.getMinutes()).padStart(2, '0');
@@ -81,7 +134,7 @@ export function formatDateTimeParts(dateString?: string): { date: string; time: 
     hours = hours % 12 || 12;
     const formattedHours = String(hours).padStart(2, '0');
     return {
-      date: `${day}/${month}/${year}`,
+      date: `${day}-${month}-${year}`,
       time: `${formattedHours}:${minutes} ${ampm}`,
     };
   } catch {
@@ -118,6 +171,6 @@ export function formatDoNo(doNo?: string, id?: number): string {
 export function formatReportDoNo(doNo?: string, id?: number): string {
   const raw = String(doNo || id || '').trim();
   if (!raw) return '-';
-  const clean = raw.replace(/^DO\s*#?/i, '').replace(/^#/, '');
+  const clean = raw.replace(/^DO\s*#?/i, '').replace(/^#+/, '').trim();
   return `#${clean}`;
 }
