@@ -17,10 +17,13 @@ import {
   Check,
   User as UserIcon,
   RotateCcw,
+  Download,
 } from 'lucide-react';
 import { adminService } from '../../services/adminService';
 import { AdminCustomSelect } from '../../components/admin/AdminCustomSelect';
 import type { Party } from '../../types';
+import { exportToExcel } from '../../utils/excelExport';
+import { formatDate } from '../../utils/formatters';
 
 export const AdminPartiesPage: React.FC = () => {
   const [parties, setParties] = useState<Party[]>([]);
@@ -121,6 +124,31 @@ export const AdminPartiesPage: React.FC = () => {
     setFilteredParties(result);
   }, [searchQuery, typeFilter, selectedUserFilter, parties]);
 
+    const handleExportExcel = () => {
+    const exportData = filteredParties.map((p) => ({
+      'Party ID': p.id ?? '-',
+      'Party Name': p.name || '-',
+      'Party Type': p.partyType === 'both' ? 'Buyer & Seller' : p.partyType === 'seller' ? 'Seller' : p.partyType === 'buyer' ? 'Buyer' : '-',
+      'Broker / Owner': p.userEmail || '-',
+      'Mobile Number': p.mobileNumber || '-',
+      'Email': p.email || '-',
+      'Address': p.address || '-',
+      'City': p.city || '-',
+      'State': p.state || '-',
+      'Pincode': p.pinCode || '-',
+      'GSTIN': p.gstNumber || '-',
+      'PAN': p.panNumber || '-',
+      'License Number': p.licenseNumber || '-',
+      'Bank Name': p.bankName || '-',
+      'Account Holder': p.accountHolderName || '-',
+      'Account Number': p.accountNumber || '-',
+      'IFSC Code': p.ifscCode || '-',
+      'UPI ID': p.upiId || '-',
+      'Created Date': p.createdAt ? formatDate(p.createdAt) : '-',
+    }));
+    exportToExcel(exportData, `VyaparX_Parties_${new Date().toISOString().slice(0, 10)}`, 'Parties');
+  };
+
   const handleRefresh = () => {
     setIsRefreshing(true);
     loadParties();
@@ -169,15 +197,26 @@ export const AdminPartiesPage: React.FC = () => {
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={handleRefresh}
-          disabled={isRefreshing}
-          className="w-10 h-10 rounded-2xl border border-white/80 dark:border-white/10 bg-[#F0F3F8] dark:bg-[#2B3140] text-gray-700 dark:text-gray-200 hover:text-[#2563EB] dark:hover:text-[#60A5FA] shadow-neu-raised-sm hover:shadow-neu-raised active:shadow-neu-pressed flex items-center justify-center transition-all disabled:opacity-50 cursor-pointer"
-          title="Refresh Parties"
-        >
-          <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-blue-500' : ''}`} />
-        </button>
+        <div className="flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={handleExportExcel}
+            className="w-10 h-10 rounded-2xl border border-white/80 dark:border-white/10 bg-[#F0F3F8] dark:bg-[#2B3140] text-gray-700 dark:text-gray-200 hover:text-emerald-600 dark:hover:text-emerald-400 shadow-neu-raised-sm hover:shadow-neu-raised active:shadow-neu-pressed flex items-center justify-center transition-all cursor-pointer"
+            title="Download Excel Report"
+          >
+            <Download className="w-4 h-4" />
+          </button>
+
+          <button
+            type="button"
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="w-10 h-10 rounded-2xl border border-white/80 dark:border-white/10 bg-[#F0F3F8] dark:bg-[#2B3140] text-gray-700 dark:text-gray-200 hover:text-[#2563EB] dark:hover:text-[#60A5FA] shadow-neu-raised-sm hover:shadow-neu-raised active:shadow-neu-pressed flex items-center justify-center transition-all disabled:opacity-50 cursor-pointer"
+            title="Refresh Parties"
+          >
+            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-blue-500' : ''}`} />
+          </button>
+        </div>
       </div>
 
       {/* Filter & Search Bar */}
@@ -284,11 +323,11 @@ export const AdminPartiesPage: React.FC = () => {
                       </td>
 
                       <td className="py-3.5 px-4 text-slate-600 dark:text-slate-300 font-mono text-[11px]">
-                        {p.userEmail || '—'}
+                        {p.userEmail || '-'}
                       </td>
 
                       <td className="py-3.5 px-4 text-slate-600 dark:text-slate-300 font-mono">
-                        {p.mobileNumber || '—'}
+                        {p.mobileNumber || '-'}
                       </td>
 
                       <td className="py-3.5 px-4 text-slate-600 dark:text-slate-300">
@@ -303,7 +342,7 @@ export const AdminPartiesPage: React.FC = () => {
 
                       <td className="py-3.5 px-4 text-slate-600 dark:text-slate-300 font-mono">
                         <div>{p.gstNumber || '-'}</div>
-                        <div className="text-[10px] text-slate-400 font-sans">{p.licenseNumber || ''}</div>
+                        <div className="text-[10px] text-slate-400 font-sans">{p.licenseNumber || '-'}</div>
                       </td>
 
                       <td className="py-3.5 px-4 text-center">
@@ -364,7 +403,7 @@ export const AdminPartiesPage: React.FC = () => {
                   <h3 className="text-base font-bold text-slate-900 dark:text-white">
                     {selectedParty.name}
                   </h3>
-                  <p className="text-xs font-mono text-slate-500">Owner User: {selectedParty.userEmail || '—'}</p>
+                  <p className="text-xs font-mono text-slate-500">Owner User: {selectedParty.userEmail || '-'}</p>
                 </div>
               </div>
               <button
@@ -380,29 +419,29 @@ export const AdminPartiesPage: React.FC = () => {
               <div className="p-3.5 rounded-2xl neu-inset bg-[#E8EDF3] dark:bg-[#20242D] border border-black/5 dark:border-white/10 space-y-1">
                 <span className="text-[10px] text-slate-400 uppercase font-semibold">Address</span>
                 <p className="text-slate-800 dark:text-slate-200 font-medium">
-                  {selectedParty.address}, {selectedParty.city}, {selectedParty.state} {selectedParty.pinCode ? ` - ${selectedParty.pinCode}` : ''}
+                  {[selectedParty.address, selectedParty.city, selectedParty.state].filter(Boolean).join(', ') + (selectedParty.pinCode ? ` - ${selectedParty.pinCode}` : '') || '-'}
                 </p>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="p-3 rounded-2xl neu-inset bg-[#E8EDF3] dark:bg-[#20242D] border border-black/5 dark:border-white/10">
                   <span className="text-[10px] text-slate-400 uppercase font-semibold">Mobile</span>
-                  <p className="font-mono font-bold text-slate-900 dark:text-white mt-0.5">{selectedParty.mobileNumber}</p>
+                  <p className="font-mono font-bold text-slate-900 dark:text-white mt-0.5">{selectedParty.mobileNumber || '-'}</p>
                 </div>
                 <div className="p-3 rounded-2xl neu-inset bg-[#E8EDF3] dark:bg-[#20242D] border border-black/5 dark:border-white/10">
                   <span className="text-[10px] text-slate-400 uppercase font-semibold">Email</span>
-                  <p className="font-mono text-slate-900 dark:text-white mt-0.5">{selectedParty.email || 'Not Provided'}</p>
+                  <p className="font-mono text-slate-900 dark:text-white mt-0.5">{selectedParty.email || '-'}</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="p-3 rounded-2xl neu-inset bg-[#E8EDF3] dark:bg-[#20242D] border border-black/5 dark:border-white/10">
                   <span className="text-[10px] text-slate-400 uppercase font-semibold">GSTIN</span>
-                  <p className="font-mono font-bold text-slate-900 dark:text-white mt-0.5">{selectedParty.gstNumber || 'Not Provided'}</p>
+                  <p className="font-mono font-bold text-slate-900 dark:text-white mt-0.5">{selectedParty.gstNumber || '-'}</p>
                 </div>
                 <div className="p-3 rounded-2xl neu-inset bg-[#E8EDF3] dark:bg-[#20242D] border border-black/5 dark:border-white/10">
                   <span className="text-[10px] text-slate-400 uppercase font-semibold">APMC License</span>
-                  <p className="font-mono font-bold text-slate-900 dark:text-white mt-0.5">{selectedParty.licenseNumber || 'Not Provided'}</p>
+                  <p className="font-mono font-bold text-slate-900 dark:text-white mt-0.5">{selectedParty.licenseNumber || '-'}</p>
                 </div>
               </div>
 
@@ -415,19 +454,19 @@ export const AdminPartiesPage: React.FC = () => {
                 <div className="grid grid-cols-2 gap-2 text-[11px] pt-1">
                   <div>
                     <span className="text-slate-400">Bank:</span>{' '}
-                    <span className="font-semibold text-slate-800 dark:text-slate-200">{selectedParty.bankName || '—'}</span>
+                    <span className="font-semibold text-slate-800 dark:text-slate-200">{selectedParty.bankName || '-'}</span>
                   </div>
                   <div>
                     <span className="text-slate-400">A/C:</span>{' '}
-                    <span className="font-mono font-bold text-slate-800 dark:text-slate-200">{selectedParty.accountNumber || '—'}</span>
+                    <span className="font-mono font-bold text-slate-800 dark:text-slate-200">{selectedParty.accountNumber || '-'}</span>
                   </div>
                   <div>
                     <span className="text-slate-400">IFSC:</span>{' '}
-                    <span className="font-mono text-slate-800 dark:text-slate-200">{selectedParty.ifscCode || '—'}</span>
+                    <span className="font-mono text-slate-800 dark:text-slate-200">{selectedParty.ifscCode || '-'}</span>
                   </div>
                   <div>
                     <span className="text-slate-400">UPI:</span>{' '}
-                    <span className="font-mono text-slate-800 dark:text-slate-200">{selectedParty.upiId || '—'}</span>
+                    <span className="font-mono text-slate-800 dark:text-slate-200">{selectedParty.upiId || '-'}</span>
                   </div>
                 </div>
               </div>

@@ -549,7 +549,7 @@ export const AdminUserDetailPage: React.FC = () => {
               <Calendar className="w-4 h-4 text-indigo-500 shrink-0" />
               <div className="flex items-baseline gap-1.5 text-xs">
                 <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Joined:</span>
-                <span className="font-bold text-slate-800 dark:text-slate-200">{joinedParts?.date || 'N/A'}</span>
+                <span className="font-bold text-slate-800 dark:text-slate-200">{joinedParts?.date || '-'}</span>
                 {joinedParts?.time && (
                   <span className="text-[11px] font-mono text-slate-400">({joinedParts.time})</span>
                 )}
@@ -914,20 +914,20 @@ export const AdminUserDetailPage: React.FC = () => {
                       <tr key={c.id} className="hover:bg-black/[0.02] dark:hover:bg-white/[0.03] transition-colors">
                         <td className="py-3.5 px-4">
                           <div className="font-extrabold text-slate-900 dark:text-white">{c.name}</div>
-                          <div className="text-[11px] text-slate-500 font-mono">{c.email || '—'}</div>
+                          <div className="text-[11px] text-slate-500 font-mono">{c.email || '-'}</div>
                         </td>
                         <td className="py-3.5 px-4 font-mono text-slate-700 dark:text-slate-300">
-                          {c.contactNumber || '—'}
+                          {c.contactNumber || '-'}
                         </td>
                         <td className="py-3.5 px-4 text-slate-600 dark:text-slate-400">
-                          {c.city || '—'}{c.state ? `, ${c.state}` : ''}
+                          {c.city || '-'}{c.state ? `, ${c.state}` : ''}
                         </td>
                         <td className="py-3.5 px-4 font-mono">
-                          <div className="text-slate-800 dark:text-slate-200 font-bold">{c.gstNumber || '—'}</div>
+                          <div className="text-slate-800 dark:text-slate-200 font-bold">{c.gstNumber || '-'}</div>
                           <div className="text-[10px] text-slate-400">{c.panNumber || ''}</div>
                         </td>
                         <td className="py-3.5 px-4 text-slate-600 dark:text-slate-400">
-                          <div className="font-semibold text-slate-800 dark:text-slate-200">{c.bankName || '—'}</div>
+                          <div className="font-semibold text-slate-800 dark:text-slate-200">{c.bankName || '-'}</div>
                           <div className="font-mono text-[11px] text-slate-500">{c.accountNumber ? `A/C: ${c.accountNumber}` : ''}</div>
                         </td>
                         <td className="py-3.5 px-4 text-center">
@@ -1052,20 +1052,20 @@ export const AdminUserDetailPage: React.FC = () => {
                       <tr key={p.id} className="hover:bg-black/[0.02] dark:hover:bg-white/[0.03] transition-colors">
                         <td className="py-3.5 px-4">
                           <div className="font-extrabold text-slate-900 dark:text-white">{p.name}</div>
-                          <div className="text-[11px] text-slate-500 font-mono">{p.email || '—'}</div>
+                          <div className="text-[11px] text-slate-500 font-mono">{p.email || '-'}</div>
                         </td>
                         <td className="py-3.5 px-4 font-mono text-slate-700 dark:text-slate-300">
-                          {p.mobileNumber || '—'}
+                          {p.mobileNumber || '-'}
                         </td>
                         <td className="py-3.5 px-4 text-slate-600 dark:text-slate-400">
-                          {p.city || '—'}{p.state ? `, ${p.state}` : ''}
+                          {p.city || '-'}{p.state ? `, ${p.state}` : ''}
                         </td>
                         <td className="py-3.5 px-4 font-mono">
-                          <div className="text-slate-800 dark:text-slate-200 font-bold">{p.gstNumber || '—'}</div>
+                          <div className="text-slate-800 dark:text-slate-200 font-bold">{p.gstNumber || '-'}</div>
                           <div className="text-[10px] text-slate-400">{p.licenseNumber ? `APMC: ${p.licenseNumber}` : ''}</div>
                         </td>
                         <td className="py-3.5 px-4 text-slate-600 dark:text-slate-400">
-                          <div className="font-semibold text-slate-800 dark:text-slate-200">{p.bankName || '—'}</div>
+                          <div className="font-semibold text-slate-800 dark:text-slate-200">{p.bankName || '-'}</div>
                           <div className="font-mono text-[11px] text-slate-500">{p.upiId ? `UPI: ${p.upiId}` : ''}</div>
                         </td>
                         <td className="py-3.5 px-4 text-center">
@@ -1142,7 +1142,7 @@ export const AdminUserDetailPage: React.FC = () => {
                   ...data.items.map((i) => ({
                     value: String(i.id),
                     label: i.name,
-                    sublabel: `Unit: ${i.unit || '—'}`,
+                    sublabel: `Unit: ${i.unit || '-'}`,
                   })),
                 ]}
                 className="w-full sm:w-[260px] shrink-0"
@@ -1373,7 +1373,7 @@ export const AdminUserDetailPage: React.FC = () => {
                             {formatReportDoNo(o.doNo, o.id)}
                           </td>
                           <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300 whitespace-nowrap font-medium">
-                            {o.date ? formatDate(o.date) : '—'}
+                            {o.date ? formatDate(o.date) : '-'}
                           </td>
                           <td className="py-3.5 px-4">
                             <div className="font-extrabold text-slate-900 dark:text-white">{o.itemName}</div>
@@ -1474,7 +1474,7 @@ export const AdminUserDetailPage: React.FC = () => {
                 <div className="p-3 rounded-2xl bg-[#F0F3F8] dark:bg-[#262B36] border border-white/80 dark:border-white/10 space-y-1 shadow-2xs">
                   <span className="text-[10px] text-slate-400 uppercase font-bold">Address</span>
                   <p className="text-slate-900 dark:text-slate-100 font-semibold">
-                    {viewCompany.address}, {viewCompany.city}, {viewCompany.state} - {viewCompany.pinCode}
+                    {[viewCompany.address, viewCompany.city, viewCompany.state].filter(Boolean).join(', ') + (viewCompany.pinCode ? ` - ${viewCompany.pinCode}` : '') || '-'}
                   </p>
                 </div>
 
@@ -1482,13 +1482,13 @@ export const AdminUserDetailPage: React.FC = () => {
                   <div className="p-3 rounded-2xl bg-[#F0F3F8] dark:bg-[#262B36] border border-white/80 dark:border-white/10 shadow-2xs">
                     <span className="text-[10px] text-slate-400 uppercase font-bold">GSTIN</span>
                     <p className="font-mono font-bold text-slate-900 dark:text-white mt-0.5">
-                      {viewCompany.gstNumber || 'Not Provided'}
+                      {viewCompany.gstNumber || '-'}
                     </p>
                   </div>
                   <div className="p-3 rounded-2xl bg-[#F0F3F8] dark:bg-[#262B36] border border-white/80 dark:border-white/10 shadow-2xs">
                     <span className="text-[10px] text-slate-400 uppercase font-bold">PAN Number</span>
                     <p className="font-mono font-bold text-slate-900 dark:text-white mt-0.5">
-                      {viewCompany.panNumber || 'Not Provided'}
+                      {viewCompany.panNumber || '-'}
                     </p>
                   </div>
                 </div>
@@ -1502,19 +1502,19 @@ export const AdminUserDetailPage: React.FC = () => {
                   <div className="grid grid-cols-2 gap-2 text-xs pt-1">
                     <div>
                       <span className="text-slate-400">Bank:</span>{' '}
-                      <span className="font-bold text-slate-900 dark:text-slate-100">{viewCompany.bankName || '—'}</span>
+                      <span className="font-bold text-slate-900 dark:text-slate-100">{viewCompany.bankName || '-'}</span>
                     </div>
                     <div>
                       <span className="text-slate-400">A/C No:</span>{' '}
-                      <span className="font-mono font-bold text-slate-900 dark:text-slate-100">{viewCompany.accountNumber || '—'}</span>
+                      <span className="font-mono font-bold text-slate-900 dark:text-slate-100">{viewCompany.accountNumber || '-'}</span>
                     </div>
                     <div>
                       <span className="text-slate-400">IFSC:</span>{' '}
-                      <span className="font-mono text-slate-800 dark:text-slate-200">{viewCompany.ifscCode || '—'}</span>
+                      <span className="font-mono text-slate-800 dark:text-slate-200">{viewCompany.ifscCode || '-'}</span>
                     </div>
                     <div>
                       <span className="text-slate-400">UPI ID:</span>{' '}
-                      <span className="font-mono text-slate-800 dark:text-slate-200">{viewCompany.upiId || '—'}</span>
+                      <span className="font-mono text-slate-800 dark:text-slate-200">{viewCompany.upiId || '-'}</span>
                     </div>
                   </div>
                 </div>
@@ -1727,29 +1727,29 @@ export const AdminUserDetailPage: React.FC = () => {
                 <div className="p-3.5 rounded-2xl neu-inset bg-[#E8EDF3] dark:bg-[#20242D] border border-black/5 dark:border-white/10 space-y-1">
                   <span className="text-[10px] text-slate-400 uppercase font-semibold">Address</span>
                   <p className="text-slate-800 dark:text-slate-200 font-medium">
-                    {viewParty.address}, {viewParty.city}, {viewParty.state} {viewParty.pinCode ? ` - ${viewParty.pinCode}` : ''}
+                    {[viewParty.address, viewParty.city, viewParty.state].filter(Boolean).join(', ') + (viewParty.pinCode ? ` - ${viewParty.pinCode}` : '') || '-'}
                   </p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="p-3 rounded-2xl neu-inset bg-[#E8EDF3] dark:bg-[#20242D] border border-black/5 dark:border-white/10">
                     <span className="text-[10px] text-slate-400 uppercase font-semibold">Mobile</span>
-                    <p className="font-mono font-bold text-slate-900 dark:text-white mt-0.5">{viewParty.mobileNumber}</p>
+                    <p className="font-mono font-bold text-slate-900 dark:text-white mt-0.5">{viewParty.mobileNumber || '-'}</p>
                   </div>
                   <div className="p-3 rounded-2xl neu-inset bg-[#E8EDF3] dark:bg-[#20242D] border border-black/5 dark:border-white/10">
                     <span className="text-[10px] text-slate-400 uppercase font-semibold">Email</span>
-                    <p className="font-mono text-slate-900 dark:text-white mt-0.5">{viewParty.email || 'Not Provided'}</p>
+                    <p className="font-mono text-slate-900 dark:text-white mt-0.5">{viewParty.email || '-'}</p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="p-3 rounded-2xl neu-inset bg-[#E8EDF3] dark:bg-[#20242D] border border-black/5 dark:border-white/10">
                     <span className="text-[10px] text-slate-400 uppercase font-semibold">GSTIN</span>
-                    <p className="font-mono font-bold text-slate-900 dark:text-white mt-0.5">{viewParty.gstNumber || 'Not Provided'}</p>
+                    <p className="font-mono font-bold text-slate-900 dark:text-white mt-0.5">{viewParty.gstNumber || '-'}</p>
                   </div>
                   <div className="p-3 rounded-2xl neu-inset bg-[#E8EDF3] dark:bg-[#20242D] border border-black/5 dark:border-white/10">
                     <span className="text-[10px] text-slate-400 uppercase font-semibold">APMC License</span>
-                    <p className="font-mono font-bold text-slate-900 dark:text-white mt-0.5">{viewParty.licenseNumber || 'Not Provided'}</p>
+                    <p className="font-mono font-bold text-slate-900 dark:text-white mt-0.5">{viewParty.licenseNumber || '-'}</p>
                   </div>
                 </div>
 
@@ -1762,19 +1762,19 @@ export const AdminUserDetailPage: React.FC = () => {
                   <div className="grid grid-cols-2 gap-2 text-[11px] pt-1">
                     <div>
                       <span className="text-slate-400">Bank:</span>{' '}
-                      <span className="font-semibold text-slate-800 dark:text-slate-200">{viewParty.bankName || '—'}</span>
+                      <span className="font-semibold text-slate-800 dark:text-slate-200">{viewParty.bankName || '-'}</span>
                     </div>
                     <div>
                       <span className="text-slate-400">A/C:</span>{' '}
-                      <span className="font-mono font-bold text-slate-800 dark:text-slate-200">{viewParty.accountNumber || '—'}</span>
+                      <span className="font-mono font-bold text-slate-800 dark:text-slate-200">{viewParty.accountNumber || '-'}</span>
                     </div>
                     <div>
                       <span className="text-slate-400">IFSC:</span>{' '}
-                      <span className="font-mono text-slate-800 dark:text-slate-200">{viewParty.ifscCode || '—'}</span>
+                      <span className="font-mono text-slate-800 dark:text-slate-200">{viewParty.ifscCode || '-'}</span>
                     </div>
                     <div>
                       <span className="text-slate-400">UPI:</span>{' '}
-                      <span className="font-mono text-slate-800 dark:text-slate-200">{viewParty.upiId || '—'}</span>
+                      <span className="font-mono text-slate-800 dark:text-slate-200">{viewParty.upiId || '-'}</span>
                     </div>
                   </div>
                 </div>

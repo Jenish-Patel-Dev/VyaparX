@@ -102,7 +102,7 @@ export function formatDate(dateString?: string): string {
 }
 
 export function formatDateTime(dateString?: string): string {
-  if (!dateString) return '—';
+  if (!dateString) return '-';
   try {
     const d = new Date(dateString);
     if (isNaN(d.getTime())) return dateString;

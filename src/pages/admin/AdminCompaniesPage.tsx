@@ -14,10 +14,13 @@ import {
   AlertCircle,
 Check,
   RotateCcw,
+  Download,
 } from 'lucide-react';
 import { adminService } from '../../services/adminService';
 import { AdminCustomSelect } from '../../components/admin/AdminCustomSelect';
 import type { Company } from '../../types';
+import { exportToExcel } from '../../utils/excelExport';
+import { formatDate } from '../../utils/formatters';
 
 export const AdminCompaniesPage: React.FC = () => {
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -151,6 +154,29 @@ export const AdminCompaniesPage: React.FC = () => {
     setFilteredCompanies(result);
   }, [searchQuery, selectedUserFilter, selectedCompanyFilter, companies]);
 
+    const handleExportExcel = () => {
+    const exportData = filteredCompanies.map((c) => ({
+      'Company ID': c.id ?? '-',
+      'Firm Name': c.name || '-',
+      'Broker / Owner': c.userEmail || '-',
+      'Contact Number': c.contactNumber || '-',
+      'Email': c.email || '-',
+      'Address': c.address || '-',
+      'City': c.city || '-',
+      'State': c.state || '-',
+      'Pincode': c.pinCode || '-',
+      'GSTIN': c.gstNumber || '-',
+      'PAN': c.panNumber || '-',
+      'Bank Name': c.bankName || '-',
+      'Account Holder': c.accountHolderName || '-',
+      'Account Number': c.accountNumber || '-',
+      'IFSC Code': c.ifscCode || '-',
+      'UPI ID': c.upiId || '-',
+      'Created Date': c.createdAt ? formatDate(c.createdAt) : '-',
+    }));
+    exportToExcel(exportData, `VyaparX_Companies_${new Date().toISOString().slice(0, 10)}`, 'Companies');
+  };
+
   const handleRefresh = () => {
     setIsRefreshing(true);
     loadCompanies();
@@ -199,15 +225,26 @@ export const AdminCompaniesPage: React.FC = () => {
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={handleRefresh}
-          disabled={isRefreshing}
-          className="w-10 h-10 rounded-2xl border border-white/80 dark:border-white/10 bg-[#F0F3F8] dark:bg-[#2B3140] text-gray-700 dark:text-gray-200 hover:text-[#2563EB] dark:hover:text-[#60A5FA] shadow-neu-raised-sm hover:shadow-neu-raised active:shadow-neu-pressed flex items-center justify-center transition-all disabled:opacity-50 cursor-pointer"
-          title="Refresh Companies"
-        >
-          <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-blue-500' : ''}`} />
-        </button>
+        <div className="flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={handleExportExcel}
+            className="w-10 h-10 rounded-2xl border border-white/80 dark:border-white/10 bg-[#F0F3F8] dark:bg-[#2B3140] text-gray-700 dark:text-gray-200 hover:text-emerald-600 dark:hover:text-emerald-400 shadow-neu-raised-sm hover:shadow-neu-raised active:shadow-neu-pressed flex items-center justify-center transition-all cursor-pointer"
+            title="Download Excel Report"
+          >
+            <Download className="w-4 h-4" />
+          </button>
+
+          <button
+            type="button"
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="w-10 h-10 rounded-2xl border border-white/80 dark:border-white/10 bg-[#F0F3F8] dark:bg-[#2B3140] text-gray-700 dark:text-gray-200 hover:text-[#2563EB] dark:hover:text-[#60A5FA] shadow-neu-raised-sm hover:shadow-neu-raised active:shadow-neu-pressed flex items-center justify-center transition-all disabled:opacity-50 cursor-pointer"
+            title="Refresh Companies"
+          >
+            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-blue-500' : ''}`} />
+          </button>
+        </div>
       </div>
 
       {/* Search & Filter Bar */}
@@ -321,20 +358,20 @@ export const AdminCompaniesPage: React.FC = () => {
                       </td>
 
                       <td className="py-3.5 px-4 text-slate-600 dark:text-slate-300 font-mono text-[11px]">
-                        {c.userEmail || c.email || '—'}
+                        {c.userEmail || c.email || '-'}
                       </td>
 
                       <td className="py-3.5 px-4 text-slate-600 dark:text-slate-300">
-                        {c.city}, {c.state}
+                        {[c.city, c.state].filter(Boolean).join(', ') || '-'}
                       </td>
 
                       <td className="py-3.5 px-4 text-slate-600 dark:text-slate-300 font-mono">
-                        <div>{c.gstNumber || 'No GST'}</div>
-                        <div className="text-[10px] text-slate-400">{c.panNumber || ''}</div>
+                        <div>{c.gstNumber || '-'}</div>
+                        <div className="text-[10px] text-slate-400">{c.panNumber || '-'}</div>
                       </td>
 
                       <td className="py-3.5 px-4 text-slate-600 dark:text-slate-300 font-mono">
-                        {c.contactNumber}
+                        {c.contactNumber || '-'}
                       </td>
 
                       <td className="py-3.5 px-4 text-center">
@@ -417,7 +454,7 @@ export const AdminCompaniesPage: React.FC = () => {
               <div className="p-3 rounded-2xl bg-[#F0F3F8] dark:bg-[#262B36] border border-white/80 dark:border-white/10 space-y-1 shadow-2xs">
                 <span className="text-[10px] text-slate-400 uppercase font-bold">Address</span>
                 <p className="text-slate-900 dark:text-slate-100 font-semibold">
-                  {selectedCompany.address}, {selectedCompany.city}, {selectedCompany.state} - {selectedCompany.pinCode}
+                  {[selectedCompany.address, selectedCompany.city, selectedCompany.state].filter(Boolean).join(', ') + (selectedCompany.pinCode ? ` - ${selectedCompany.pinCode}` : '') || '-'}
                 </p>
               </div>
 
@@ -425,13 +462,13 @@ export const AdminCompaniesPage: React.FC = () => {
                 <div className="p-3 rounded-2xl bg-[#F0F3F8] dark:bg-[#262B36] border border-white/80 dark:border-white/10 shadow-2xs">
                   <span className="text-[10px] text-slate-400 uppercase font-bold">GSTIN</span>
                   <p className="font-mono font-bold text-slate-900 dark:text-white mt-0.5">
-                    {selectedCompany.gstNumber || 'Not Provided'}
+                    {selectedCompany.gstNumber || '-'}
                   </p>
                 </div>
                 <div className="p-3 rounded-2xl bg-[#F0F3F8] dark:bg-[#262B36] border border-white/80 dark:border-white/10 shadow-2xs">
                   <span className="text-[10px] text-slate-400 uppercase font-bold">PAN Number</span>
                   <p className="font-mono font-bold text-slate-900 dark:text-white mt-0.5">
-                    {selectedCompany.panNumber || 'Not Provided'}
+                    {selectedCompany.panNumber || '-'}
                   </p>
                 </div>
               </div>
@@ -445,19 +482,19 @@ export const AdminCompaniesPage: React.FC = () => {
                 <div className="grid grid-cols-2 gap-2 text-xs pt-1">
                   <div>
                     <span className="text-slate-400">Bank:</span>{' '}
-                    <span className="font-bold text-slate-900 dark:text-slate-100">{selectedCompany.bankName || '—'}</span>
+                    <span className="font-bold text-slate-900 dark:text-slate-100">{selectedCompany.bankName || '-'}</span>
                   </div>
                   <div>
                     <span className="text-slate-400">A/C No:</span>{' '}
-                    <span className="font-mono font-bold text-slate-900 dark:text-slate-100">{selectedCompany.accountNumber || '—'}</span>
+                    <span className="font-mono font-bold text-slate-900 dark:text-slate-100">{selectedCompany.accountNumber || '-'}</span>
                   </div>
                   <div>
                     <span className="text-slate-400">IFSC:</span>{' '}
-                    <span className="font-mono text-slate-800 dark:text-slate-200">{selectedCompany.ifscCode || '—'}</span>
+                    <span className="font-mono text-slate-800 dark:text-slate-200">{selectedCompany.ifscCode || '-'}</span>
                   </div>
                   <div>
                     <span className="text-slate-400">UPI ID:</span>{' '}
-                    <span className="font-mono text-slate-800 dark:text-slate-200">{selectedCompany.upiId || '—'}</span>
+                    <span className="font-mono text-slate-800 dark:text-slate-200">{selectedCompany.upiId || '-'}</span>
                   </div>
                 </div>
               </div>

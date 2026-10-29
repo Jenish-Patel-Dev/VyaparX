@@ -375,10 +375,10 @@ const isFiltered = selectedFY !== 'ALL' || selectedUser !== 'ALL';
                         </td>
                         <td className="py-3 max-w-[170px]">
                           <div className="font-extrabold text-slate-900 dark:text-slate-100 truncate" title={o.companyName}>
-                            {o.companyName || '—'}
+                            {o.companyName || '-'}
                           </div>
                           <div className="text-[10px] text-slate-400 truncate font-mono" title={o.userEmail}>
-                            {o.userEmail || '—'}
+                            {o.userEmail || '-'}
                           </div>
                         </td>
                         <td className="py-3">
