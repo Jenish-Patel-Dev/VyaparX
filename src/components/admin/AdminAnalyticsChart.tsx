@@ -325,7 +325,7 @@ export const AdminAnalyticsChart: React.FC<AdminAnalyticsChartProps> = ({
               Peak {timeframe === 'monthly' ? 'Month' : 'Day'}
             </span>
             <p className="text-base sm:text-lg font-black text-slate-900 dark:text-white font-mono mt-0.5 truncate max-w-[180px]">
-              {peakItem ? `${peakItem.label} (${formatVal(peakItem[metric])})` : '—'}
+              {peakItem ? `${peakItem.label} (${formatVal(peakItem[metric])})` : '-'}
             </p>
           </div>
           <span className="text-[10px] font-extrabold px-2.5 py-1 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">

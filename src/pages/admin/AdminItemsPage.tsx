@@ -13,16 +13,19 @@ import {
   Check,
   User as UserIcon,
   RotateCcw,
+  Download,
 } from 'lucide-react';
 import { adminService } from '../../services/adminService';
 import { AdminCustomSelect } from '../../components/admin/AdminCustomSelect';
 import { formatDate } from '../../utils/formatters';
 import type { Item } from '../../types';
+import { exportToExcel } from '../../utils/excelExport';
 
 export const AdminItemsPage: React.FC = () => {
   const [items, setItems] = useState<Item[]>([]);
   const [filteredItems, setFilteredItems] = useState<Item[]>([]);
   const [selectedUserFilter, setSelectedUserFilter] = useState('ALL');
+  const [selectedItemFilter, setSelectedItemFilter] = useState('ALL');
   const [users, setUsers] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -94,6 +97,37 @@ export const AdminItemsPage: React.FC = () => {
     return list;
   }, [users, items]);
 
+  // Commodity Options Filter
+  const itemOptions = useMemo(() => {
+    const list: Array<{ value: string; label: string; sublabel?: string }> = [
+      { value: 'ALL', label: 'All Commodities (Default)' },
+    ];
+    const seen = new Set<string>();
+
+    const relevant =
+      selectedUserFilter !== 'ALL'
+        ? items.filter(
+            (i) =>
+              (i.userEmail || '').toLowerCase().trim() ===
+              selectedUserFilter.toLowerCase().trim()
+          )
+        : items;
+
+    relevant.forEach((i) => {
+      const key = String(i.id);
+      if (!seen.has(key)) {
+        seen.add(key);
+        list.push({
+          value: key,
+          label: i.name,
+          sublabel: `Unit: ${i.unit || '-'} ${i.userEmail ? '• ' + i.userEmail : ''}`.trim(),
+        });
+      }
+    });
+
+    return list;
+  }, [items, selectedUserFilter]);
+
   useEffect(() => {
     let result = items;
 
@@ -102,6 +136,10 @@ export const AdminItemsPage: React.FC = () => {
       result = result.filter(
         (i) => (i.userEmail || '').toLowerCase().trim() === uf
       );
+    }
+
+    if (selectedItemFilter !== 'ALL') {
+      result = result.filter((i) => String(i.id) === selectedItemFilter);
     }
 
     if (searchQuery.trim()) {
@@ -115,7 +153,20 @@ export const AdminItemsPage: React.FC = () => {
     }
 
     setFilteredItems(result);
-  }, [searchQuery, selectedUserFilter, items]);
+  }, [searchQuery, selectedUserFilter, selectedItemFilter, items]);
+
+    const handleExportExcel = () => {
+    const exportData = filteredItems.map((item) => ({
+      'Item ID': item.id ?? '-',
+      'Commodity Name': item.name || '-',
+      'Standard Unit': item.unit || '-',
+      'Seller Default Rate': Number(item.sellerCommissionRate) || 0,
+      'Buyer Default Rate': Number(item.buyerCommissionRate) || 0,
+      'Broker / Owner': item.userEmail || '-',
+      'Created Date': item.createdAt ? formatDate(item.createdAt) : '-',
+    }));
+    exportToExcel(exportData, `VyaparX_Commodities_${new Date().toISOString().slice(0, 10)}`, 'Commodities');
+  };
 
   const handleRefresh = () => {
     setIsRefreshing(true);
@@ -193,21 +244,21 @@ export const AdminItemsPage: React.FC = () => {
         <div className="flex items-center gap-2.5">
           <button
             type="button"
-            onClick={handleRefresh}
-            disabled={isRefreshing}
-            className="p-2.5 rounded-2xl neu-raised-sm bg-[#F0F3F8] dark:bg-[#262B36] border border-white/80 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-all active:scale-95"
-            title="Refresh Items"
+            onClick={handleExportExcel}
+            className="w-10 h-10 rounded-2xl border border-white/80 dark:border-white/10 bg-[#F0F3F8] dark:bg-[#2B3140] text-gray-700 dark:text-gray-200 hover:text-emerald-600 dark:hover:text-emerald-400 shadow-neu-raised-sm hover:shadow-neu-raised active:shadow-neu-pressed flex items-center justify-center transition-all cursor-pointer"
+            title="Download Excel Report"
           >
-            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-blue-600' : ''}`} />
+            <Download className="w-4 h-4" />
           </button>
 
           <button
             type="button"
-            onClick={() => setShowAddModal(true)}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl text-xs font-bold bg-[#2563EB] hover:bg-[#1D4ED8] text-white shadow-neu-raised-sm active:scale-95 transition-all"
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="w-10 h-10 rounded-2xl border border-white/80 dark:border-white/10 bg-[#F0F3F8] dark:bg-[#2B3140] text-gray-700 dark:text-gray-200 hover:text-[#2563EB] dark:hover:text-[#60A5FA] shadow-neu-raised-sm hover:shadow-neu-raised active:shadow-neu-pressed flex items-center justify-center transition-all disabled:opacity-50 cursor-pointer"
+            title="Refresh Items"
           >
-            <Plus className="w-4 h-4" />
-            <span>Add Commodity</span>
+            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-blue-500' : ''}`} />
           </button>
         </div>
       </div>
@@ -240,20 +291,35 @@ export const AdminItemsPage: React.FC = () => {
           {/* Broker / User Filter */}
           <AdminCustomSelect
             value={selectedUserFilter}
-            onChange={setSelectedUserFilter}
+            onChange={(val) => {
+              setSelectedUserFilter(val);
+              setSelectedItemFilter('ALL');
+            }}
             icon={<UserIcon className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 shrink-0" />}
             options={userOptions}
             placeholder="All Brokers / Users"
-            className="w-full sm:w-[240px] shrink-0"
+            className="w-full sm:w-[220px] shrink-0"
+            searchable={true}
+          />
+
+          {/* Commodity Select Filter */}
+          <AdminCustomSelect
+            value={selectedItemFilter}
+            onChange={setSelectedItemFilter}
+            icon={<Package className="w-3.5 h-3.5 text-amber-500 shrink-0" />}
+            options={itemOptions}
+            placeholder="All Commodities"
+            className="w-full sm:w-[220px] shrink-0"
             searchable={true}
           />
 
           {/* Reset button if filter or search is active */}
-          {(selectedUserFilter !== 'ALL' || searchQuery) && (
+          {(selectedUserFilter !== 'ALL' || selectedItemFilter !== 'ALL' || searchQuery) && (
             <button
               type="button"
               onClick={() => {
                 setSelectedUserFilter('ALL');
+                setSelectedItemFilter('ALL');
                 setSearchQuery('');
               }}
               className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-2xl text-xs font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/40 shadow-neu-raised-sm hover:shadow-neu-raised active:shadow-neu-pressed transition-all shrink-0 cursor-pointer"
@@ -295,14 +361,9 @@ export const AdminItemsPage: React.FC = () => {
                 {filteredItems.length > 0 ? (
                   filteredItems.map((item) => (
                     <tr key={item.id} className="hover:bg-slate-100/50 dark:hover:bg-white/5 transition-colors">
-                      <td className="py-3.5 px-4 font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center font-bold text-xs shrink-0">
-                          {item.name.charAt(0).toUpperCase()}
-                        </div>
-                        <div>
-                          <span>{item.name}</span>
-                          <span className="block text-[10px] text-slate-400 font-mono">ID: #{item.id}</span>
-                        </div>
+                      <td className="py-3.5 px-4">
+                        <div className="font-extrabold text-slate-900 dark:text-white">{item.name}</div>
+                        <div className="text-[10px] text-slate-400 font-mono">ID: #{item.id}</div>
                       </td>
 
                       <td className="py-3.5 px-4 font-mono font-bold text-slate-700 dark:text-slate-300">
@@ -330,7 +391,7 @@ export const AdminItemsPage: React.FC = () => {
                       </td>
 
                       <td className="py-3.5 px-4 text-slate-500 dark:text-slate-400">
-                        {item.createdAt ? formatDate(item.createdAt) : '—'}
+                        {item.createdAt ? formatDate(item.createdAt) : '-'}
                       </td>
 
                       <td className="py-3.5 px-4 text-center">

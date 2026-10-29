@@ -80,6 +80,34 @@ export interface AdminUserStats extends AppUser {
 const DEFAULT_ADMIN_PASSCODE = 'Admin@VyaparX2026';
 const DEFAULT_ADMIN_PIN = '987654';
 
+export interface GlobalPortalConfig {
+  defaultFinancialYear: string;
+  defaultDOSequencePrefix: string;
+  defaultPaymentTermsDays: string;
+  defaultCommodityUnit: string;
+  defaultSaudaNoteColor: 'BLUE' | 'ORANGE' | 'GREEN' | 'RED' | 'BLACK';
+  defaultPdfTemplate: 1 | 2;
+  showSignatureByDefault: boolean;
+  showBankDetailsOnNote: boolean;
+  allowSelfRegistration: boolean;
+  commissionCalcMode: 'percentage' | 'per_unit';
+  updatedAt?: string;
+  updatedBy?: string;
+}
+
+export const DEFAULT_PORTAL_CONFIG: GlobalPortalConfig = {
+  defaultFinancialYear: '2026-2027',
+  defaultDOSequencePrefix: '#',
+  defaultPaymentTermsDays: '15',
+  defaultCommodityUnit: 'BALES',
+  defaultSaudaNoteColor: 'ORANGE',
+  defaultPdfTemplate: 1,
+  showSignatureByDefault: true,
+  showBankDetailsOnNote: true,
+  allowSelfRegistration: true,
+  commissionCalcMode: 'percentage',
+};
+
 export interface UserFullAuditData {
   user: AppUser & { pin?: string; phone?: string; isPinEnabled?: boolean };
   companies: Company[];
@@ -322,7 +350,7 @@ export const adminService = {
 
     const recentOrders = sortedOrders.slice(0, 10).map((o) => ({
       ...o,
-      companyName: (o.companyId ? companyMapById.get(Number(o.companyId)) : undefined) || '—',
+      companyName: (o.companyId ? companyMapById.get(Number(o.companyId)) : undefined) || '-',
     }));
 
     // Sort Recent Users (Recent 10 registered accounts)
@@ -831,6 +859,31 @@ export const adminService = {
         console.warn('Maintenance listener snapshot error:', error);
       }
     );
+  },
+
+  // ----------------------------------------------------
+  // GLOBAL PORTAL CONFIG (COMMON USER PORTAL DEFAULTS)
+  // ----------------------------------------------------
+  async getGlobalPortalConfig(): Promise<GlobalPortalConfig> {
+    try {
+      const docRef = doc(firestore, 'system_settings', 'global_config');
+      const snap = await getDoc(docRef);
+      if (snap.exists()) {
+        return { ...DEFAULT_PORTAL_CONFIG, ...(snap.data() as Partial<GlobalPortalConfig>) };
+      }
+    } catch (err) {
+      console.warn('Could not fetch global portal config:', err);
+    }
+    return DEFAULT_PORTAL_CONFIG;
+  },
+
+  async saveGlobalPortalConfig(config: Partial<GlobalPortalConfig>): Promise<void> {
+    const docRef = doc(firestore, 'system_settings', 'global_config');
+    await setDoc(docRef, {
+      ...config,
+      updatedAt: new Date().toISOString(),
+      updatedBy: 'Super Admin',
+    }, { merge: true });
   },
 
   // ----------------------------------------------------

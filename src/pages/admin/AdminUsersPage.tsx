@@ -17,10 +17,12 @@ import {
   Package,
   Clock,
   User as UserIcon,
+  Download,
 } from 'lucide-react';
 import { adminService, type AdminUserStats } from '../../services/adminService';
 import { formatCurrency, formatDateTime, formatDateTimeParts } from '../../utils/formatters';
 import { AdminCustomSelect } from '../../components/admin/AdminCustomSelect';
+import { exportToExcel } from '../../utils/excelExport';
 
 export const AdminUsersPage: React.FC = () => {
   const navigate = useNavigate();
@@ -80,6 +82,22 @@ export const AdminUsersPage: React.FC = () => {
     setFilteredUsers(result);
   }, [searchQuery, selectedUserEmail, users]);
 
+    const handleExportExcel = () => {
+    const exportData = filteredUsers.map((u) => ({
+      'User Name': u.name || '-',
+      'Email': u.email || '-',
+      'Phone': (u as any).phone || '-',
+      'Joined Date': u.createdAt ? formatDateTime(u.createdAt) : '-',
+      'Last Active': u.lastLoginAt ? formatDateTime(u.lastLoginAt) : '-',
+      'Companies': u.companyCount ?? 0,
+      'Parties': u.partiesCount ?? 0,
+      'Commodities': u.itemsCount ?? 0,
+      'Total Commission (₹)': Number(u.brokerage) || 0,
+      'Total Turnover (₹)': Number(u.turnover) || 0,
+    }));
+    exportToExcel(exportData, `VyaparX_Users_${new Date().toISOString().slice(0, 10)}`, 'Users');
+  };
+
   const handleRefresh = () => {
     setIsRefreshing(true);
     loadUsers();
@@ -132,6 +150,15 @@ export const AdminUsersPage: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={handleExportExcel}
+            className="w-10 h-10 rounded-2xl border border-white/80 dark:border-white/10 bg-[#F0F3F8] dark:bg-[#2B3140] text-gray-700 dark:text-gray-200 hover:text-emerald-600 dark:hover:text-emerald-400 shadow-neu-raised-sm hover:shadow-neu-raised active:shadow-neu-pressed flex items-center justify-center transition-all cursor-pointer"
+            title="Download Excel Report"
+          >
+            <Download className="w-4 h-4" />
+          </button>
+
           <button
             type="button"
             onClick={handleRefresh}
@@ -268,7 +295,7 @@ export const AdminUsersPage: React.FC = () => {
                               </div>
                             </div>
                           ) : (
-                            <span className="text-slate-400">—</span>
+                            <span className="text-slate-400">-</span>
                           )}
                         </td>
 
@@ -285,7 +312,7 @@ export const AdminUsersPage: React.FC = () => {
                               </div>
                             </div>
                           ) : (
-                            <span className="text-slate-400 text-[11px] italic">Never</span>
+                            <span className="text-slate-400 text-[11px]">-</span>
                           )}
                         </td>
 
@@ -405,7 +432,7 @@ export const AdminUsersPage: React.FC = () => {
                   <div className="p-3 rounded-2xl bg-[#F0F3F8] dark:bg-[#262B36] border border-white/80 dark:border-white/10 shadow-2xs">
                     <span className="text-[10px] text-slate-400 uppercase font-bold">Registered On</span>
                     <p className="font-bold text-slate-900 dark:text-slate-100 mt-0.5">
-                      {selectedUser.createdAt ? formatDateTime(selectedUser.createdAt) : 'N/A'}
+                      {selectedUser.createdAt ? formatDateTime(selectedUser.createdAt) : '-'}
                     </p>
                   </div>
 

@@ -16,6 +16,7 @@ import {
   Package,
   Calendar,
   User as UserIcon,
+  Download,
 } from 'lucide-react';
 import { adminService, type AdminUserStats } from '../../services/adminService';
 import { TradeSlipModal } from '../../components/admin/TradeSlipModal';
@@ -23,6 +24,7 @@ import { AdminCustomSelect } from '../../components/admin/AdminCustomSelect';
 import { GlassDatePicker } from '../../components/common/GlassDatePicker';
 import { formatCurrency, formatDate, formatReportDoNo } from '../../utils/formatters';
 import type { Company, Item, Party, SaudaOrder } from '../../types';
+import { exportToExcel } from '../../utils/excelExport';
 
 export const AdminSaudaOrdersPage: React.FC = () => {
   const [orders, setOrders] = useState<SaudaOrder[]>([]);
@@ -72,6 +74,47 @@ export const AdminSaudaOrdersPage: React.FC = () => {
   useEffect(() => {
     loadData();
   }, []);
+
+    const handleExportExcel = () => {
+    const companyLookup: Record<string | number, string> = {};
+    companies.forEach((c) => {
+      if (c.id) companyLookup[c.id] = c.name;
+    });
+
+    const exportData = filteredOrders.map((o) => {
+      const compName = (o as any).companyName || (o.companyId ? companyLookup[o.companyId] : '-') || '-';
+      return {
+        'Order ID': o.id ?? '-',
+        'DO No': o.doNo ? formatReportDoNo(o.doNo) : '-',
+        'Sauda Date': o.date ? formatDate(o.date) : '-',
+        'Financial Year': o.financialYear || '-',
+        'Company Name': compName,
+        'Broker / User': o.userEmail || '-',
+        'Commodity': o.itemName || '-',
+        'Quality': o.itemQuality || '-',
+        'Quantity': Number(o.quantity) || 0,
+        'Unit': o.unit || '-',
+        'Bill Rate (₹)': Number(o.billRate) || 0,
+        'With GST': o.withGST ? 'Yes' : 'No',
+        'GST %': Number(o.gstPercent) || 0,
+        'GST Amount (₹)': Number(o.gstAmount) || 0,
+        'Total Bill Amount (₹)': Number(o.totalBillAmount) || 0,
+        'Seller Name': o.sellerName || '-',
+        'Seller City': o.sellerCity || '-',
+        'Seller Comm. Rate': Number(o.sellerCommissionRate) || 0,
+        'Seller Commission (₹)': Number(o.sellerCommissionAmount) || 0,
+        'Buyer Name': o.buyerName || '-',
+        'Buyer City': o.buyerCity || '-',
+        'Buyer Comm. Rate': Number(o.buyerCommissionRate) || 0,
+        'Buyer Commission (₹)': Number(o.buyerCommissionAmount) || 0,
+        'Total Commission (₹)': (Number(o.sellerCommissionAmount) || 0) + (Number(o.buyerCommissionAmount) || 0),
+        'Payment Terms': o.paymentTerms || '-',
+        'Delivery Terms': o.deliveryTerms || '-',
+        'Remarks': o.remark || '-',
+      };
+    });
+    exportToExcel(exportData, `VyaparX_Sauda_Orders_${new Date().toISOString().slice(0, 10)}`, 'Sauda Orders');
+  };
 
   const handleRefresh = () => {
     setIsRefreshing(true);
@@ -362,15 +405,26 @@ export const AdminSaudaOrdersPage: React.FC = () => {
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={handleRefresh}
-          disabled={isRefreshing}
-          className="w-10 h-10 rounded-2xl border border-white/80 dark:border-white/10 bg-[#F0F3F8] dark:bg-[#2B3140] text-gray-700 dark:text-gray-200 hover:text-[#2563EB] dark:hover:text-[#60A5FA] shadow-neu-raised-sm hover:shadow-neu-raised active:shadow-neu-pressed flex items-center justify-center transition-all disabled:opacity-50 cursor-pointer"
-          title="Refresh Orders"
-        >
-          <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-blue-500' : ''}`} />
-        </button>
+        <div className="flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={handleExportExcel}
+            className="w-10 h-10 rounded-2xl border border-white/80 dark:border-white/10 bg-[#F0F3F8] dark:bg-[#2B3140] text-gray-700 dark:text-gray-200 hover:text-emerald-600 dark:hover:text-emerald-400 shadow-neu-raised-sm hover:shadow-neu-raised active:shadow-neu-pressed flex items-center justify-center transition-all cursor-pointer"
+            title="Download Excel Report"
+          >
+            <Download className="w-4 h-4" />
+          </button>
+
+          <button
+            type="button"
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="w-10 h-10 rounded-2xl border border-white/80 dark:border-white/10 bg-[#F0F3F8] dark:bg-[#2B3140] text-gray-700 dark:text-gray-200 hover:text-[#2563EB] dark:hover:text-[#60A5FA] shadow-neu-raised-sm hover:shadow-neu-raised active:shadow-neu-pressed flex items-center justify-center transition-all disabled:opacity-50 cursor-pointer"
+            title="Refresh Orders"
+          >
+            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-blue-500' : ''}`} />
+          </button>
+        </div>
       </div>
 
       {/* Summary KPI Strip */}
@@ -565,16 +619,16 @@ export const AdminSaudaOrdersPage: React.FC = () => {
 
                         {/* 2. Sauda Date */}
                         <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300 whitespace-nowrap font-medium">
-                          {o.date ? formatDate(o.date) : '—'}
+                          {o.date ? formatDate(o.date) : '-'}
                         </td>
 
                         {/* 3. Broker / User */}
                         <td className="py-3.5 px-4 max-w-[170px] truncate" title={o.userEmail}>
                           <div className="font-bold text-slate-900 dark:text-white truncate">
-                            {userInf?.name || o.userEmail?.split('@')[0] || '—'}
+                            {userInf?.name || o.userEmail?.split('@')[0] || '-'}
                           </div>
                           <div className="text-[10px] text-slate-400 font-mono truncate">
-                            {o.userEmail || '—'}
+                            {o.userEmail || '-'}
                           </div>
                         </td>
 
